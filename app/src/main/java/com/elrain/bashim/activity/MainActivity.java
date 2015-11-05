@@ -3,8 +3,6 @@ package com.elrain.bashim.activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.SearchManager;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -13,10 +11,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.SearchView;
 
 import com.elrain.bashim.R;
 import com.elrain.bashim.fragment.FavoriteFragment;
@@ -42,7 +37,8 @@ public class MainActivity extends AppCompatActivity
         mFragmentManager = getFragmentManager();
         if (null != getSupportActionBar())
             getSupportActionBar().setTitle(R.string.fragment_main);
-        getFragmentManager().beginTransaction().add(R.id.flContent, new MainFragment(), TAG_MAIN).commit();
+        if (null == savedInstanceState)
+            getFragmentManager().beginTransaction().add(R.id.flContent, new MainFragment(), TAG_MAIN).commit();
     }
 
     public void initFragmentMap() {
@@ -109,6 +105,4 @@ public class MainActivity extends AppCompatActivity
             ft.commit();
         }
     }
-
-
 }
