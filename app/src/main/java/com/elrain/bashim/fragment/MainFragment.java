@@ -3,6 +3,7 @@ package com.elrain.bashim.fragment;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -14,12 +15,17 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.Editable;
 import android.text.Html;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.SearchView;
 
 import com.elrain.bashim.BashContentProvider;
 import com.elrain.bashim.R;
@@ -29,6 +35,7 @@ import com.elrain.bashim.adapter.QuotesCursorAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.service.BashService;
 import com.elrain.bashim.util.BashPreferences;
+import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.NetworkUtil;
 import com.elrain.bashim.util.NewQuosCounter;
 
@@ -40,12 +47,17 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
         SwipeRefreshLayout.OnRefreshListener {
 
     public static final int ID_LOADER = 2203;
-    public static final String TEXT_PLAIN = "text/plain";
     private boolean isBound = false;
     private BashService mBashService;
     private QuotesCursorAdapter mQuotesCursorAdapter;
     private AlertDialog mNoInternetDialog;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     @Nullable
     @Override
@@ -69,6 +81,34 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
             mNoInternetDialog = DialogsHelper.noInternetDialog(getActivity());
             mNoInternetDialog.show();
         } else downloadRss();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_search, menu);
+        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+        searchView.setIconifiedByDefault(false);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (newText.length() < 3)
+                    return false;
+                else {
+                    Bundle b = new Bundle();
+                    b.putString(Constants.KEY_SEARCH_STRING, newText);
+                    getActivity().getLoaderManager().restartLoader(ID_LOADER, b, MainFragment.this);
+                    return true;
+                }
+            }
+        });
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     private void downloadRss() {
@@ -119,10 +159,16 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getActivity(), BashContentProvider.QUOTS_CONTENT_URI,
-                new String[]{QuotesTableHelper.ID, QuotesTableHelper.DESCRIPTION, QuotesTableHelper.TITLE,
-                        QuotesTableHelper.PUB_DATE, QuotesTableHelper.LINK, QuotesTableHelper.IS_FAVORITE},
-                null, null, null);
+        if (null == args)
+            return new CursorLoader(getActivity(), BashContentProvider.QUOTS_CONTENT_URI,
+                    new String[]{QuotesTableHelper.ID, QuotesTableHelper.DESCRIPTION, QuotesTableHelper.TITLE,
+                            QuotesTableHelper.PUB_DATE, QuotesTableHelper.LINK, QuotesTableHelper.IS_FAVORITE},
+                    null, null, null);
+        else
+            return new CursorLoader(getActivity(), BashContentProvider.QUOTS_CONTENT_URI,
+                    new String[]{QuotesTableHelper.ID, QuotesTableHelper.DESCRIPTION, QuotesTableHelper.TITLE,
+                            QuotesTableHelper.PUB_DATE, QuotesTableHelper.LINK, QuotesTableHelper.IS_FAVORITE},
+                    QuotesTableHelper.DESCRIPTION + " LIKE '%" + args.getString(Constants.KEY_SEARCH_STRING) + "%'", null, null);
     }
 
     @Override
@@ -138,7 +184,7 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-        sharingIntent.setType(TEXT_PLAIN);
+        sharingIntent.setType(Constants.TEXT_PLAIN);
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(QuotesTableHelper.getText(getActivity(), id)).toString());
         startActivity(sharingIntent);
         return true;
