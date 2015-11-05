@@ -1,14 +1,7 @@
 apply plugin: 'com.android.application'
 
+
 android {
-    signingConfigs {
-        rconfig {
-            keyAlias 'elrain'
-            keyPassword 'ValaeCQdW8'
-            storeFile file('D:/programs/android_studio/key_store/elrain.jks')
-            storePassword 'ValaeCQdW8'
-        }
-    }
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
     defaultConfig {
@@ -22,7 +15,7 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
