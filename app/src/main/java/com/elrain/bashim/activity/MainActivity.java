@@ -17,10 +17,10 @@ import com.crashlytics.android.Crashlytics;
 import com.elrain.bashim.R;
 import com.elrain.bashim.fragment.FavoriteFragment;
 import com.elrain.bashim.fragment.MainFragment;
-import com.elrain.bashim.util.Constants;
+
+import java.util.HashMap;
 
 import io.fabric.sdk.android.Fabric;
-import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {

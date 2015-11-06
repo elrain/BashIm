@@ -50,7 +50,6 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
     private QuotesCursorAdapter mQuotesCursorAdapter;
     private AlertDialog mNoInternetDialog;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private Bundle mArguments;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -97,7 +96,10 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if (newText.length() < 3)
+                if (newText.length() == 0) {
+                    getActivity().getLoaderManager().restartLoader(ID_LOADER, null, MainFragment.this);
+                    return false;
+                } else if (newText.length() < 3)
                     return false;
                 else {
                     Bundle b = new Bundle();

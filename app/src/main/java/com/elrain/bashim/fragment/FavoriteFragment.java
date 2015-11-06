@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -73,9 +74,10 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(newText.length() == 0)
+                if (newText.length() == 0) {
                     getActivity().getLoaderManager().restartLoader(ID_LOADER, null, FavoriteFragment.this);
-                if (newText.length() < 3)
+                    return false;
+                } else if (newText.length() < 3)
                     return false;
                 else {
                     Bundle b = new Bundle();
