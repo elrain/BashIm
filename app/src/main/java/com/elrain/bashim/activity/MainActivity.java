@@ -13,10 +13,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import com.crashlytics.android.Crashlytics;
 import com.elrain.bashim.R;
 import com.elrain.bashim.fragment.FavoriteFragment;
 import com.elrain.bashim.fragment.MainFragment;
+import com.elrain.bashim.util.Constants;
 
+import io.fabric.sdk.android.Fabric;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity
@@ -31,14 +34,17 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         initActionBar();
         initFragmentMap();
+        final Fabric fabric = new Fabric.Builder(this)
+                .kits(new Crashlytics())
+                .debuggable(true)
+                .build();
+        Fabric.with(fabric);
         mFragmentManager = getFragmentManager();
-        if (null != getSupportActionBar())
-            getSupportActionBar().setTitle(R.string.fragment_main);
-        if (null == savedInstanceState)
-            getFragmentManager().beginTransaction().add(R.id.flContent, new MainFragment(), TAG_MAIN).commit();
+        changeFragment(TAG_MAIN);
     }
 
     private void initFragmentMap() {

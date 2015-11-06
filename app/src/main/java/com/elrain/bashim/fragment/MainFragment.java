@@ -50,6 +50,7 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
     private QuotesCursorAdapter mQuotesCursorAdapter;
     private AlertDialog mNoInternetDialog;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private Bundle mArguments;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
