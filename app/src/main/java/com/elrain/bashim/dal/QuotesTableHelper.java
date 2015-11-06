@@ -15,7 +15,7 @@ import com.elrain.bashim.object.BashItem;
 public class QuotesTableHelper {
     public static final String TABLE = "quots";
     public static final String ID = "_id";
-    public static final String GUID = "guid";
+    private static final String GUID = "guid";
     public static final String LINK = "link";
     public static final String TITLE = "title";
     public static final String PUB_DATE = "pubDate";
@@ -45,7 +45,7 @@ public class QuotesTableHelper {
         cv.put(PUB_DATE, bashItem.getPubDate().getTime());
         cv.put(DESCRIPTION, bashItem.getDescription());
         cv.put(IS_FAVORITE, false);
-        context.getContentResolver().insert(BashContentProvider.QUOTS_CONTENT_URI, cv);
+        context.getContentResolver().insert(BashContentProvider.QUOTES_CONTENT_URI, cv);
     }
 
     public static String getText(Context context, long id) {
@@ -53,7 +53,7 @@ public class QuotesTableHelper {
         String result = null;
         try {
             cursor = context.getContentResolver().query(Uri.withAppendedPath(
-                            BashContentProvider.QUOTS_CONTENT_URI, "/" + id), new String[]{DESCRIPTION},
+                            BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION},
                     ID + " = ?", new String[]{String.valueOf(id)}, null);
             if (null != cursor && cursor.moveToNext()) {
                 result = cursor.getString(cursor.getColumnIndex(DESCRIPTION));
@@ -68,6 +68,6 @@ public class QuotesTableHelper {
     public static void makeFavorite(Context context, long id, boolean isFavorite) {
         ContentValues cv = new ContentValues();
         cv.put(IS_FAVORITE, isFavorite);
-        context.getContentResolver().update(BashContentProvider.QUOTS_CONTENT_URI, cv, ID + "=?", new String[]{String.valueOf(id)});
+        context.getContentResolver().update(BashContentProvider.QUOTES_CONTENT_URI, cv, ID + "=?", new String[]{String.valueOf(id)});
     }
 }

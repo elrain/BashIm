@@ -8,8 +8,8 @@ import android.content.SharedPreferences;
  */
 public class BashPreferences {
 
-    public static final String BASH_SHARED_PREF = "BashSharedPref";
-    public static final String KEY_FIRST_START = "firstStart";
+    private static final String BASH_SHARED_PREF = "BashSharedPref";
+    private static final String KEY_FIRST_START = "firstStart";
     private static BashPreferences mInstance;
     private static SharedPreferences mPreferences;
 
@@ -23,7 +23,7 @@ public class BashPreferences {
         return mInstance;
     }
 
-    public boolean isFirststart() {
+    public boolean isFirstStart() {
         boolean result = mPreferences.getBoolean(KEY_FIRST_START, true);
         mPreferences.edit().putBoolean(KEY_FIRST_START, false).apply();
         return result;

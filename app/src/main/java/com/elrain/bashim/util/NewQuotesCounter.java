@@ -3,15 +3,15 @@ package com.elrain.bashim.util;
 /**
  * Created by denys.husher on 04.11.2015.
  */
-public class NewQuosCounter {
+public class NewQuotesCounter {
     private int counter;
-    private static NewQuosCounter ourInstance = new NewQuosCounter();
+    private static final NewQuotesCounter ourInstance = new NewQuotesCounter();
 
-    public static NewQuosCounter getInstance() {
+    public static NewQuotesCounter getInstance() {
         return ourInstance;
     }
 
-    private NewQuosCounter() {
+    private NewQuotesCounter() {
     }
 
     public int getCounter() {

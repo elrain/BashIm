@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity
             getFragmentManager().beginTransaction().add(R.id.flContent, new MainFragment(), TAG_MAIN).commit();
     }
 
-    public void initFragmentMap() {
+    private void initFragmentMap() {
         mFragmentMap = new HashMap<>();
         mFragmentMap.put(TAG_FAVORITE, new FavoriteFragment());
         mFragmentMap.put(TAG_MAIN, new MainFragment());
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void changeFragment(@NonNull String tag) {
+    private void changeFragment(@NonNull String tag) {
         Fragment currentFragment = mFragmentManager.findFragmentById(R.id.flContent);
         Fragment newFragment = mFragmentMap.get(tag);
         if (newFragment != currentFragment) {

@@ -33,7 +33,7 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
         AdapterView.OnItemLongClickListener {
 
     private QuotesCursorAdapter mQuotesCursorAdapter;
-    public static final int ID_LOADER = 2204;
+    private static final int ID_LOADER = 2204;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,12 +91,12 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (null == args)
-            return new CursorLoader(getActivity(), BashContentProvider.QUOTS_CONTENT_URI,
+            return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
                     new String[]{QuotesTableHelper.ID, QuotesTableHelper.DESCRIPTION, QuotesTableHelper.TITLE,
                             QuotesTableHelper.PUB_DATE, QuotesTableHelper.LINK, QuotesTableHelper.IS_FAVORITE},
                     QuotesTableHelper.IS_FAVORITE + " =?", new String[]{String.valueOf(1)}, null);
         else
-            return new CursorLoader(getActivity(), BashContentProvider.QUOTS_CONTENT_URI,
+            return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
                     new String[]{QuotesTableHelper.ID, QuotesTableHelper.DESCRIPTION, QuotesTableHelper.TITLE,
                             QuotesTableHelper.PUB_DATE, QuotesTableHelper.LINK, QuotesTableHelper.IS_FAVORITE},
                     QuotesTableHelper.IS_FAVORITE + " =? AND " + QuotesTableHelper.DESCRIPTION

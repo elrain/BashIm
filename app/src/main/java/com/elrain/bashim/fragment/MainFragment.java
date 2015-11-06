@@ -15,9 +15,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.Editable;
 import android.text.Html;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,7 +35,7 @@ import com.elrain.bashim.service.BashService;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.NetworkUtil;
-import com.elrain.bashim.util.NewQuosCounter;
+import com.elrain.bashim.util.NewQuotesCounter;
 
 /**
  * Created by denys.husher on 05.11.2015.
@@ -46,7 +44,7 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
         ServiceConnection, LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemLongClickListener,
         SwipeRefreshLayout.OnRefreshListener {
 
-    public static final int ID_LOADER = 2203;
+    private static final int ID_LOADER = 2203;
     private boolean isBound = false;
     private BashService mBashService;
     private QuotesCursorAdapter mQuotesCursorAdapter;
@@ -133,10 +131,10 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
             @Override
             public void run() {
                 getLoaderManager().restartLoader(ID_LOADER, null, MainFragment.this);
-                if (!BashPreferences.getInstance(getActivity()).isFirststart()
-                        && NewQuosCounter.getInstance().getCounter() != 0)
+                if (!BashPreferences.getInstance(getActivity()).isFirstStart()
+                        && NewQuotesCounter.getInstance().getCounter() != 0)
                     NotificationHelper.showNotification(getActivity());
-                else NewQuosCounter.getInstance().setCounterTooZero();
+                else NewQuotesCounter.getInstance().setCounterTooZero();
                 mBashService.setListener(null);
                 mSwipeRefreshLayout.setRefreshing(false);
             }
@@ -160,12 +158,12 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (null == args)
-            return new CursorLoader(getActivity(), BashContentProvider.QUOTS_CONTENT_URI,
+            return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
                     new String[]{QuotesTableHelper.ID, QuotesTableHelper.DESCRIPTION, QuotesTableHelper.TITLE,
                             QuotesTableHelper.PUB_DATE, QuotesTableHelper.LINK, QuotesTableHelper.IS_FAVORITE},
                     null, null, null);
         else
-            return new CursorLoader(getActivity(), BashContentProvider.QUOTS_CONTENT_URI,
+            return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
                     new String[]{QuotesTableHelper.ID, QuotesTableHelper.DESCRIPTION, QuotesTableHelper.TITLE,
                             QuotesTableHelper.PUB_DATE, QuotesTableHelper.LINK, QuotesTableHelper.IS_FAVORITE},
                     QuotesTableHelper.DESCRIPTION + " LIKE '%" + args.getString(Constants.KEY_SEARCH_STRING) + "%'", null, null);

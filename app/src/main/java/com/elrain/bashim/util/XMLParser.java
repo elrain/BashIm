@@ -26,13 +26,13 @@ import javax.xml.parsers.SAXParserFactory;
  */
 public class XMLParser extends DefaultHandler {
 
-    public static final String TAG_ITEM = "item";
-    public static final String TAG_GUID = "guid";
-    public static final String TAG_TITLE = "title";
-    public static final String TAG_DESCRIPTION = "description";
-    public static final String TAG_PUB_DATE = "pubDate";
-    public static final String TAG_LINK = "link";
-    public static final String ENCODING = "windows-1251";
+    private static final String TAG_ITEM = "item";
+    private static final String TAG_GUID = "guid";
+    private static final String TAG_TITLE = "title";
+    private static final String TAG_DESCRIPTION = "description";
+    private static final String TAG_PUB_DATE = "pubDate";
+    private static final String TAG_LINK = "link";
+    private static final String ENCODING = "windows-1251";
     private BashItem bashItem;
     private boolean isItemOpen = false;
     private boolean isDescriptionOpen = false;
@@ -40,7 +40,7 @@ public class XMLParser extends DefaultHandler {
     private boolean isTitleOpen = false;
     private boolean isPubDateOpen = false;
     private boolean isLinkOpen = false;
-    private Context mContext;
+    private final Context mContext;
     private StringBuilder b;
 
     public XMLParser(Context mContext) {

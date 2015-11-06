@@ -10,7 +10,7 @@ import android.support.v4.app.TaskStackBuilder;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.MainActivity;
 import com.elrain.bashim.util.Constants;
-import com.elrain.bashim.util.NewQuosCounter;
+import com.elrain.bashim.util.NewQuotesCounter;
 
 /**
  * Created by denys.husher on 04.11.2015.
@@ -23,9 +23,9 @@ public class NotificationHelper {
         builder.setContentTitle(context.getString(R.string.app_name));
         builder.setAutoCancel(true);
         String notifText = context.getString(R.string.notification_text);
-        if (NewQuosCounter.getInstance().getCounter() == 1)
+        if (NewQuotesCounter.getInstance().getCounter() == 1)
             notifText = notifText.substring(0, notifText.length() - 1);
-        builder.setContentText(String.format(notifText, NewQuosCounter.getInstance().getCounter()));
+        builder.setContentText(String.format(notifText, NewQuotesCounter.getInstance().getCounter()));
         Intent intent = new Intent(context, MainActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         stackBuilder.addParentStack(MainActivity.class);
@@ -36,5 +36,6 @@ public class NotificationHelper {
         NotificationManager mNotificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(Constants.ID_NOTIFICATION, builder.build());
+        NewQuotesCounter.getInstance().setCounterTooZero();
     }
 }

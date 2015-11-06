@@ -11,7 +11,7 @@ import com.elrain.bashim.R;
  */
 public class DialogsHelper {
 
-    public static final DialogInterface.OnClickListener CLOSE_LISTENER = new DialogInterface.OnClickListener() {
+    private static final DialogInterface.OnClickListener CLOSE_LISTENER = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             dialog.dismiss();
