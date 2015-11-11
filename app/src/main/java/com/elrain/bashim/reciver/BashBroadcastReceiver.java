@@ -17,10 +17,9 @@ public class BashBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(Constants.INTENT_DOWNLOAD)
                 && NetworkUtil.isDeviceOnline(context)) {
-            Log.e("onReceive", "download");
-            Intent intent1 = new Intent(context, BashService.class);
-            intent1.putExtra(Constants.INTENT_DOWNLOAD, true);
-            context.startService(intent1);
+            Intent downloadIntent = new Intent(context, BashService.class);
+            downloadIntent.putExtra(Constants.INTENT_DOWNLOAD, true);
+            context.startService(downloadIntent);
         }
     }
 }

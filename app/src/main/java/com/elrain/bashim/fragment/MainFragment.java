@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,6 +30,8 @@ import com.elrain.bashim.activity.helper.DialogsHelper;
 import com.elrain.bashim.activity.helper.NotificationHelper;
 import com.elrain.bashim.adapter.QuotesCursorAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
+import com.elrain.bashim.fragment.helper.PostQuotListener;
+import com.elrain.bashim.fragment.helper.SearchHelper;
 import com.elrain.bashim.service.BashService;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
@@ -41,8 +42,7 @@ import com.elrain.bashim.util.NewQuotesCounter;
  * Created by denys.husher on 05.11.2015.
  */
 public class MainFragment extends Fragment implements BashService.DownloadListener,
-        ServiceConnection, LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemLongClickListener,
-        SwipeRefreshLayout.OnRefreshListener {
+        ServiceConnection, LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
 
     private static final int ID_LOADER = 2203;
     private boolean isBound = false;
@@ -73,7 +73,7 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
         mSwipeRefreshLayout.setOnRefreshListener(this);
         ListView lvItems = (ListView) view.findViewById(R.id.lvBashItems);
         lvItems.setAdapter(mQuotesCursorAdapter);
-        lvItems.setOnItemLongClickListener(this);
+        lvItems.setOnItemLongClickListener(new PostQuotListener(getActivity()));
         getLoaderManager().initLoader(ID_LOADER, null, MainFragment.this);
         if (!NetworkUtil.isDeviceOnline(getActivity())) {
             mNoInternetDialog = DialogsHelper.noInternetDialog(getActivity());
@@ -88,27 +88,7 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
         searchView.setIconifiedByDefault(false);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                if (newText.length() == 0) {
-                    getActivity().getLoaderManager().restartLoader(ID_LOADER, null, MainFragment.this);
-                    return false;
-                } else if (newText.length() < 3)
-                    return false;
-                else {
-                    Bundle b = new Bundle();
-                    b.putString(Constants.KEY_SEARCH_STRING, newText);
-                    getActivity().getLoaderManager().restartLoader(ID_LOADER, b, MainFragment.this);
-                    return true;
-                }
-            }
-        });
+        searchView.setOnQueryTextListener(new SearchHelper(getActivity(), this, ID_LOADER));
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -126,7 +106,7 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
 
     @Override
     public void onDownloadFinished() {
-        if (isBound) {
+        if (isBound && null != getActivity()) {
             getActivity().unbindService(this);
             isBound = false;
         }
@@ -180,15 +160,6 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mQuotesCursorAdapter.swapCursor(null);
-    }
-
-    @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-        sharingIntent.setType(Constants.TEXT_PLAIN);
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(QuotesTableHelper.getText(getActivity(), id)).toString());
-        startActivity(sharingIntent);
-        return true;
     }
 
     @Override

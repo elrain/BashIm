@@ -11,8 +11,15 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static final int DB_VERSION = 2;
     private static final String DB_NAME = "com_elrain_bashim.db";
+    private static DBHelper mInstance;
 
-    public DBHelper(Context context) {
+    public synchronized static DBHelper getInstance(Context context){
+        if(null == mInstance)
+            mInstance = new DBHelper(context);
+        return mInstance;
+    }
+
+    private DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
 

@@ -9,6 +9,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.elrain.bashim.activity.helper.NotificationHelper;
 import com.elrain.bashim.reciver.BashBroadcastReceiver;
@@ -25,7 +26,6 @@ import java.util.concurrent.Executors;
  */
 public class BashService extends Service {
 
-    private static final int THIRTY_MINUTES = 30 * 60 * 1000;
     private final IBinder mBinder = new LocalBinder();
     private DownloadListener mDownloadListener;
     private AlarmManager mAlarmMgr;
@@ -38,9 +38,9 @@ public class BashService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (null != intent && intent.getBooleanExtra(Constants.INTENT_DOWNLOAD, false))
+        if (null != intent && intent.getBooleanExtra(Constants.INTENT_DOWNLOAD, false)) {
             downloadXml(false);
-        else if (null == mAlarmMgr) {
+        } else if (null == mAlarmMgr) {
             PendingIntent alarmPIntent;
             mAlarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             Intent alarmIntent = new Intent(this, BashBroadcastReceiver.class);
@@ -48,10 +48,10 @@ public class BashService extends Service {
             alarmPIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
 
             mAlarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
-                    SystemClock.elapsedRealtime(), THIRTY_MINUTES, alarmPIntent);
+                    SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, alarmPIntent);
 
         }
-        return START_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
     @Nullable
@@ -86,6 +86,7 @@ public class BashService extends Service {
             else if (!BashPreferences.getInstance(getApplicationContext()).isFirstStart()
                     && NewQuotesCounter.getInstance().getCounter() != 0)
                 NotificationHelper.showNotification(getApplicationContext());
+            stopSelf();
         }
     };
 }

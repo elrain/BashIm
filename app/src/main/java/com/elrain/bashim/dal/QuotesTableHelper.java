@@ -48,15 +48,17 @@ public class QuotesTableHelper {
         context.getContentResolver().insert(BashContentProvider.QUOTES_CONTENT_URI, cv);
     }
 
-    public static String getText(Context context, long id) {
+    public static String[] getTextToShare(Context context, long id) {
         Cursor cursor = null;
-        String result = null;
+        String[] result = null;
         try {
             cursor = context.getContentResolver().query(Uri.withAppendedPath(
-                            BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION},
+                            BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION, LINK},
                     ID + " = ?", new String[]{String.valueOf(id)}, null);
             if (null != cursor && cursor.moveToNext()) {
-                result = cursor.getString(cursor.getColumnIndex(DESCRIPTION));
+                result = new String[2];
+                result[0] = cursor.getString(cursor.getColumnIndex(DESCRIPTION));
+                result[1] = cursor.getString(cursor.getColumnIndex(LINK));
                 cursor.close();
             }
         } finally {
