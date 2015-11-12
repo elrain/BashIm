@@ -28,11 +28,18 @@ public class BashService extends Service {
     private final IBinder mBinder = new LocalBinder();
     private DownloadListener mDownloadListener;
     private AlarmManager mAlarmMgr;
+    private ExecutorService executor;
 
     public interface DownloadListener {
         void onDownloadStarted();
 
         void onDownloadFinished();
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        executor = Executors.newFixedThreadPool(2);
     }
 
     @Override
@@ -72,7 +79,7 @@ public class BashService extends Service {
     public void downloadXml(boolean isDialogNeeded) {
         if (isDialogNeeded && null != mDownloadListener)
             mDownloadListener.onDownloadStarted();
-        ExecutorService executor = Executors.newFixedThreadPool(2);
+
         executor.execute(new DownloadTask(Constants.Rss.QUOTES));
         executor.execute(new DownloadTask(Constants.Rss.COMMICS));
     }

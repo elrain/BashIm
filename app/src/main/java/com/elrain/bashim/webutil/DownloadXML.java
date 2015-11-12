@@ -22,8 +22,8 @@ public class DownloadXML {
     public static void downloadFile(Context context, Constants.Rss rssType) {
         try {
             URL url;
-//            if (rssType == Constants.Rss.QUOTES) url = new URL(BuildConfig.RSS_URL);
-//            else
+            if (rssType == Constants.Rss.QUOTES) url = new URL(BuildConfig.RSS_URL);
+            else
                 url = new URL(Constants.COMMICS_RSS_URL);
             URLConnection urlConn = url.openConnection();
             InputStream is = urlConn.getInputStream();

@@ -22,8 +22,8 @@ android {
         applicationId "com.elrain.bashim"
         minSdkVersion 13
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.2"
 
         buildConfigField("String", "RSS_URL", '"http://bash.im/rss/"')
     }

@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity
             changeFragment(TAG_MAIN);
         else {
             mLastTag = savedInstanceState.getString(KEY_LAST_TAG);
-            changeFragment(mLastTag);
+            changeFragment(null == mLastTag? TAG_MAIN: mLastTag);
         }
     }
 

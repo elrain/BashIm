@@ -85,9 +85,9 @@ public class BashContentProvider extends ContentProvider {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         long rowId = db.insert(QuotesTableHelper.TABLE, null, values);
         if (rowId != -1)
-            if (null == values.getAsString(QuotesTableHelper.AUTHOR))
+            if (null == values.getAsString(QuotesTableHelper.AUTHOR)
+                    || "".equals(values.getAsString(QuotesTableHelper.AUTHOR)))
                 CounterOfNewItems.getInstance().addQuotes();
-            else CounterOfNewItems.getInstance().addComics();
         Uri resultUri = ContentUris.withAppendedId(uri, rowId);
         if (null != getContext() && null != getContext().getContentResolver())
             getContext().getContentResolver().notifyChange(resultUri, null);

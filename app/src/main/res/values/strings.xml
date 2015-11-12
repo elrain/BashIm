@@ -22,5 +22,5 @@
 
     <string name="dialog_btn_text_ok">OK</string>
 
-    <string name="notification_text_all" formatted="false">"You have %d new quotes and %d new comics"</string>
+    <string name="notification_text_all" formatted="false">"You have %d new quotes"</string>
 </resources>

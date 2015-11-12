@@ -23,7 +23,7 @@ public class NotificationHelper {
         builder.setContentTitle(context.getString(R.string.app_name));
         builder.setAutoCancel(true);
         builder.setContentText(String.format(context.getString(R.string.notification_text_all),
-                CounterOfNewItems.getInstance().getQuotesCounter(), CounterOfNewItems.getInstance().getComicsCounter()));
+                CounterOfNewItems.getInstance().getQuotesCounter()));
         Intent intent = new Intent(context, MainActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         stackBuilder.addParentStack(MainActivity.class);

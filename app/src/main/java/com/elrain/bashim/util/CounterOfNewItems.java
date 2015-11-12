@@ -5,7 +5,6 @@ package com.elrain.bashim.util;
  */
 public class CounterOfNewItems {
     private int quotesCounter;
-    private int comicsCounter;
     private static final CounterOfNewItems ourInstance = new CounterOfNewItems();
 
     public static CounterOfNewItems getInstance() {
@@ -19,20 +18,11 @@ public class CounterOfNewItems {
         return quotesCounter;
     }
 
-    public int getComicsCounter() {
-        return comicsCounter;
-    }
-
     public void addQuotes() {
         ++quotesCounter;
     }
 
-    public void addComics() {
-        ++comicsCounter;
-    }
-
     public void setCounterTooZero() {
         quotesCounter = 0;
-        comicsCounter = 0;
     }
 }
