@@ -20,7 +20,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
 
@@ -28,15 +27,15 @@ import com.elrain.bashim.BashContentProvider;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.helper.DialogsHelper;
 import com.elrain.bashim.activity.helper.NotificationHelper;
-import com.elrain.bashim.adapter.QuotesCursorAdapter;
+import com.elrain.bashim.adapter.CommonCursorAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.fragment.helper.PostQuotListener;
 import com.elrain.bashim.fragment.helper.SearchHelper;
 import com.elrain.bashim.service.BashService;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
+import com.elrain.bashim.util.CounterOfNewItems;
 import com.elrain.bashim.util.NetworkUtil;
-import com.elrain.bashim.util.NewQuotesCounter;
 
 /**
  * Created by denys.husher on 05.11.2015.
@@ -47,7 +46,7 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
     private static final int ID_LOADER = 2203;
     private boolean isBound = false;
     private BashService mBashService;
-    private QuotesCursorAdapter mQuotesCursorAdapter;
+    private CommonCursorAdapter mQuotesCursorAdapter;
     private AlertDialog mNoInternetDialog;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -68,7 +67,7 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
         super.onViewCreated(view, savedInstanceState);
 
         getActivity().startService(new Intent(getActivity(), BashService.class));
-        mQuotesCursorAdapter = new QuotesCursorAdapter(getActivity(), null);
+        mQuotesCursorAdapter = new CommonCursorAdapter(getActivity(), null);
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.srLayout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
         ListView lvItems = (ListView) view.findViewById(R.id.lvBashItems);
@@ -86,9 +85,11 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
         inflater.inflate(R.menu.menu_search, menu);
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
-        searchView.setIconifiedByDefault(false);
-        searchView.setOnQueryTextListener(new SearchHelper(getActivity(), this, ID_LOADER));
+        if (null != searchView) {
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+            searchView.setIconifiedByDefault(false);
+            searchView.setOnQueryTextListener(new SearchHelper(getActivity(), this, ID_LOADER));
+        }
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -105,23 +106,33 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        if(isBound){
+            getActivity().unbindService(this);
+            isBound = false;
+        }
+    }
+
+    @Override
     public void onDownloadFinished() {
         if (isBound && null != getActivity()) {
             getActivity().unbindService(this);
             isBound = false;
         }
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                getLoaderManager().restartLoader(ID_LOADER, null, MainFragment.this);
-                if (!BashPreferences.getInstance(getActivity()).isFirstStart()
-                        && NewQuotesCounter.getInstance().getCounter() != 0)
-                    NotificationHelper.showNotification(getActivity());
-                else NewQuotesCounter.getInstance().setCounterTooZero();
-                mBashService.setListener(null);
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-        });
+        if (null != getActivity())
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getLoaderManager().restartLoader(ID_LOADER, null, MainFragment.this);
+                    if (!BashPreferences.getInstance(getActivity()).isFirstStart()
+                            && CounterOfNewItems.getInstance().getQuotesCounter() != 0)
+                        NotificationHelper.showNotification(getActivity());
+                    else CounterOfNewItems.getInstance().setCounterTooZero();
+                    mBashService.setListener(null);
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
+            });
     }
 
     @Override
@@ -140,16 +151,19 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
         if (null == args)
             return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
                     new String[]{QuotesTableHelper.ID, QuotesTableHelper.DESCRIPTION, QuotesTableHelper.TITLE,
-                            QuotesTableHelper.PUB_DATE, QuotesTableHelper.LINK, QuotesTableHelper.IS_FAVORITE},
-                    null, null, null);
+                            QuotesTableHelper.PUB_DATE, QuotesTableHelper.LINK, QuotesTableHelper.IS_FAVORITE,
+                            QuotesTableHelper.AUTHOR}, QuotesTableHelper.AUTHOR + " IS NULL ", null, null);
         else
             return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
                     new String[]{QuotesTableHelper.ID, QuotesTableHelper.DESCRIPTION, QuotesTableHelper.TITLE,
-                            QuotesTableHelper.PUB_DATE, QuotesTableHelper.LINK, QuotesTableHelper.IS_FAVORITE},
-                    QuotesTableHelper.DESCRIPTION + " LIKE '%" + args.getString(Constants.KEY_SEARCH_STRING) + "%'", null, null);
+                            QuotesTableHelper.PUB_DATE, QuotesTableHelper.LINK, QuotesTableHelper.IS_FAVORITE,
+                            QuotesTableHelper.AUTHOR},
+                    QuotesTableHelper.DESCRIPTION + " LIKE '%" + args.getString(Constants.KEY_SEARCH_STRING) + "%' AND "
+                    + QuotesTableHelper.AUTHOR + " IS NULL ", null, null);
     }
 
     @Override

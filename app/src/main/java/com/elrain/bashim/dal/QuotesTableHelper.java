@@ -21,12 +21,13 @@ public class QuotesTableHelper {
     public static final String PUB_DATE = "pubDate";
     public static final String DESCRIPTION = "description";
     public static final String IS_FAVORITE = "isFavorite";
+    public static final String AUTHOR = "author";
 
-    private static final String CREATE_TABLE = "CREATE TABLE " + TABLE + "( "
+    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE + "( "
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + GUID + " CHAR(65) NOT NULL, "
             + LINK + " TEXT NOT NULL, " + TITLE + " VARCHAR(50) NOT NULL, "
             + PUB_DATE + " DATE NOT NULL, " + DESCRIPTION + " TEXT NOT NULL, "
-            + IS_FAVORITE + " BOOLEAN, " +
+            + IS_FAVORITE + " BOOLEAN, " + AUTHOR + " CHAR(50), " +
             "UNIQUE(" + GUID + ") ON CONFLICT IGNORE)";
 
     public static void createTable(SQLiteDatabase db) {
@@ -37,6 +38,10 @@ public class QuotesTableHelper {
         db.execSQL("ALTER TABLE " + TABLE + " ADD COLUMN " + IS_FAVORITE + " BOOLEAN ");
     }
 
+    public static void from2To3(SQLiteDatabase db) {
+        db.execSQL("ALTER TABLE " + TABLE + " ADD COLUMN " + AUTHOR + " CHAR(50) ");
+    }
+
     public static void inputQuot(Context context, BashItem bashItem) {
         ContentValues cv = new ContentValues();
         cv.put(GUID, bashItem.getGuid());
@@ -45,6 +50,7 @@ public class QuotesTableHelper {
         cv.put(PUB_DATE, bashItem.getPubDate().getTime());
         cv.put(DESCRIPTION, bashItem.getDescription());
         cv.put(IS_FAVORITE, false);
+        cv.put(AUTHOR, bashItem.getAuthor());
         context.getContentResolver().insert(BashContentProvider.QUOTES_CONTENT_URI, cv);
     }
 

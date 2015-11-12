@@ -9,13 +9,12 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.elrain.bashim.activity.helper.NotificationHelper;
 import com.elrain.bashim.reciver.BashBroadcastReceiver;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
-import com.elrain.bashim.util.NewQuotesCounter;
+import com.elrain.bashim.util.CounterOfNewItems;
 import com.elrain.bashim.webutil.DownloadXML;
 
 import java.util.concurrent.ExecutorService;
@@ -73,20 +72,28 @@ public class BashService extends Service {
     public void downloadXml(boolean isDialogNeeded) {
         if (isDialogNeeded && null != mDownloadListener)
             mDownloadListener.onDownloadStarted();
-        ExecutorService executor = Executors.newFixedThreadPool(1);
-        executor.execute(r);
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        executor.execute(new DownloadTask(Constants.Rss.QUOTES));
+        executor.execute(new DownloadTask(Constants.Rss.COMMICS));
     }
 
-    private final Runnable r = new Runnable() {
+    private class DownloadTask implements Runnable{
+
+        private Constants.Rss rssType;
+
+        public DownloadTask(Constants.Rss rssType) {
+            this.rssType = rssType;
+        }
+
         @Override
         public void run() {
-            DownloadXML.downloadFile(getApplicationContext());
+            DownloadXML.downloadFile(getApplicationContext(), rssType);
             if (null != mDownloadListener)
                 mDownloadListener.onDownloadFinished();
             else if (!BashPreferences.getInstance(getApplicationContext()).isFirstStart()
-                    && NewQuotesCounter.getInstance().getCounter() != 0)
+                    && CounterOfNewItems.getInstance().getQuotesCounter() != 0)
                 NotificationHelper.showNotification(getApplicationContext());
             stopSelf();
         }
-    };
+    }
 }

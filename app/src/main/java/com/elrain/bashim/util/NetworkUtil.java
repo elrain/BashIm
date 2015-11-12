@@ -3,6 +3,7 @@ package com.elrain.bashim.util;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.annotation.NonNull;
 
 /**
  * Created by denys.husher on 03.11.2015.
@@ -15,7 +16,7 @@ public class NetworkUtil {
      * @return <code>true</code> if enabled.
      */
 
-    public static boolean isDeviceOnline(Context context) {
+    public static boolean isDeviceOnline(@NonNull Context context) {
         boolean status = false;
         try {
             ConnectivityManager cv = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

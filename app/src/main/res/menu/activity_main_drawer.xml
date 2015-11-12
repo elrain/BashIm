@@ -12,6 +12,11 @@
             android:id="@+id/aFavorite"
             android:icon="@android:drawable/star_big_on"
             android:title="@string/action_favorite" />
+
+        <item
+            android:id="@+id/aComics"
+            android:icon="@android:drawable/button_onoff_indicator_on"
+            android:title="@string/action_comics" />
     </group>
 
 </menu>

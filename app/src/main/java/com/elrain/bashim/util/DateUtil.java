@@ -10,6 +10,7 @@ import java.util.Date;
  */
 public class DateUtil {
     public static Date parseDateFromXml(String dateString) {
+        if (null == dateString) return new Date();
         SimpleDateFormat f = new SimpleDateFormat("EEE, dd MMM yyyy H:mm:ss");
         Date d = new Date();
         try {
@@ -21,7 +22,7 @@ public class DateUtil {
     }
 
     public static String getItemPubDate(Date date) {
-
+        if (null == date) return null;
         Calendar c = Calendar.getInstance();
         c.setTime(date);
         int hours = date.getHours();

@@ -2,6 +2,7 @@ package com.elrain.bashim.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 
 /**
  * Created by denys.husher on 04.11.2015.
@@ -17,7 +18,7 @@ public class BashPreferences {
         mPreferences = context.getSharedPreferences(BASH_SHARED_PREF, Context.MODE_PRIVATE);
     }
 
-    public static BashPreferences getInstance(Context context) {
+    public static BashPreferences getInstance(@NonNull Context context) {
         if (null == mInstance)
             mInstance = new BashPreferences(context);
         return mInstance;
