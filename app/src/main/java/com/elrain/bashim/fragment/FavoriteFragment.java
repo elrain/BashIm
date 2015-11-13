@@ -31,7 +31,6 @@ import com.elrain.bashim.util.Constants;
 public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private CommonCursorAdapter mQuotesCursorAdapter;
-    private static final int ID_LOADER = 2204;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -42,7 +41,7 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.favorite_fragment, container, false);
+        return inflater.inflate(R.layout.favorite_comics_fragment, container, false);
     }
 
     @Override
@@ -52,7 +51,7 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
         ListView lvItems = (ListView) view.findViewById(R.id.lvBashItems);
         lvItems.setAdapter(mQuotesCursorAdapter);
         lvItems.setOnItemLongClickListener(new PostQuotListener(getActivity()));
-        getLoaderManager().initLoader(ID_LOADER, null, FavoriteFragment.this);
+        getLoaderManager().initLoader(Constants.ID_LOADER, null, FavoriteFragment.this);
     }
 
 
@@ -63,7 +62,7 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
         searchView.setIconifiedByDefault(false);
-        searchView.setOnQueryTextListener(new SearchHelper(getActivity(), this, ID_LOADER));
+        searchView.setOnQueryTextListener(new SearchHelper(getActivity(), this, Constants.ID_LOADER));
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -71,18 +70,13 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (null == args)
             return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
-                    new String[]{QuotesTableHelper.ID, QuotesTableHelper.DESCRIPTION, QuotesTableHelper.TITLE,
-                            QuotesTableHelper.PUB_DATE, QuotesTableHelper.LINK, QuotesTableHelper.IS_FAVORITE,
-                            QuotesTableHelper.AUTHOR},
-                    QuotesTableHelper.IS_FAVORITE + " =? "
-                    , new String[]{String.valueOf(1)}, null);
+                    QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.IS_FAVORITE + " =? ",
+                    new String[]{String.valueOf(1)}, null);
         else
             return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
-                    new String[]{QuotesTableHelper.ID, QuotesTableHelper.DESCRIPTION, QuotesTableHelper.TITLE,
-                            QuotesTableHelper.PUB_DATE, QuotesTableHelper.LINK, QuotesTableHelper.IS_FAVORITE,
-                            QuotesTableHelper.AUTHOR},
-                    QuotesTableHelper.IS_FAVORITE + " =? AND " + QuotesTableHelper.DESCRIPTION
-                            + " LIKE '%" + args.getString(Constants.KEY_SEARCH_STRING) + "%' ", new String[]{String.valueOf(1)}, null);
+                    QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.IS_FAVORITE + " =? AND " +
+                    QuotesTableHelper.DESCRIPTION + " LIKE '%" + args.getString(Constants.KEY_SEARCH_STRING) +
+                    "%' ", new String[]{String.valueOf(1)}, null);
     }
 
     @Override

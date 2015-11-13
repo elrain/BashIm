@@ -22,7 +22,8 @@ public class NotificationHelper {
         builder.setSmallIcon(R.mipmap.ic_launcher);
         builder.setContentTitle(context.getString(R.string.app_name));
         builder.setAutoCancel(true);
-        builder.setContentText(String.format(context.getString(R.string.notification_text_all),
+        builder.setContentText(context.getResources().getQuantityString(R.plurals.notification_text,
+                CounterOfNewItems.getInstance().getQuotesCounter(),
                 CounterOfNewItems.getInstance().getQuotesCounter()));
         Intent intent = new Intent(context, MainActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);

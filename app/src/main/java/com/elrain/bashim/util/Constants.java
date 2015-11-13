@@ -1,5 +1,7 @@
 package com.elrain.bashim.util;
 
+import com.elrain.bashim.dal.QuotesTableHelper;
+
 /**
  * Created by denys.husher on 04.11.2015.
  */
@@ -9,6 +11,7 @@ public class Constants {
     public static final int ID_NOTIFICATION = 2203;
     public static final String KEY_SEARCH_STRING = "searchString";
     public static final String TEXT_PLAIN = "text/plain";
+    public static final int ID_LOADER = 2204;
 
     public static final String COMMICS_RSS_URL = "http://bash.im/rss/comics.xml";
 

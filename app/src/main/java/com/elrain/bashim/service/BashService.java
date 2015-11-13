@@ -86,7 +86,7 @@ public class BashService extends Service {
 
     private class DownloadTask implements Runnable{
 
-        private Constants.Rss rssType;
+        private final Constants.Rss rssType;
 
         public DownloadTask(Constants.Rss rssType) {
             this.rssType = rssType;

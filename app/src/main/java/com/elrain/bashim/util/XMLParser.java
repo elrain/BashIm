@@ -34,7 +34,7 @@ public class XMLParser extends DefaultHandler {
     private static final String TAG_LINK = "link";
     private static final String TAG_AUTHOR = "author";
     private static final String ENCODING = "windows-1251";
-    public static final String HTTP = "http";
+    private static final String HTTP = "http";
     private BashItem bashItem;
     private boolean isItemOpen = false;
     private boolean isDescriptionOpen = false;
@@ -45,7 +45,7 @@ public class XMLParser extends DefaultHandler {
     private boolean isAuthorOpen = false;
     private final Context mContext;
     private StringBuilder mStringBuilder;
-    private Constants.Rss mRssType;
+    private final Constants.Rss mRssType;
 
     public XMLParser(Context mContext, Constants.Rss rssType) {
         this.mContext = mContext;

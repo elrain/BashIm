@@ -16,8 +16,8 @@ import com.elrain.bashim.util.Constants;
  */
 public class PostQuotListener implements AdapterView.OnItemLongClickListener {
 
-    private Context mContext;
-    private String quotFormat = "%s <br/> %s";
+    private final Context mContext;
+    private static final String SHARE_FORMATTER = "%s <br/> %s";
 
     public PostQuotListener(Context mContext) {
         this.mContext = mContext;
@@ -28,7 +28,7 @@ public class PostQuotListener implements AdapterView.OnItemLongClickListener {
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         sharingIntent.setType(Constants.TEXT_PLAIN);
         String[] textToShare = QuotesTableHelper.getTextToShare(mContext, id);
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(String.format(quotFormat, textToShare[0], textToShare[1])).toString());
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(String.format(SHARE_FORMATTER, textToShare[0], textToShare[1])).toString());
         mContext.startActivity(sharingIntent);
         Answers.getInstance().logShare(new ShareEvent());
         return true;

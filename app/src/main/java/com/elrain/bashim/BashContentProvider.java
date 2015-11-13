@@ -42,7 +42,8 @@ public class BashContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        mDbHelper = DBHelper.getInstance(getContext());
+        if (null != getContext())
+            mDbHelper = DBHelper.getInstance(getContext());
         return true;
     }
 

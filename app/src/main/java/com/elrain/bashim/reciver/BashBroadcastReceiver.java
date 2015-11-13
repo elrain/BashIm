@@ -3,7 +3,6 @@ package com.elrain.bashim.reciver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import com.elrain.bashim.service.BashService;
 import com.elrain.bashim.util.Constants;

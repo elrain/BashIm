@@ -13,9 +13,9 @@ import com.elrain.bashim.util.Constants;
  */
 public class SearchHelper implements SearchView.OnQueryTextListener {
 
-    private Activity mActivity;
-    private LoaderManager.LoaderCallbacks<Cursor> mClazz;
-    private int mLoaderId;
+    private final Activity mActivity;
+    private final LoaderManager.LoaderCallbacks<Cursor> mClazz;
+    private final int mLoaderId;
 
     public SearchHelper(Activity activity, LoaderManager.LoaderCallbacks<Cursor> clazz, int loaderId) {
         this.mActivity = activity;

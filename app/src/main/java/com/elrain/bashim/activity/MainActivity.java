@@ -4,7 +4,6 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -19,6 +18,7 @@ import com.elrain.bashim.R;
 import com.elrain.bashim.fragment.CommicsFragment;
 import com.elrain.bashim.fragment.FavoriteFragment;
 import com.elrain.bashim.fragment.MainFragment;
+import com.elrain.bashim.util.BashPreferences;
 
 import java.util.HashMap;
 
@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG_FAVORITE = "favorite";
     private static final String TAG_MAIN = "main";
     private static final String TAG_COMICS = "comics";
-    public static final String KEY_LAST_TAG = "lastTag";
 
     private String mLastTag;
     private HashMap<String, Fragment> mFragmentMap;
@@ -43,24 +42,34 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         initActionBar();
         initFragmentMap();
-        final Fabric fabric = new Fabric.Builder(this)
-                .kits(new Crashlytics())
-                .debuggable(true)
-                .build();
+        final Fabric fabric = new Fabric.Builder(this).kits(new Crashlytics()).debuggable(true).build();
         Fabric.with(fabric);
         mFragmentManager = getFragmentManager();
-        if (null == savedInstanceState)
-            changeFragment(TAG_MAIN);
-        else {
-            mLastTag = savedInstanceState.getString(KEY_LAST_TAG);
-            changeFragment(null == mLastTag? TAG_MAIN: mLastTag);
-        }
+        mLastTag = BashPreferences.getInstance(this).getLastTag();
+        changeFragment(null == mLastTag ? TAG_MAIN : mLastTag);
+        setActionBarTitle();
+    }
+
+    private void setActionBarTitle() {
+        if (null != getSupportActionBar())
+            switch (mLastTag) {
+                case TAG_COMICS:
+                    getSupportActionBar().setTitle(R.string.fragment_comics);
+                    break;
+                case TAG_FAVORITE:
+                    getSupportActionBar().setTitle(R.string.fragment_favorite);
+                    break;
+                case TAG_MAIN:
+                default:
+                    getSupportActionBar().setTitle(R.string.fragment_main);
+                    break;
+            }
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-        outState.putString(KEY_LAST_TAG, mLastTag);
+    protected void onStop() {
+        super.onStop();
+        BashPreferences.getInstance(this).setLastTag(mLastTag);
     }
 
     private void initFragmentMap() {
@@ -75,8 +84,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -122,14 +131,11 @@ public class MainActivity extends AppCompatActivity
         if (newFragment != currentFragment) {
             FragmentTransaction ft = mFragmentManager.beginTransaction();
             if (null != newFragment) {
-                if (null != currentFragment)
-                    ft.detach(currentFragment);
+                if (null != currentFragment) ft.detach(currentFragment);
                 if (null == mFragmentManager.findFragmentByTag(tag))
                     ft.add(R.id.flContent, newFragment, tag);
-                else
-                    ft.attach(mFragmentManager.findFragmentByTag(tag));
+                else ft.attach(mFragmentManager.findFragmentByTag(tag));
             }
-            ft.addToBackStack(tag);
             ft.commit();
             mLastTag = tag;
         }

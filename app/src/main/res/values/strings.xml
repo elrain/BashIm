@@ -16,11 +16,14 @@
     <string name="fragment_favorite">Favorites</string>
     <string name="fragment_comics">Comics</string>
 
-    <string name="dialog_title_nointernet">No Internet</string>
+    <string name="dialog_title_no_internet">No Internet</string>
 
-    <string name="dialog_text_nointernet">Check your connection to the Internet and tap sync button on top bar.</string>
+    <string name="dialog_text_no_internet">Check your connection to the Internet and tap sync button on top bar.</string>
 
     <string name="dialog_btn_text_ok">OK</string>
 
-    <string name="notification_text_all" formatted="false">"You have %d new quotes"</string>
+    <plurals name="notification_text">
+        <item quantity="one">You have %d new quot</item>
+        <item quantity="other">You have %d new quotes</item>
+    </plurals>
 </resources>

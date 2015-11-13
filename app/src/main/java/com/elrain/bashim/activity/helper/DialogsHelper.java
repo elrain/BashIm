@@ -20,8 +20,8 @@ public class DialogsHelper {
 
     public static AlertDialog noInternetDialog(Context context){
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(R.string.dialog_title_nointernet);
-        builder.setMessage(R.string.dialog_text_nointernet);
+        builder.setTitle(R.string.dialog_title_no_internet);
+        builder.setMessage(R.string.dialog_text_no_internet);
         builder.setPositiveButton(R.string.dialog_btn_text_ok, CLOSE_LISTENER);
         return builder.create();
     }

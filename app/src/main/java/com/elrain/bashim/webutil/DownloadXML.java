@@ -23,8 +23,7 @@ public class DownloadXML {
         try {
             URL url;
             if (rssType == Constants.Rss.QUOTES) url = new URL(BuildConfig.RSS_URL);
-            else
-                url = new URL(Constants.COMMICS_RSS_URL);
+            else url = new URL(Constants.COMMICS_RSS_URL);
             URLConnection urlConn = url.openConnection();
             InputStream is = urlConn.getInputStream();
             XMLParser xmlParser = new XMLParser(context, rssType);

@@ -11,6 +11,7 @@ public class BashPreferences {
 
     private static final String BASH_SHARED_PREF = "BashSharedPref";
     private static final String KEY_FIRST_START = "firstStart";
+    private static final String KEY_LAST_TAG = "lastTag";
     private static BashPreferences mInstance;
     private static SharedPreferences mPreferences;
 
@@ -19,8 +20,7 @@ public class BashPreferences {
     }
 
     public static BashPreferences getInstance(@NonNull Context context) {
-        if (null == mInstance)
-            mInstance = new BashPreferences(context);
+        if (null == mInstance) mInstance = new BashPreferences(context);
         return mInstance;
     }
 
@@ -28,6 +28,14 @@ public class BashPreferences {
         boolean result = mPreferences.getBoolean(KEY_FIRST_START, true);
         mPreferences.edit().putBoolean(KEY_FIRST_START, false).apply();
         return result;
+    }
+
+    public void setLastTag(String lastTag){
+        mPreferences.edit().putString(KEY_LAST_TAG, lastTag).apply();
+    }
+
+    public String getLastTag(){
+        return mPreferences.getString(KEY_LAST_TAG, null);
     }
 
 }
