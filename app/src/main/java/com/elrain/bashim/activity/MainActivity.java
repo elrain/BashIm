@@ -19,6 +19,7 @@ import com.elrain.bashim.fragment.CommicsFragment;
 import com.elrain.bashim.fragment.FavoriteFragment;
 import com.elrain.bashim.fragment.MainFragment;
 import com.elrain.bashim.util.BashPreferences;
+import com.elrain.bashim.util.Constants;
 
 import java.util.HashMap;
 
@@ -45,8 +46,13 @@ public class MainActivity extends AppCompatActivity
         final Fabric fabric = new Fabric.Builder(this).kits(new Crashlytics()).debuggable(true).build();
         Fabric.with(fabric);
         mFragmentManager = getFragmentManager();
-        mLastTag = BashPreferences.getInstance(this).getLastTag();
-        changeFragment(null == mLastTag ? TAG_MAIN : mLastTag);
+        if (null != savedInstanceState && savedInstanceState.getBoolean(Constants.KEY_OPEN_MAIN_ACTIVITY)) {
+            changeFragment(TAG_MAIN);
+            mLastTag = TAG_MAIN;
+        } else {
+            mLastTag = BashPreferences.getInstance(this).getLastTag();
+            changeFragment(null == mLastTag ? TAG_MAIN : mLastTag);
+        }
         setActionBarTitle();
     }
 

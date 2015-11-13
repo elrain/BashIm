@@ -19,7 +19,15 @@ import javax.xml.parsers.ParserConfigurationException;
  * Created by denys.husher on 03.11.2015.
  */
 public class DownloadXML {
-    public static void downloadFile(Context context, Constants.Rss rssType) {
+    /**
+     * Creates a new <code>URL</code> instance by parsing specific url. Open a new connection to the
+     * resource referred to by this url. Get an <code>InputStream</code> for reading data from the
+     * resource pointed by this URLConnection and start parsing this stream.
+     * @param context application context
+     * @param rssType type what kind of rss is need to be parsed.
+     * @see com.elrain.bashim.util.Constants.Rss
+     */
+    public static void getStreamAndParse(Context context, Constants.Rss rssType) {
         try {
             URL url;
             if (rssType == Constants.Rss.QUOTES) url = new URL(BuildConfig.RSS_URL);

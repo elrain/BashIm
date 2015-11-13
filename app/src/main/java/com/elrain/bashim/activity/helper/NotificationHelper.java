@@ -26,6 +26,7 @@ public class NotificationHelper {
                 CounterOfNewItems.getInstance().getQuotesCounter(),
                 CounterOfNewItems.getInstance().getQuotesCounter()));
         Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(Constants.KEY_OPEN_MAIN_ACTIVITY, true);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         stackBuilder.addParentStack(MainActivity.class);
         stackBuilder.addNextIntent(intent);

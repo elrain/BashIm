@@ -94,7 +94,7 @@ public class BashService extends Service {
 
         @Override
         public void run() {
-            DownloadXML.downloadFile(getApplicationContext(), rssType);
+            DownloadXML.getStreamAndParse(getApplicationContext(), rssType);
             if (null != mDownloadListener)
                 mDownloadListener.onDownloadFinished();
             else if (!BashPreferences.getInstance(getApplicationContext()).isFirstStart()

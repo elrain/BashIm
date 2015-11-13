@@ -13,7 +13,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.elrain.bashim.R;
+import com.elrain.bashim.activity.ImageScaleActivity;
 import com.elrain.bashim.dal.QuotesTableHelper;
+import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.DateUtil;
 import com.squareup.picasso.Picasso;
 
@@ -23,20 +25,21 @@ import java.util.Date;
  * Created by denys.husher on 12.11.2015.
  */
 public class CommonCursorAdapter extends CursorAdapter {
+
     public CommonCursorAdapter(Context context, Cursor c) {
         super(context, c, FLAG_REGISTER_CONTENT_OBSERVER);
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View v = LayoutInflater.from(context).inflate(R.layout.list_item_view, parent,false);
+        View v = LayoutInflater.from(context).inflate(R.layout.list_item_view, parent, false);
         ViewHolder.initViews(v);
         return v;
     }
 
     @Override
     public void bindView(View view, final Context context, Cursor cursor) {
-        ViewHolder holder = (ViewHolder) view.getTag();
+        final ViewHolder holder = (ViewHolder) view.getTag();
         final boolean isFavorite = cursor.getInt(cursor.getColumnIndex(QuotesTableHelper.IS_FAVORITE)) == 1;
         final long id = cursor.getLong(cursor.getColumnIndex(QuotesTableHelper.ID));
         holder.tvPubDate.setText(DateUtil.getItemPubDate(new Date(cursor.getLong(cursor.getColumnIndex(QuotesTableHelper.PUB_DATE)))));
@@ -51,12 +54,21 @@ public class CommonCursorAdapter extends CursorAdapter {
             }
         });
 
-        if(null != cursor.getString(cursor.getColumnIndex(QuotesTableHelper.AUTHOR))){
+        if (null != cursor.getString(cursor.getColumnIndex(QuotesTableHelper.AUTHOR))) {
             holder.tvText.setVisibility(View.GONE);
             holder.ivComics.setVisibility(View.VISIBLE);
-            Picasso.with(context).load(cursor.getString(cursor.getColumnIndex(QuotesTableHelper.DESCRIPTION))).into(holder.ivComics);
+            final String url =  cursor.getString(cursor.getColumnIndex(QuotesTableHelper.DESCRIPTION));
+            holder.ivComics.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, ImageScaleActivity.class);
+                    intent.putExtra(Constants.KEY_INTENT_IMAGE_URL, url);
+                    context.startActivity(intent);
+                }
+            });
+            Picasso.with(context).load(url).into(holder.ivComics);
             holder.tvTitle.setText(cursor.getString(cursor.getColumnIndex(QuotesTableHelper.AUTHOR)));
-        } else{
+        } else {
             holder.tvText.setVisibility(View.VISIBLE);
             holder.ivComics.setVisibility(View.GONE);
             holder.tvText.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(QuotesTableHelper.DESCRIPTION))));
@@ -71,12 +83,6 @@ public class CommonCursorAdapter extends CursorAdapter {
             });
         }
     }
-
-    @Override
-    public int getViewTypeCount() {
-        return 2;
-    }
-
 
     private static class ViewHolder {
         ImageView ivComics;

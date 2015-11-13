@@ -33,8 +33,7 @@ public class SearchHelper implements SearchView.OnQueryTextListener {
         if (newText.length() == 0) {
             mActivity.getLoaderManager().restartLoader(mLoaderId, null, mClazz);
             return false;
-        } else if (newText.length() < 3)
-            return false;
+        } else if (newText.length() < 3) return false;
         else {
             Bundle b = new Bundle();
             b.putString(Constants.KEY_SEARCH_STRING, newText);

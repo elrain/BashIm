@@ -10,7 +10,7 @@ import android.support.annotation.NonNull;
  */
 public class NetworkUtil {
     /**
-     * Check does WI-FI or mobile network enabled.
+     * Check does WI-FI or mobile network enabled and connected.
      *
      * @param context application context
      * @return <code>true</code> if enabled.

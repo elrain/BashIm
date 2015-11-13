@@ -53,6 +53,13 @@ public class XMLParser extends DefaultHandler {
         mStringBuilder = new StringBuilder();
     }
 
+    /**
+     * Launch XML parse process of <code>InputStream</code> object
+     * @param in <code>InputStream</code> object with XML
+     * @throws ParserConfigurationException
+     * @throws SAXException Any SAX exception, possibly wrapping another exception.
+     * @throws IOException
+     */
     public void parseXml(InputStream in) throws ParserConfigurationException, SAXException, IOException {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
