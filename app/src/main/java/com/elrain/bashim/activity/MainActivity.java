@@ -43,8 +43,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         initActionBar();
         initFragmentMap();
-        final Fabric fabric = new Fabric.Builder(this).kits(new Crashlytics()).debuggable(true).build();
-        Fabric.with(fabric);
         mFragmentManager = getFragmentManager();
         if (null != savedInstanceState && savedInstanceState.getBoolean(Constants.KEY_OPEN_MAIN_ACTIVITY)) {
             changeFragment(TAG_MAIN);

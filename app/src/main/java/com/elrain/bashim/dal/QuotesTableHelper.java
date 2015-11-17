@@ -63,14 +63,30 @@ public class QuotesTableHelper {
         String[] result = null;
         try {
             cursor = context.getContentResolver().query(Uri.withAppendedPath(
-                            BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION, LINK},
+                            BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION, LINK, AUTHOR},
                     ID + " = ?", new String[]{String.valueOf(id)}, null);
             if (null != cursor && cursor.moveToNext()) {
-                result = new String[2];
+                result = new String[3];
                 result[0] = cursor.getString(cursor.getColumnIndex(DESCRIPTION));
                 result[1] = cursor.getString(cursor.getColumnIndex(LINK));
+                result[2] = cursor.getString(cursor.getColumnIndex(AUTHOR));
                 cursor.close();
             }
+        } finally {
+            if (null != cursor) cursor.close();
+        }
+        return result;
+    }
+
+    public static String getUrlForComicsById(Context context, long id) {
+        Cursor cursor = null;
+        String result = null;
+        try {
+            cursor = context.getContentResolver().query(Uri.withAppendedPath(
+                            BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION}, ID + "=?",
+                    new String[]{String.valueOf(id)}, null);
+            if(null != cursor && cursor.moveToNext())
+                result = cursor.getString(cursor.getColumnIndex(DESCRIPTION));
         } finally {
             if (null != cursor) cursor.close();
         }

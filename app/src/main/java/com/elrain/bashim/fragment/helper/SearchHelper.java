@@ -15,12 +15,10 @@ public class SearchHelper implements SearchView.OnQueryTextListener {
 
     private final Activity mActivity;
     private final LoaderManager.LoaderCallbacks<Cursor> mClazz;
-    private final int mLoaderId;
 
-    public SearchHelper(Activity activity, LoaderManager.LoaderCallbacks<Cursor> clazz, int loaderId) {
+    public SearchHelper(Activity activity, LoaderManager.LoaderCallbacks<Cursor> clazz) {
         this.mActivity = activity;
         this.mClazz = clazz;
-        this.mLoaderId = loaderId;
     }
 
     @Override
@@ -31,13 +29,13 @@ public class SearchHelper implements SearchView.OnQueryTextListener {
     @Override
     public boolean onQueryTextChange(String newText) {
         if (newText.length() == 0) {
-            mActivity.getLoaderManager().restartLoader(mLoaderId, null, mClazz);
+            mActivity.getLoaderManager().restartLoader(Constants.ID_LOADER, null, mClazz);
             return false;
         } else if (newText.length() < 3) return false;
         else {
             Bundle b = new Bundle();
             b.putString(Constants.KEY_SEARCH_STRING, newText);
-            mActivity.getLoaderManager().restartLoader(mLoaderId, b, mClazz);
+            mActivity.getLoaderManager().restartLoader(Constants.ID_LOADER, b, mClazz);
             return true;
         }
     }

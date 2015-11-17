@@ -13,9 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.elrain.bashim.R;
-import com.elrain.bashim.activity.ImageScaleActivity;
 import com.elrain.bashim.dal.QuotesTableHelper;
-import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.DateUtil;
 import com.squareup.picasso.Picasso;
 
@@ -57,15 +55,7 @@ public class CommonCursorAdapter extends CursorAdapter {
         if (null != cursor.getString(cursor.getColumnIndex(QuotesTableHelper.AUTHOR))) {
             holder.tvText.setVisibility(View.GONE);
             holder.ivComics.setVisibility(View.VISIBLE);
-            final String url =  cursor.getString(cursor.getColumnIndex(QuotesTableHelper.DESCRIPTION));
-            holder.ivComics.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(context, ImageScaleActivity.class);
-                    intent.putExtra(Constants.KEY_INTENT_IMAGE_URL, url);
-                    context.startActivity(intent);
-                }
-            });
+            final String url = cursor.getString(cursor.getColumnIndex(QuotesTableHelper.DESCRIPTION));
             Picasso.with(context).load(url).into(holder.ivComics);
             holder.tvTitle.setText(cursor.getString(cursor.getColumnIndex(QuotesTableHelper.AUTHOR)));
         } else {

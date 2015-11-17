@@ -16,6 +16,8 @@ import com.elrain.bashim.util.Constants;
  */
 public class PostQuotListener implements AdapterView.OnItemLongClickListener {
 
+    private static final String TYPE_COMICS = "comics";
+    private static final String TYPE_QUOTES = "quotes";
     private final Context mContext;
     private static final String SHARE_FORMATTER = "%s <br/> %s";
 
@@ -30,7 +32,9 @@ public class PostQuotListener implements AdapterView.OnItemLongClickListener {
         String[] textToShare = QuotesTableHelper.getTextToShare(mContext, id);
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(String.format(SHARE_FORMATTER, textToShare[0], textToShare[1])).toString());
         mContext.startActivity(sharingIntent);
-        Answers.getInstance().logShare(new ShareEvent());
+        if (null != textToShare[2] && !"".equals(textToShare[2])){
+            Answers.getInstance().logShare(new ShareEvent().putContentType(TYPE_COMICS));}
+        else Answers.getInstance().logShare(new ShareEvent().putContentType(TYPE_QUOTES));
         return true;
     }
 }

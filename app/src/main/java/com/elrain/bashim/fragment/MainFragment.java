@@ -6,7 +6,6 @@ import android.app.LoaderManager;
 import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.ServiceConnection;
@@ -23,12 +22,11 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SearchView;
 
-import com.elrain.bashim.BashContentProvider;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.helper.DialogsHelper;
 import com.elrain.bashim.activity.helper.NotificationHelper;
 import com.elrain.bashim.adapter.CommonCursorAdapter;
-import com.elrain.bashim.dal.QuotesTableHelper;
+import com.elrain.bashim.fragment.helper.CommonLoader;
 import com.elrain.bashim.fragment.helper.PostQuotListener;
 import com.elrain.bashim.fragment.helper.SearchHelper;
 import com.elrain.bashim.service.BashService;
@@ -87,7 +85,7 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
         if (null != searchView) {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
             searchView.setIconifiedByDefault(false);
-            searchView.setOnQueryTextListener(new SearchHelper(getActivity(), this, Constants.ID_LOADER));
+            searchView.setOnQueryTextListener(new SearchHelper(getActivity(), this));
         }
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -107,7 +105,7 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
     @Override
     public void onStop() {
         super.onStop();
-        if(isBound){
+        if (isBound) {
             getActivity().unbindService(this);
             isBound = false;
         }
@@ -150,15 +148,9 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
-        if (null == args)
-            return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
-                    QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.AUTHOR + " IS NULL ", null, null);
-        else
-            return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
-                    QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.DESCRIPTION + " LIKE '%" +
-                    args.getString(Constants.KEY_SEARCH_STRING) + "%' AND " + QuotesTableHelper.AUTHOR +
-                    " IS NULL ", null, null);
+        if (null == args) return new CommonLoader(getActivity()).getQuotes().build();
+        else return new CommonLoader(getActivity()).getQuotes()
+                .addSearch(args.getString(Constants.KEY_SEARCH_STRING)).build();
     }
 
     @Override

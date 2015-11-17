@@ -18,8 +18,8 @@ public class Constants {
     /**
      * Have types of RSS lines which could be downloaded and parsed
      * <ul>
-     *     <li>Rss#COMMICS - http://bash.im/rss/comics.xml</li>
-     *     <li>Rss#QUOTES - http://bash.im/rss/</li>
+     *     <li>COMMICS - http://bash.im/rss/comics.xml</li>
+     *     <li>QUOTES - http://bash.im/rss/</li>
      * </ul>
      */
     public enum Rss {
