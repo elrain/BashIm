@@ -12,17 +12,5 @@ public class Constants {
     public static final int ID_LOADER = 2204;
     public static final String KEY_OPEN_MAIN_ACTIVITY = "openMain";
     public static final String KEY_INTENT_IMAGE_URL = "imageUrl";
-
     public static final String COMMICS_RSS_URL = "http://bash.im/rss/comics.xml";
-
-    /**
-     * Have types of RSS lines which could be downloaded and parsed
-     * <ul>
-     *     <li>COMMICS - http://bash.im/rss/comics.xml</li>
-     *     <li>QUOTES - http://bash.im/rss/</li>
-     * </ul>
-     */
-    public enum Rss {
-        COMMICS, QUOTES
-    }
 }

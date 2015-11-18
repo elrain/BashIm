@@ -3,7 +3,9 @@ package com.elrain.bashim.activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,10 +16,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
 import com.elrain.bashim.R;
 import com.elrain.bashim.fragment.CommicsFragment;
 import com.elrain.bashim.fragment.FavoriteFragment;
 import com.elrain.bashim.fragment.MainFragment;
+import com.elrain.bashim.util.AlarmUtil;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
 
@@ -39,8 +43,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Answers());
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         initActionBar();
         initFragmentMap();
         mFragmentManager = getFragmentManager();
@@ -74,6 +80,12 @@ public class MainActivity extends AppCompatActivity
     protected void onStop() {
         super.onStop();
         BashPreferences.getInstance(this).setLastTag(mLastTag);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AlarmUtil.getInstance(this).unsubscribeListener();
     }
 
     private void initFragmentMap() {
@@ -123,6 +135,9 @@ public class MainActivity extends AppCompatActivity
             if (null != getSupportActionBar())
                 getSupportActionBar().setTitle(R.string.fragment_comics);
             changeFragment(TAG_COMICS);
+        } else if (id == R.id.aPreferences) {
+            Intent in = new Intent(MainActivity.this, PreferencesActivity.class);
+            startActivity(in);
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

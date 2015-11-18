@@ -15,6 +15,7 @@
     <string name="fragment_main">New Quotes</string>
     <string name="fragment_favorite">Favorites</string>
     <string name="fragment_comics">Comics</string>
+    <string name="activity_preferences">Preferences</string>
 
     <string name="dialog_title_no_internet">No Internet</string>
 
@@ -26,4 +27,30 @@
         <item quantity="one">You have %d new quot</item>
         <item quantity="other">You have %d new quotes</item>
     </plurals>
+
+    <string name="preferences_key_notifications">showNotifications</string>
+    <string name="preferences_key_alarm_frequency">frequency</string>
+
+    <string name="preferences_value_yes">YES</string>
+    <string name="preferences_value_no">NO</string>
+
+    <string name="preferences_title_notifications">Notifications are enabled</string>
+    <string name="preferences_title_alarm_frequency">Update frequency</string>
+    <string name="preferences_summary_alarm_frequency">Select the frequency of checking new quotes</string>
+
+    <string-array name="listArray">
+        <item>Never</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>12 hours</item>
+    </string-array>
+
+    <string-array name="listValues">
+        <item>0</item>
+        <item>1800000</item>
+        <item>3600000</item>
+        <item>10800000</item>
+        <item>43200000</item>
+    </string-array>
 </resources>

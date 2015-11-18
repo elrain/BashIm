@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.elrain.bashim.service.BashService;
+import com.elrain.bashim.util.AlarmUtil;
 import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.NetworkUtil;
 

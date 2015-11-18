@@ -17,6 +17,10 @@
             android:id="@+id/aFavorite"
             android:icon="@android:drawable/star_big_on"
             android:title="@string/action_favorite" />
+
+        <item android:id="@+id/aPreferences"
+            android:icon="@android:drawable/ic_menu_manage"
+            android:title="@string/activity_preferences"/>
     </group>
 
 </menu>

@@ -35,6 +35,7 @@ public class XMLParser extends DefaultHandler {
     private static final String TAG_AUTHOR = "author";
     private static final String ENCODING = "windows-1251";
     private static final String HTTP = "http";
+    private static final String DESCRIPTION_CONTAINS = "<img src=\"";
     private BashItem bashItem;
     private boolean isItemOpen = false;
     private boolean isDescriptionOpen = false;
@@ -45,19 +46,18 @@ public class XMLParser extends DefaultHandler {
     private boolean isAuthorOpen = false;
     private final Context mContext;
     private StringBuilder mStringBuilder;
-    private final Constants.Rss mRssType;
 
-    public XMLParser(Context mContext, Constants.Rss rssType) {
+    public XMLParser(Context mContext) {
         this.mContext = mContext;
-        this.mRssType = rssType;
         mStringBuilder = new StringBuilder();
     }
 
     /**
      * Launch XML parse process of <code>InputStream</code> object
+     *
      * @param in <code>InputStream</code> object with XML
      * @throws ParserConfigurationException
-     * @throws SAXException Any SAX exception, possibly wrapping another exception.
+     * @throws SAXException                 Any SAX exception, possibly wrapping another exception.
      * @throws IOException
      */
     public void parseXml(InputStream in) throws ParserConfigurationException, SAXException, IOException {
@@ -102,10 +102,10 @@ public class XMLParser extends DefaultHandler {
                 isLinkOpen = false;
                 mStringBuilder = new StringBuilder();
             } else if (TAG_DESCRIPTION.equals(qName)) {
-                if (Constants.Rss.COMMICS == mRssType) {
-                    String description = mStringBuilder.toString();
+                String description = mStringBuilder.toString();
+                if (description.contains(DESCRIPTION_CONTAINS))
                     bashItem.setDescription(description.substring(description.indexOf(HTTP), description.length() - 2));
-                } else bashItem.setDescription(mStringBuilder.toString());
+                else bashItem.setDescription(mStringBuilder.toString());
                 isDescriptionOpen = false;
                 mStringBuilder = new StringBuilder();
             } else if (TAG_TITLE.equals(qName)) {
@@ -122,6 +122,7 @@ public class XMLParser extends DefaultHandler {
                 mStringBuilder = new StringBuilder();
             } else QuotesTableHelper.inputQuot(mContext, bashItem);
         }
+
     }
 
     @Override

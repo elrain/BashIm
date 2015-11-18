@@ -1,17 +1,13 @@
 package com.elrain.bashim.service;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.support.annotation.Nullable;
 
 import com.elrain.bashim.activity.helper.NotificationHelper;
-import com.elrain.bashim.reciver.BashBroadcastReceiver;
+import com.elrain.bashim.util.AlarmUtil;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.CounterOfNewItems;
@@ -27,7 +23,6 @@ public class BashService extends Service {
 
     private final IBinder mBinder = new LocalBinder();
     private DownloadListener mDownloadListener;
-    private AlarmManager mAlarmMgr;
     private ExecutorService executor;
 
     public interface DownloadListener {
@@ -44,19 +39,9 @@ public class BashService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (null != intent && intent.getBooleanExtra(Constants.INTENT_DOWNLOAD, false)) {
+        if (null != intent && intent.getBooleanExtra(Constants.INTENT_DOWNLOAD, false))
             downloadXml(false);
-        } else if (null == mAlarmMgr) {
-            PendingIntent alarmPIntent;
-            mAlarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            Intent alarmIntent = new Intent(this, BashBroadcastReceiver.class);
-            alarmIntent.setAction(Constants.INTENT_DOWNLOAD);
-            alarmPIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
-
-            mAlarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
-                    SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HALF_HOUR, alarmPIntent);
-
-        }
+        else AlarmUtil.getInstance(getApplicationContext()).setAlarm();
         return START_REDELIVER_INTENT;
     }
 
@@ -79,22 +64,13 @@ public class BashService extends Service {
     public void downloadXml(boolean isDialogNeeded) {
         if (isDialogNeeded && null != mDownloadListener)
             mDownloadListener.onDownloadStarted();
-
-        executor.execute(new DownloadTask(Constants.Rss.QUOTES));
-        executor.execute(new DownloadTask(Constants.Rss.COMMICS));
+        executor.execute(new DownloadTask());
     }
 
-    private class DownloadTask implements Runnable{
-
-        private final Constants.Rss rssType;
-
-        public DownloadTask(Constants.Rss rssType) {
-            this.rssType = rssType;
-        }
-
+    private class DownloadTask implements Runnable {
         @Override
         public void run() {
-            DownloadXML.getStreamAndParse(getApplicationContext(), rssType);
+            DownloadXML.getStreamAndParse(getApplicationContext());
             if (null != mDownloadListener)
                 mDownloadListener.onDownloadFinished();
             else if (!BashPreferences.getInstance(getApplicationContext()).isFirstStart()
