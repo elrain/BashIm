@@ -9,7 +9,16 @@ import java.util.Date;
  * Created by denys.husher on 04.11.2015.
  */
 public class DateUtil {
+
+    /**
+     * Parses date from <code>String</code> to <code>Date</code>. If ParseException happened will be returned <code>new Date()</code>
+     *
+     * @param dateString inputted date in <code>String</code>. This <code>String</code> must be like:
+     *                   <i>Fri, 13 Nov 2015 11:46:03</i>
+     * @return <code>Date</code> object with parsed date
+     */
     public static Date parseDateFromXml(String dateString) {
+        if (null == dateString) return new Date();
         SimpleDateFormat f = new SimpleDateFormat("EEE, dd MMM yyyy H:mm:ss");
         Date d = new Date();
         try {
@@ -20,8 +29,15 @@ public class DateUtil {
         return d;
     }
 
+    /**
+     * Parses <code>Date</code> object and return this date in <code>String</code>
+     * with specific format.
+     *
+     * @param date Inputted date
+     * @return <code>String</code> object with specific format like <i>2015-11-13 11:13</i>
+     */
     public static String getItemPubDate(Date date) {
-
+        if (null == date) return null;
         Calendar c = Calendar.getInstance();
         c.setTime(date);
         int hours = date.getHours();
@@ -30,7 +46,11 @@ public class DateUtil {
         int day = c.get(Calendar.DAY_OF_MONTH);
         int month = c.get(Calendar.MONTH) + 1;
 
-        return year + "-" + (month < 10 ? "0" + month : month) + "-" + (day < 10 ? "0" + day : day)
-                + " " + (hours < 10 ? "0" + hours : hours) + ":" + minutes;
+        return year + "-" + isZeroNeeded(month) + "-" + isZeroNeeded(day) + " "
+                + isZeroNeeded(hours) + ":" + isZeroNeeded(minutes);
+    }
+
+    private static String isZeroNeeded(int value) {
+        return value < 10 ? "0" + value : String.valueOf(value);
     }
 }

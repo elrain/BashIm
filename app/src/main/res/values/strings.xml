@@ -1,27 +1,58 @@
 <resources>
-    <string name="app_name">BashIm</string>
+    <string name="app_name">Bash.im</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="navigation_drawer_top_title">www.bash.im</string>
     <string name="navigation_drawer_top_subtitle">Developed by Denys Husher</string>
 
-    <string name="action_settings">Settings</string>
+    <string name="searchable_label">Search</string>
+
     <string name="action_main">New Quotes</string>
     <string name="action_favorite">Favorites</string>
+    <string name="action_comics">Comics</string>
 
     <string name="fragment_main">New Quotes</string>
     <string name="fragment_favorite">Favorites</string>
+    <string name="fragment_comics">Comics</string>
+    <string name="activity_preferences">Preferences</string>
 
-    <string name="dialog_title_nointernet">No Internet</string>
+    <string name="dialog_title_no_internet">No Internet Connection</string>
 
-    <string name="dialog_text_nointernet">Check your connection to the Internet and tap sync button on top bar.</string>
-    <string name="dialog_text_downloading_rss">Downloading new posts. Please wait. </string>
+    <string name="dialog_text_no_internet">Check your connection to the Internet and click Retry
+        to download new quotes or click Cancel to close this dialog.</string>
 
     <string name="dialog_btn_text_ok">OK</string>
+    <string name="dialog_btn_text_cancel">Cancel</string>
+    <string name="dialog_btn_text_retry">Retry</string>
 
-    <string name="notification_text" formatted="true">"You have %d new posts"</string>
-    <string name="title_activity_main2">@string/app_name</string>
+    <plurals name="notification_text">
+        <item quantity="one">You have %d new quot</item>
+        <item quantity="other">You have %d new quotes</item>
+    </plurals>
 
+    <string name="preferences_key_notifications">showNotifications</string>
+    <string name="preferences_key_alarm_frequency">frequency</string>
 
+    <string name="preferences_value_yes">YES</string>
+    <string name="preferences_value_no">NO</string>
+
+    <string name="preferences_title_notifications">Notifications</string>
+    <string name="preferences_title_alarm_frequency">Update frequency</string>
+
+    <string-array name="listArray">
+        <item>Never</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>12 hours</item>
+    </string-array>
+
+    <string-array name="listValues">
+        <item>0</item>
+        <item>1800000</item>
+        <item>3600000</item>
+        <item>10800000</item>
+        <item>43200000</item>
+    </string-array>
 </resources>

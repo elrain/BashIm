@@ -26,13 +26,16 @@ import javax.xml.parsers.SAXParserFactory;
  */
 public class XMLParser extends DefaultHandler {
 
-    public static final String TAG_ITEM = "item";
-    public static final String TAG_GUID = "guid";
-    public static final String TAG_TITLE = "title";
-    public static final String TAG_DESCRIPTION = "description";
-    public static final String TAG_PUB_DATE = "pubDate";
-    public static final String TAG_LINK = "link";
-    public static final String ENCODING = "windows-1251";
+    private static final String TAG_ITEM = "item";
+    private static final String TAG_GUID = "guid";
+    private static final String TAG_TITLE = "title";
+    private static final String TAG_DESCRIPTION = "description";
+    private static final String TAG_PUB_DATE = "pubDate";
+    private static final String TAG_LINK = "link";
+    private static final String TAG_AUTHOR = "author";
+    private static final String ENCODING = "windows-1251";
+    private static final String HTTP = "http";
+    private static final String DESCRIPTION_CONTAINS = "<img src=\"";
     private BashItem bashItem;
     private boolean isItemOpen = false;
     private boolean isDescriptionOpen = false;
@@ -40,14 +43,23 @@ public class XMLParser extends DefaultHandler {
     private boolean isTitleOpen = false;
     private boolean isPubDateOpen = false;
     private boolean isLinkOpen = false;
-    private Context mContext;
-    private StringBuilder b;
+    private boolean isAuthorOpen = false;
+    private final Context mContext;
+    private StringBuilder mStringBuilder;
 
     public XMLParser(Context mContext) {
         this.mContext = mContext;
-        b = new StringBuilder();
+        mStringBuilder = new StringBuilder();
     }
 
+    /**
+     * Launch XML parse process of <code>InputStream</code> object
+     *
+     * @param in <code>InputStream</code> object with XML
+     * @throws ParserConfigurationException
+     * @throws SAXException                 Any SAX exception, possibly wrapping another exception.
+     * @throws IOException
+     */
     public void parseXml(InputStream in) throws ParserConfigurationException, SAXException, IOException {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
@@ -68,11 +80,13 @@ public class XMLParser extends DefaultHandler {
         if (TAG_ITEM.equals(qName)) {
             bashItem = new BashItem();
             isItemOpen = true;
-        } else if (isItemOpen && TAG_DESCRIPTION.equals(qName)) isDescriptionOpen = true;
-        else if (isItemOpen && TAG_GUID.equals(qName)) isGuidOpen = true;
+        } else if (isItemOpen && TAG_DESCRIPTION.equals(qName)) {
+            isDescriptionOpen = true;
+        } else if (isItemOpen && TAG_GUID.equals(qName)) isGuidOpen = true;
         else if (isItemOpen && TAG_LINK.equals(qName)) isLinkOpen = true;
         else if (isItemOpen && TAG_PUB_DATE.equals(qName)) isPubDateOpen = true;
         else if (isItemOpen && TAG_TITLE.equals(qName)) isTitleOpen = true;
+        else if (isItemOpen && TAG_AUTHOR.equals(qName)) isAuthorOpen = true;
     }
 
     @Override
@@ -80,51 +94,43 @@ public class XMLParser extends DefaultHandler {
         super.endElement(uri, localName, qName);
         if (isItemOpen) {
             if (TAG_GUID.equals(qName)) {
-                bashItem.setGuid(b.toString());
+                bashItem.setGuid(mStringBuilder.toString());
                 isGuidOpen = false;
-                b = new StringBuilder();
+                mStringBuilder = new StringBuilder();
             } else if (TAG_LINK.equals(qName)) {
-                bashItem.setLink(b.toString());
+                bashItem.setLink(mStringBuilder.toString());
                 isLinkOpen = false;
-                b = new StringBuilder();
+                mStringBuilder = new StringBuilder();
             } else if (TAG_DESCRIPTION.equals(qName)) {
-                bashItem.setDescription(b.toString());
+                String description = mStringBuilder.toString();
+                if (description.contains(DESCRIPTION_CONTAINS))
+                    bashItem.setDescription(description.substring(description.indexOf(HTTP), description.length() - 2));
+                else bashItem.setDescription(mStringBuilder.toString());
                 isDescriptionOpen = false;
-                b = new StringBuilder();
+                mStringBuilder = new StringBuilder();
             } else if (TAG_TITLE.equals(qName)) {
-                bashItem.setTitle(b.toString());
+                bashItem.setTitle(mStringBuilder.toString());
                 isTitleOpen = false;
-                b = new StringBuilder();
+                mStringBuilder = new StringBuilder();
             } else if (TAG_PUB_DATE.equals(qName)) {
-                bashItem.setPubDate(DateUtil.parseDateFromXml(b.toString()));
+                bashItem.setPubDate(DateUtil.parseDateFromXml(mStringBuilder.toString()));
                 isPubDateOpen = false;
-                b = new StringBuilder();
-            } else {
-                QuotesTableHelper.inputQuot(mContext, bashItem);
-            }
+                mStringBuilder = new StringBuilder();
+            } else if (TAG_AUTHOR.equals(qName)) {
+                bashItem.setAuthor(mStringBuilder.toString());
+                isAuthorOpen = false;
+                mStringBuilder = new StringBuilder();
+            } else QuotesTableHelper.inputQuot(mContext, bashItem);
         }
+
     }
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
         super.characters(ch, start, length);
-        if (isItemOpen) {
-            if (isGuidOpen) {
-                for (int index = start; index < start + length; ++index)
-                    b.append(ch[index]);
-            } else if (isTitleOpen) {
-                for (int index = start; index < start + length; ++index)
-                    b.append(ch[index]);
-            } else if (isLinkOpen) {
-                for (int index = start; index < start + length; ++index)
-                    b.append(ch[index]);
-            } else if (isPubDateOpen) {
-                for (int index = start; index < start + length; ++index)
-                    b.append(ch[index]);
-            } else if (isDescriptionOpen) {
-                for (int index = start; index < start + length; ++index)
-                    b.append(ch[index]);
-            }
-        }
+        if (isItemOpen && (isGuidOpen || isTitleOpen || isLinkOpen || isPubDateOpen
+                || isDescriptionOpen || isAuthorOpen))
+            for (int index = start; index < start + length; ++index)
+                mStringBuilder.append(ch[index]);
     }
 }
