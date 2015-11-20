@@ -15,35 +15,43 @@ public class CommonLoader {
 
     private String mWhereClause;
     private String[] mWhereValues;
-    private Context mContext;
+    private final Context mContext;
+    private static CommonLoader mInstance;
 
-    public CommonLoader(Context mContext) {
-        this.mContext = mContext;
+    private CommonLoader(Context context) {
+        mContext = context;
     }
 
-    public CommonLoader getComics(){
-        mWhereClause = QuotesTableHelper.AUTHOR + " IS NOT NULL";
+    public static CommonLoader getInstance(Context context) {
+        if (null == mInstance)
+            mInstance = new CommonLoader(context);
+        return mInstance;
+    }
+
+    public CommonLoader getComics() {
+        mWhereClause = QuotesTableHelper.AUTHOR + " IS NOT NULL ";
         mWhereValues = null;
         return this;
     }
 
-    public CommonLoader getQuotes(){
-        mWhereClause = QuotesTableHelper.AUTHOR + " IS NULL";
+    public CommonLoader getQuotes() {
+        mWhereClause = QuotesTableHelper.AUTHOR + " IS NULL ";
+        mWhereValues = null;
         return this;
     }
 
-    public CommonLoader getFavorites(){
+    public CommonLoader getFavorites() {
         mWhereClause = QuotesTableHelper.IS_FAVORITE + " =? ";
         mWhereValues = new String[]{String.valueOf(1)};
         return this;
     }
 
-    public CommonLoader addSearch(String text){
+    public CommonLoader addSearch(String text) {
         mWhereClause += " AND " + QuotesTableHelper.DESCRIPTION + " LIKE '%" + text + "%'";
         return this;
     }
 
-    public Loader<Cursor> build(){
+    public Loader<Cursor> build() {
         return new CursorLoader(mContext, BashContentProvider.QUOTES_CONTENT_URI,
                 QuotesTableHelper.MAIN_SELECTION, mWhereClause, mWhereValues, null);
     }

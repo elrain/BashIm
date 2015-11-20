@@ -128,10 +128,9 @@ public class XMLParser extends DefaultHandler {
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
         super.characters(ch, start, length);
-        if (isItemOpen)
-            if (isGuidOpen || isTitleOpen || isLinkOpen || isPubDateOpen || isDescriptionOpen
-                    || isAuthorOpen)
-                for (int index = start; index < start + length; ++index)
-                    mStringBuilder.append(ch[index]);
+        if (isItemOpen && (isGuidOpen || isTitleOpen || isLinkOpen || isPubDateOpen
+                || isDescriptionOpen || isAuthorOpen))
+            for (int index = start; index < start + length; ++index)
+                mStringBuilder.append(ch[index]);
     }
 }

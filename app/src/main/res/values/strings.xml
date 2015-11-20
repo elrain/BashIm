@@ -17,11 +17,14 @@
     <string name="fragment_comics">Comics</string>
     <string name="activity_preferences">Preferences</string>
 
-    <string name="dialog_title_no_internet">No Internet</string>
+    <string name="dialog_title_no_internet">No Internet Connection</string>
 
-    <string name="dialog_text_no_internet">Check your connection to the Internet and tap sync button on top bar.</string>
+    <string name="dialog_text_no_internet">Check your connection to the Internet and click Retry
+        to download new quotes or click Cancel to close this dialog.</string>
 
     <string name="dialog_btn_text_ok">OK</string>
+    <string name="dialog_btn_text_cancel">Cancel</string>
+    <string name="dialog_btn_text_retry">Retry</string>
 
     <plurals name="notification_text">
         <item quantity="one">You have %d new quot</item>
@@ -34,9 +37,8 @@
     <string name="preferences_value_yes">YES</string>
     <string name="preferences_value_no">NO</string>
 
-    <string name="preferences_title_notifications">Notifications are enabled</string>
+    <string name="preferences_title_notifications">Notifications</string>
     <string name="preferences_title_alarm_frequency">Update frequency</string>
-    <string name="preferences_summary_alarm_frequency">Select the frequency of checking new quotes</string>
 
     <string-array name="listArray">
         <item>Never</item>

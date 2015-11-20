@@ -4,9 +4,12 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.ServiceConnection;
 import android.database.Cursor;
@@ -38,19 +41,29 @@ import com.elrain.bashim.util.NetworkUtil;
 /**
  * Created by denys.husher on 05.11.2015.
  */
-public class MainFragment extends Fragment implements BashService.DownloadListener,
-        ServiceConnection, LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
+public class MainFragment extends Fragment implements ServiceConnection,
+        LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
 
     private boolean isBound = false;
     private BashService mBashService;
     private CommonCursorAdapter mQuotesCursorAdapter;
     private AlertDialog mNoInternetDialog;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private BroadcastReceiver mBroadcastReceiver;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Constants.ACTION_DOWNLOAD_STARTED))
+                    onDownloadStarted();
+                else if (intent.getAction().equals(Constants.ACTION_DOWNLOAD_FINISHED))
+                    onDownloadFinished();
+            }
+        };
     }
 
     @Nullable
@@ -64,15 +77,24 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
         super.onViewCreated(view, savedInstanceState);
 
         getActivity().startService(new Intent(getActivity(), BashService.class));
-        mQuotesCursorAdapter = new CommonCursorAdapter(getActivity(), null);
+        mQuotesCursorAdapter = new CommonCursorAdapter(getActivity());
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.srLayout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
         ListView lvItems = (ListView) view.findViewById(R.id.lvBashItems);
         lvItems.setAdapter(mQuotesCursorAdapter);
         lvItems.setOnItemLongClickListener(new PostQuotListener(getActivity()));
         getLoaderManager().initLoader(Constants.ID_LOADER, null, MainFragment.this);
+        initRssDownloading();
+    }
+
+    private void initRssDownloading() {
         if (!NetworkUtil.isDeviceOnline(getActivity())) {
-            mNoInternetDialog = DialogsHelper.noInternetDialog(getActivity());
+            mNoInternetDialog = DialogsHelper.noInternetDialog(getActivity(), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    initRssDownloading();
+                }
+            });
             mNoInternetDialog.show();
         } else downloadRss();
     }
@@ -95,11 +117,17 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
         getActivity().bindService(intent, this, Context.BIND_AUTO_CREATE);
     }
 
-    @Override
     public void onDownloadStarted() {
         if (null != mNoInternetDialog && mNoInternetDialog.isShowing())
             mNoInternetDialog.dismiss();
         mSwipeRefreshLayout.setRefreshing(true);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_STARTED));
+        getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_FINISHED));
     }
 
     @Override
@@ -109,9 +137,12 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
             getActivity().unbindService(this);
             isBound = false;
         }
+        mSwipeRefreshLayout.setRefreshing(false);
+        mSwipeRefreshLayout.setOnRefreshListener(null);
+        getActivity().getLoaderManager().destroyLoader(Constants.ID_LOADER);
+        getActivity().unregisterReceiver(mBroadcastReceiver);
     }
 
-    @Override
     public void onDownloadFinished() {
         if (isBound && null != getActivity()) {
             getActivity().unbindService(this);
@@ -126,7 +157,6 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
                             && CounterOfNewItems.getInstance().getQuotesCounter() != 0)
                         NotificationHelper.showNotification(getActivity());
                     else CounterOfNewItems.getInstance().setCounterTooZero();
-                    mBashService.setListener(null);
                     mSwipeRefreshLayout.setRefreshing(false);
                 }
             });
@@ -136,8 +166,7 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
     public void onServiceConnected(ComponentName name, IBinder service) {
         BashService.LocalBinder binder = (BashService.LocalBinder) service;
         mBashService = binder.getService();
-        mBashService.setListener(this);
-        mBashService.downloadXml(true);
+        mBashService.downloadXml();
         isBound = true;
     }
 
@@ -148,8 +177,8 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (null == args) return new CommonLoader(getActivity()).getQuotes().build();
-        else return new CommonLoader(getActivity()).getQuotes()
+        if (null == args) return CommonLoader.getInstance(getActivity()).getQuotes().build();
+        else return CommonLoader.getInstance(getActivity()).getQuotes()
                 .addSearch(args.getString(Constants.KEY_SEARCH_STRING)).build();
     }
 
@@ -165,8 +194,12 @@ public class MainFragment extends Fragment implements BashService.DownloadListen
 
     @Override
     public void onRefresh() {
-        if (isBound)
-            mBashService.downloadXml(true);
+        if (!NetworkUtil.isDeviceOnline(getActivity())) {
+            mNoInternetDialog = DialogsHelper.noInternetDialog(getActivity());
+            mNoInternetDialog.show();
+            mSwipeRefreshLayout.setRefreshing(false);
+        } else if (isBound)
+            mBashService.downloadXml();
         else downloadRss();
     }
 }

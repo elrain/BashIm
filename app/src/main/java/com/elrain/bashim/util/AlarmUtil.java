@@ -16,11 +16,11 @@ import com.elrain.bashim.reciver.BashBroadcastReceiver;
  */
 public class AlarmUtil implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static AlarmUtil mInstance;
-    private AlarmManager mAlarmManager;
-    private PendingIntent mAlarmPIntent;
-    private PendingIntent mCancelPIntent;
-    private SharedPreferences mSharedPref;
-    private Context mContext;
+    private final AlarmManager mAlarmManager;
+    private final PendingIntent mAlarmPIntent;
+    private final PendingIntent mCancelPIntent;
+    private final SharedPreferences mSharedPref;
+    private final Context mContext;
 
     public static AlarmUtil getInstance(Context context) {
         if (null == mInstance)
@@ -67,14 +67,14 @@ public class AlarmUtil implements SharedPreferences.OnSharedPreferenceChangeList
                     AlarmManager.INTERVAL_HALF_HOUR, mAlarmPIntent);
     }
 
-    public void cancelAlarm() {
+    private void cancelAlarm() {
         mAlarmManager.cancel(mCancelPIntent);
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (mContext.getString(R.string.preferences_key_alarm_frequency).equals(key)) {
-            String repeatTime = sharedPreferences.getString(key, "1800000");
+            String repeatTime = sharedPreferences.getString(key, Constants.PREFERENCES_UPDATE_DEF_VALUE);
             if ("0".equals(repeatTime)) cancelAlarm();
             else setAlarm(Integer.parseInt(repeatTime));
         }

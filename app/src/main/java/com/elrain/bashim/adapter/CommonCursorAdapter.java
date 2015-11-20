@@ -24,8 +24,8 @@ import java.util.Date;
  */
 public class CommonCursorAdapter extends CursorAdapter {
 
-    public CommonCursorAdapter(Context context, Cursor c) {
-        super(context, c, FLAG_REGISTER_CONTENT_OBSERVER);
+    public CommonCursorAdapter(Context context) {
+        super(context, null, FLAG_REGISTER_CONTENT_OBSERVER);
     }
 
     @Override

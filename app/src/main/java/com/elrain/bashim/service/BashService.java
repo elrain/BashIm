@@ -22,14 +22,7 @@ import java.util.concurrent.Executors;
 public class BashService extends Service {
 
     private final IBinder mBinder = new LocalBinder();
-    private DownloadListener mDownloadListener;
     private ExecutorService executor;
-
-    public interface DownloadListener {
-        void onDownloadStarted();
-
-        void onDownloadFinished();
-    }
 
     @Override
     public void onCreate() {
@@ -40,7 +33,7 @@ public class BashService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (null != intent && intent.getBooleanExtra(Constants.INTENT_DOWNLOAD, false))
-            downloadXml(false);
+            downloadXml();
         else AlarmUtil.getInstance(getApplicationContext()).setAlarm();
         return START_REDELIVER_INTENT;
     }
@@ -57,13 +50,11 @@ public class BashService extends Service {
         }
     }
 
-    public void setListener(DownloadListener listener) {
-        mDownloadListener = listener;
-    }
 
-    public void downloadXml(boolean isDialogNeeded) {
-        if (isDialogNeeded && null != mDownloadListener)
-            mDownloadListener.onDownloadStarted();
+    public void downloadXml() {
+        Intent downloadStartIntent = new Intent();
+        downloadStartIntent.setAction(Constants.ACTION_DOWNLOAD_STARTED);
+        sendBroadcast(downloadStartIntent);
         executor.execute(new DownloadTask());
     }
 
@@ -71,11 +62,12 @@ public class BashService extends Service {
         @Override
         public void run() {
             DownloadXML.getStreamAndParse(getApplicationContext());
-            if (null != mDownloadListener)
-                mDownloadListener.onDownloadFinished();
-            else if (!BashPreferences.getInstance(getApplicationContext()).isFirstStart()
+            if (!BashPreferences.getInstance(getApplicationContext()).isFirstStart()
                     && CounterOfNewItems.getInstance().getQuotesCounter() != 0)
                 NotificationHelper.showNotification(getApplicationContext());
+            Intent downloadStartIntent = new Intent();
+            downloadStartIntent.setAction(Constants.ACTION_DOWNLOAD_FINISHED);
+            sendBroadcast(downloadStartIntent);
             stopSelf();
         }
     }

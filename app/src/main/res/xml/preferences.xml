@@ -8,13 +8,10 @@
         android:entries="@array/listArray"
         android:entryValues="@array/listValues"
         android:key="@string/preferences_key_alarm_frequency"
-        android:summary="@string/preferences_summary_alarm_frequency"
         android:title="@string/preferences_title_alarm_frequency" />
 
     <SwitchPreference
         android:defaultValue="true"
         android:key="@string/preferences_key_notifications"
-        android:summaryOff="@string/preferences_value_no"
-        android:summaryOn="@string/preferences_value_yes"
         android:title="@string/preferences_title_notifications" />
 </PreferenceScreen>

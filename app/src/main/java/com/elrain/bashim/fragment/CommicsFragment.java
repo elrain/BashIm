@@ -38,7 +38,7 @@ public class CommicsFragment extends Fragment implements LoaderManager.LoaderCal
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mComicsCursorAdapter = new CommonCursorAdapter(getActivity(), null);
+        mComicsCursorAdapter = new CommonCursorAdapter(getActivity());
         ListView lvItems = (ListView) view.findViewById(R.id.lvBashItems);
         lvItems.setAdapter(mComicsCursorAdapter);
         lvItems.setOnItemLongClickListener(new PostQuotListener(getActivity()));
@@ -48,7 +48,7 @@ public class CommicsFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CommonLoader(getActivity()).getComics().build();
+        return CommonLoader.getInstance(getActivity()).getComics().build();
     }
 
     @Override

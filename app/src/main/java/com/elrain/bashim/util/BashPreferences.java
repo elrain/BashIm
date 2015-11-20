@@ -26,15 +26,16 @@ public class BashPreferences {
 
     public boolean isFirstStart() {
         boolean result = mPreferences.getBoolean(KEY_FIRST_START, true);
-        mPreferences.edit().putBoolean(KEY_FIRST_START, false).apply();
+        if (result)
+            mPreferences.edit().putBoolean(KEY_FIRST_START, false).apply();
         return result;
     }
 
-    public void setLastTag(String lastTag){
+    public void setLastTag(String lastTag) {
         mPreferences.edit().putString(KEY_LAST_TAG, lastTag).apply();
     }
 
-    public String getLastTag(){
+    public String getLastTag() {
         return mPreferences.getString(KEY_LAST_TAG, null);
     }
 

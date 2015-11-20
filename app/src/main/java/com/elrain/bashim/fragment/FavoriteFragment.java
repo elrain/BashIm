@@ -45,7 +45,7 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mQuotesCursorAdapter = new CommonCursorAdapter(getActivity(), null);
+        mQuotesCursorAdapter = new CommonCursorAdapter(getActivity());
         ListView lvItems = (ListView) view.findViewById(R.id.lvBashItems);
         lvItems.setAdapter(mQuotesCursorAdapter);
         lvItems.setOnItemLongClickListener(new PostQuotListener(getActivity()));
@@ -68,8 +68,8 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (null == args) return new CommonLoader(getActivity()).getFavorites().build();
-        else return new CommonLoader(getActivity()).getFavorites()
+        if (null == args) return CommonLoader.getInstance(getActivity()).getFavorites().build();
+        else return CommonLoader.getInstance(getActivity()).getFavorites()
                 .addSearch(args.getString(Constants.KEY_SEARCH_STRING)).build();
     }
 
