@@ -43,8 +43,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Fabric.with(this, new Answers());
-        Fabric.with(this, new Crashlytics());
+//        Fabric.with(this, new Answers());
+//        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         initActionBar();
