@@ -4,5 +4,5 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include layout="@layout/quotes_list_view"/>
+    <include layout="@layout/quotes_list_view" />
 </android.support.v4.widget.SwipeRefreshLayout>

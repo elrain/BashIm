@@ -31,12 +31,12 @@ public class BashPreferences {
         return result;
     }
 
-    public void setLastTag(String lastTag) {
-        mPreferences.edit().putString(KEY_LAST_TAG, lastTag).apply();
-    }
-
     public String getLastTag() {
         return mPreferences.getString(KEY_LAST_TAG, null);
+    }
+
+    public void setLastTag(String lastTag) {
+        mPreferences.edit().putString(KEY_LAST_TAG, lastTag).apply();
     }
 
 }

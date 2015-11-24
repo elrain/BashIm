@@ -15,18 +15,16 @@ import com.elrain.bashim.object.BashItem;
 public class QuotesTableHelper {
     public static final String TABLE = "quots";
     public static final String ID = "_id";
-    private static final String GUID = "guid";
     public static final String LINK = "link";
     public static final String TITLE = "title";
     public static final String PUB_DATE = "pubDate";
     public static final String DESCRIPTION = "description";
     public static final String IS_FAVORITE = "isFavorite";
     public static final String AUTHOR = "author";
-
     public static final String[] MAIN_SELECTION = {QuotesTableHelper.ID, QuotesTableHelper.DESCRIPTION, QuotesTableHelper.TITLE,
             QuotesTableHelper.PUB_DATE, QuotesTableHelper.LINK, QuotesTableHelper.IS_FAVORITE,
             QuotesTableHelper.AUTHOR};
-
+    private static final String GUID = "guid";
     private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE + "( "
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + GUID + " CHAR(65) NOT NULL, "
             + LINK + " TEXT NOT NULL, " + TITLE + " VARCHAR(50) NOT NULL, "
@@ -85,7 +83,7 @@ public class QuotesTableHelper {
             cursor = context.getContentResolver().query(Uri.withAppendedPath(
                             BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION}, ID + "=?",
                     new String[]{String.valueOf(id)}, null);
-            if(null != cursor && cursor.moveToNext())
+            if (null != cursor && cursor.moveToNext())
                 result = cursor.getString(cursor.getColumnIndex(DESCRIPTION));
         } finally {
             if (null != cursor) cursor.close();

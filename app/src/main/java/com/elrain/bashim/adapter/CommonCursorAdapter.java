@@ -30,14 +30,12 @@ public class CommonCursorAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View v = LayoutInflater.from(context).inflate(R.layout.list_item_view, parent, false);
-        ViewHolder.initViews(v);
-        return v;
+        return LayoutInflater.from(context).inflate(R.layout.list_item_view, parent, false);
     }
 
     @Override
     public void bindView(View view, final Context context, Cursor cursor) {
-        final ViewHolder holder = (ViewHolder) view.getTag();
+        final ViewHolder holder = new ViewHolder(view);
         final boolean isFavorite = cursor.getInt(cursor.getColumnIndex(QuotesTableHelper.IS_FAVORITE)) == 1;
         final long id = cursor.getLong(cursor.getColumnIndex(QuotesTableHelper.ID));
         holder.tvPubDate.setText(DateUtil.getItemPubDate(new Date(cursor.getLong(cursor.getColumnIndex(QuotesTableHelper.PUB_DATE)))));
@@ -75,20 +73,18 @@ public class CommonCursorAdapter extends CursorAdapter {
     }
 
     private static class ViewHolder {
-        ImageView ivComics;
-        ImageView ivFavorite;
-        TextView tvPubDate;
-        TextView tvText;
-        TextView tvTitle;
+        final ImageView ivComics;
+        final ImageView ivFavorite;
+        final TextView tvPubDate;
+        final TextView tvText;
+        final TextView tvTitle;
 
-        public static void initViews(View v) {
-            ViewHolder vh = new ViewHolder();
-            vh.ivComics = (ImageView) v.findViewById(R.id.ivComics);
-            vh.tvPubDate = (TextView) v.findViewById(R.id.tvBashItemPubDate);
-            vh.ivFavorite = (ImageView) v.findViewById(R.id.ivFavorite);
-            vh.tvText = (TextView) v.findViewById(R.id.tvBashItemText);
-            vh.tvTitle = (TextView) v.findViewById(R.id.tvBashItemTitle);
-            v.setTag(vh);
+        public ViewHolder(View v) {
+            ivComics = (ImageView) v.findViewById(R.id.ivComics);
+            tvPubDate = (TextView) v.findViewById(R.id.tvBashItemPubDate);
+            ivFavorite = (ImageView) v.findViewById(R.id.ivFavorite);
+            tvText = (TextView) v.findViewById(R.id.tvBashItemText);
+            tvTitle = (TextView) v.findViewById(R.id.tvBashItemTitle);
         }
     }
 }

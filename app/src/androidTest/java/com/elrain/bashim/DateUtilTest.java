@@ -22,15 +22,15 @@ public class DateUtilTest extends InstrumentationTestCase {
     }
 
     @SmallTest
-    public void testUnknownFormat(){
-        if(!(DateUtil.parseDateFromXml("dasdasdads") instanceof Date))
+    public void testUnknownFormat() {
+        if (!(DateUtil.parseDateFromXml("dasdasdads") instanceof Date))
             fail();
     }
 
-    public void testGetPubDateOnNull(){
+    public void testGetPubDateOnNull() {
         try {
             DateUtil.getItemPubDate(null);
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             fail();
         }
     }

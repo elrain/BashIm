@@ -22,12 +22,6 @@ public class AlarmUtil implements SharedPreferences.OnSharedPreferenceChangeList
     private final SharedPreferences mSharedPref;
     private final Context mContext;
 
-    public static AlarmUtil getInstance(Context context) {
-        if (null == mInstance)
-            mInstance = new AlarmUtil(context);
-        return mInstance;
-    }
-
     private AlarmUtil(Context context) {
         mContext = context;
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(context);
@@ -38,6 +32,12 @@ public class AlarmUtil implements SharedPreferences.OnSharedPreferenceChangeList
         mAlarmPIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
         mCancelPIntent = PendingIntent.getBroadcast(context, 0, alarmIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    public static AlarmUtil getInstance(Context context) {
+        if (null == mInstance)
+            mInstance = new AlarmUtil(context);
+        return mInstance;
     }
 
     /**

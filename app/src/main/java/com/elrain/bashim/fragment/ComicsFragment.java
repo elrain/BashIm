@@ -24,7 +24,7 @@ import com.elrain.bashim.util.Constants;
 /**
  * Created by denys.husher on 12.11.2015.
  */
-public class CommicsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
+public class ComicsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
 
     private CommonCursorAdapter mComicsCursorAdapter;
 
@@ -43,7 +43,7 @@ public class CommicsFragment extends Fragment implements LoaderManager.LoaderCal
         lvItems.setAdapter(mComicsCursorAdapter);
         lvItems.setOnItemLongClickListener(new PostQuotListener(getActivity()));
         lvItems.setOnItemClickListener(this);
-        getLoaderManager().initLoader(Constants.ID_LOADER, null, CommicsFragment.this);
+        getLoaderManager().initLoader(Constants.ID_LOADER, null, ComicsFragment.this);
     }
 
     @Override
@@ -66,5 +66,6 @@ public class CommicsFragment extends Fragment implements LoaderManager.LoaderCal
         Intent intent = new Intent(getActivity(), ImageScaleActivity.class);
         intent.putExtra(Constants.KEY_INTENT_IMAGE_URL, QuotesTableHelper.getUrlForComicsById(getActivity(), id));
         getActivity().startActivity(intent);
+        getActivity().overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 }

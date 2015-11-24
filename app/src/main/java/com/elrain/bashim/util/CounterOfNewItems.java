@@ -4,14 +4,14 @@ package com.elrain.bashim.util;
  * Created by denys.husher on 04.11.2015.
  */
 public class CounterOfNewItems {
-    private int quotesCounter;
     private static final CounterOfNewItems ourInstance = new CounterOfNewItems();
+    private int quotesCounter;
+
+    private CounterOfNewItems() {
+    }
 
     public static CounterOfNewItems getInstance() {
         return ourInstance;
-    }
-
-    private CounterOfNewItems() {
     }
 
     public int getQuotesCounter() {

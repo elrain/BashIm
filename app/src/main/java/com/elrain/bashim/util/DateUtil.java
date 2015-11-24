@@ -24,7 +24,17 @@ public class DateUtil {
         try {
             d = f.parse(dateString);
         } catch (ParseException e) {
-            e.printStackTrace();
+            f = new SimpleDateFormat("dd.MM.yy H:mm");
+            try {
+                d = f.parse(dateString);
+            } catch (ParseException e1) {
+                f = new SimpleDateFormat("yyyy-MM-dd H:mm");
+                try {
+                    d = f.parse(dateString);
+                } catch (ParseException e2) {
+                    e2.printStackTrace();
+                }
+            }
         }
         return d;
     }
@@ -53,4 +63,5 @@ public class DateUtil {
     private static String isZeroNeeded(int value) {
         return value < 10 ? "0" + value : String.valueOf(value);
     }
+
 }

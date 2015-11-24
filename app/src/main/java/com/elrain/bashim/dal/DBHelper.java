@@ -14,14 +14,14 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "com_elrain_bashim.db";
     private static DBHelper mInstance;
 
-    public synchronized static DBHelper getInstance(@NonNull Context context){
-        if(null == mInstance)
-            mInstance = new DBHelper(context);
-        return mInstance;
-    }
-
     private DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
+    }
+
+    public synchronized static DBHelper getInstance(@NonNull Context context) {
+        if (null == mInstance)
+            mInstance = new DBHelper(context);
+        return mInstance;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion == 1 && newVersion == 2)
             QuotesTableHelper.from1To2(db);
-        if(oldVersion == 2 && newVersion == 3)
+        if (oldVersion == 2 && newVersion == 3)
             QuotesTableHelper.from2To3(db);
     }
 }

@@ -9,6 +9,16 @@
             android:title="@string/action_main" />
 
         <item
+            android:id="@+id/aRandom"
+            android:icon="@android:drawable/ic_menu_help"
+            android:title="@string/action_random" />
+
+        <item
+            android:id="@+id/aBest"
+            android:icon="@android:drawable/ic_menu_help"
+            android:title="@string/action_best" />
+
+        <item
             android:id="@+id/aComics"
             android:icon="@android:drawable/button_onoff_indicator_on"
             android:title="@string/action_comics" />
@@ -18,9 +28,10 @@
             android:icon="@android:drawable/star_big_on"
             android:title="@string/action_favorite" />
 
-        <item android:id="@+id/aPreferences"
+        <item
+            android:id="@+id/aPreferences"
             android:icon="@android:drawable/ic_menu_manage"
-            android:title="@string/activity_preferences"/>
+            android:title="@string/activity_preferences" />
     </group>
 
 </menu>

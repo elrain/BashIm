@@ -36,6 +36,7 @@ public class XMLParser extends DefaultHandler {
     private static final String ENCODING = "windows-1251";
     private static final String HTTP = "http";
     private static final String DESCRIPTION_CONTAINS = "<img src=\"";
+    private final Context mContext;
     private BashItem bashItem;
     private boolean isItemOpen = false;
     private boolean isDescriptionOpen = false;
@@ -44,7 +45,6 @@ public class XMLParser extends DefaultHandler {
     private boolean isPubDateOpen = false;
     private boolean isLinkOpen = false;
     private boolean isAuthorOpen = false;
-    private final Context mContext;
     private StringBuilder mStringBuilder;
 
     public XMLParser(Context mContext) {

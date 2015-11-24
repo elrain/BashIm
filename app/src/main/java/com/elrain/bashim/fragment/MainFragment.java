@@ -89,6 +89,8 @@ public class MainFragment extends Fragment implements ServiceConnection,
 
     private void initRssDownloading() {
         if (!NetworkUtil.isDeviceOnline(getActivity())) {
+            if (null != mSwipeRefreshLayout)
+                mSwipeRefreshLayout.setRefreshing(false);
             mNoInternetDialog = DialogsHelper.noInternetDialog(getActivity(), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -96,7 +98,9 @@ public class MainFragment extends Fragment implements ServiceConnection,
                 }
             });
             mNoInternetDialog.show();
-        } else downloadRss();
+        } else if (isBound)
+            mBashService.downloadXml();
+        else downloadRss();
     }
 
     @Override
@@ -117,7 +121,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
         getActivity().bindService(intent, this, Context.BIND_AUTO_CREATE);
     }
 
-    public void onDownloadStarted() {
+    private void onDownloadStarted() {
         if (null != mNoInternetDialog && mNoInternetDialog.isShowing())
             mNoInternetDialog.dismiss();
         mSwipeRefreshLayout.setRefreshing(true);
@@ -143,7 +147,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
         getActivity().unregisterReceiver(mBroadcastReceiver);
     }
 
-    public void onDownloadFinished() {
+    private void onDownloadFinished() {
         if (isBound && null != getActivity()) {
             getActivity().unbindService(this);
             isBound = false;
@@ -194,12 +198,6 @@ public class MainFragment extends Fragment implements ServiceConnection,
 
     @Override
     public void onRefresh() {
-        if (!NetworkUtil.isDeviceOnline(getActivity())) {
-            mNoInternetDialog = DialogsHelper.noInternetDialog(getActivity());
-            mNoInternetDialog.show();
-            mSwipeRefreshLayout.setRefreshing(false);
-        } else if (isBound)
-            mBashService.downloadXml();
-        else downloadRss();
+        initRssDownloading();
     }
 }

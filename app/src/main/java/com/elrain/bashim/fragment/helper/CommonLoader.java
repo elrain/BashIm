@@ -13,10 +13,10 @@ import com.elrain.bashim.dal.QuotesTableHelper;
  */
 public class CommonLoader {
 
+    private static CommonLoader mInstance;
+    private final Context mContext;
     private String mWhereClause;
     private String[] mWhereValues;
-    private final Context mContext;
-    private static CommonLoader mInstance;
 
     private CommonLoader(Context context) {
         mContext = context;

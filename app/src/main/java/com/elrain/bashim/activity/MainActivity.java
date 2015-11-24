@@ -15,19 +15,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
 import com.elrain.bashim.R;
-import com.elrain.bashim.fragment.CommicsFragment;
+import com.elrain.bashim.fragment.BestFragment;
+import com.elrain.bashim.fragment.ComicsFragment;
 import com.elrain.bashim.fragment.FavoriteFragment;
 import com.elrain.bashim.fragment.MainFragment;
+import com.elrain.bashim.fragment.RandomFragment;
 import com.elrain.bashim.util.AlarmUtil;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
 
 import java.util.HashMap;
-
-import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -35,6 +33,8 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG_FAVORITE = "favorite";
     private static final String TAG_MAIN = "main";
     private static final String TAG_COMICS = "comics";
+    private static final String TAG_RANDOM = "random";
+    private static final String TAG_BEST = "best";
 
     private String mLastTag;
     private HashMap<String, Fragment> mFragmentMap;
@@ -64,14 +64,20 @@ public class MainActivity extends AppCompatActivity
         if (null != getSupportActionBar())
             switch (mLastTag) {
                 case TAG_COMICS:
-                    getSupportActionBar().setTitle(R.string.fragment_comics);
+                    getSupportActionBar().setTitle(R.string.action_comics);
                     break;
                 case TAG_FAVORITE:
-                    getSupportActionBar().setTitle(R.string.fragment_favorite);
+                    getSupportActionBar().setTitle(R.string.action_favorite);
+                    break;
+                case TAG_RANDOM:
+                    getSupportActionBar().setTitle(R.string.action_random);
+                    break;
+                case TAG_BEST:
+                    getSupportActionBar().setTitle(R.string.action_best);
                     break;
                 case TAG_MAIN:
                 default:
-                    getSupportActionBar().setTitle(R.string.fragment_main);
+                    getSupportActionBar().setTitle(R.string.action_main);
                     break;
             }
     }
@@ -92,7 +98,9 @@ public class MainActivity extends AppCompatActivity
         mFragmentMap = new HashMap<>();
         mFragmentMap.put(TAG_FAVORITE, new FavoriteFragment());
         mFragmentMap.put(TAG_MAIN, new MainFragment());
-        mFragmentMap.put(TAG_COMICS, new CommicsFragment());
+        mFragmentMap.put(TAG_COMICS, new ComicsFragment());
+        mFragmentMap.put(TAG_RANDOM, new RandomFragment());
+        mFragmentMap.put(TAG_BEST, new BestFragment());
     }
 
     private void initActionBar() {
@@ -125,19 +133,27 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         if (id == R.id.aMain) {
             if (null != getSupportActionBar())
-                getSupportActionBar().setTitle(R.string.fragment_main);
+                getSupportActionBar().setTitle(R.string.action_main);
             changeFragment(TAG_MAIN);
         } else if (id == R.id.aFavorite) {
             if (null != getSupportActionBar())
-                getSupportActionBar().setTitle(R.string.fragment_favorite);
+                getSupportActionBar().setTitle(R.string.action_favorite);
             changeFragment(TAG_FAVORITE);
         } else if (id == R.id.aComics) {
             if (null != getSupportActionBar())
-                getSupportActionBar().setTitle(R.string.fragment_comics);
+                getSupportActionBar().setTitle(R.string.action_comics);
             changeFragment(TAG_COMICS);
         } else if (id == R.id.aPreferences) {
             Intent in = new Intent(MainActivity.this, PreferencesActivity.class);
             startActivity(in);
+        } else if (id == R.id.aRandom) {
+            if (null != getSupportActionBar())
+                getSupportActionBar().setTitle(R.string.action_random);
+            changeFragment(TAG_RANDOM);
+        } else if (id == R.id.aBest) {
+            if (null != getSupportActionBar())
+                getSupportActionBar().setTitle(R.string.action_best);
+            changeFragment(TAG_BEST);
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -147,7 +163,7 @@ public class MainActivity extends AppCompatActivity
     private void changeFragment(@NonNull String tag) {
         Fragment currentFragment = mFragmentManager.findFragmentById(R.id.flContent);
         Fragment newFragment = mFragmentMap.get(tag);
-        if (newFragment != currentFragment) {
+        if (newFragment != currentFragment || newFragment instanceof RandomFragment) {
             FragmentTransaction ft = mFragmentManager.beginTransaction();
             if (null != newFragment) {
                 if (null != currentFragment) ft.detach(currentFragment);

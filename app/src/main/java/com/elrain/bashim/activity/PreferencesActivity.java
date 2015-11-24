@@ -25,6 +25,17 @@ public class PreferencesActivity extends AppCompatActivity {
         getFragmentManager().beginTransaction().add(R.id.flSettings, new PreferencesFragment()).commit();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                PreferencesActivity.this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     public static class PreferencesFragment extends PreferenceFragment
             implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -59,17 +70,6 @@ public class PreferencesActivity extends AppCompatActivity {
                     return resultValues[index];
             }
             return resultValues[1];
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                PreferencesActivity.this.finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
         }
     }
 }

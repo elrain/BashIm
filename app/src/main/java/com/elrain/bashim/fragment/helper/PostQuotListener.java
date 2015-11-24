@@ -19,7 +19,6 @@ public class PostQuotListener implements AdapterView.OnItemLongClickListener {
     private static final String TYPE_COMICS = "comics";
     private static final String TYPE_QUOTES = "quotes";
     private final Context mContext;
-    private static final String SHARE_FORMATTER = "%s <br/> %s";
 
     public PostQuotListener(Context mContext) {
         this.mContext = mContext;
@@ -30,11 +29,11 @@ public class PostQuotListener implements AdapterView.OnItemLongClickListener {
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         sharingIntent.setType(Constants.TEXT_PLAIN);
         String[] textToShare = QuotesTableHelper.getTextToShare(mContext, id);
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(String.format(SHARE_FORMATTER, textToShare[0], textToShare[1])).toString());
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(String.format(Constants.SHARE_FORMATTER, textToShare[0], textToShare[1])).toString());
         mContext.startActivity(sharingIntent);
-        if (null != textToShare[2] && !"".equals(textToShare[2])){
-            Answers.getInstance().logShare(new ShareEvent().putContentType(TYPE_COMICS));}
-        else Answers.getInstance().logShare(new ShareEvent().putContentType(TYPE_QUOTES));
+        if (null != textToShare[2] && !"".equals(textToShare[2])) {
+            Answers.getInstance().logShare(new ShareEvent().putContentType(TYPE_COMICS));
+        } else Answers.getInstance().logShare(new ShareEvent().putContentType(TYPE_QUOTES));
         return true;
     }
 }

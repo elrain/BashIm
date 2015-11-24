@@ -44,18 +44,17 @@ public class BashService extends Service {
         return mBinder;
     }
 
-    public class LocalBinder extends Binder {
-        public BashService getService() {
-            return BashService.this;
-        }
-    }
-
-
     public void downloadXml() {
         Intent downloadStartIntent = new Intent();
         downloadStartIntent.setAction(Constants.ACTION_DOWNLOAD_STARTED);
         sendBroadcast(downloadStartIntent);
         executor.execute(new DownloadTask());
+    }
+
+    public class LocalBinder extends Binder {
+        public BashService getService() {
+            return BashService.this;
+        }
     }
 
     private class DownloadTask implements Runnable {
