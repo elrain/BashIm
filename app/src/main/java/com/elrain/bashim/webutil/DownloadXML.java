@@ -18,7 +18,7 @@ import javax.xml.parsers.ParserConfigurationException;
 /**
  * Created by denys.husher on 03.11.2015.
  */
-public class DownloadXML {
+public final class DownloadXML {
     /**
      * Creates a new <code>URL</code> instance by parsing specific url. Open a new connection to the
      * resource referred to by this url. Get an <code>InputStream</code> for reading data from the

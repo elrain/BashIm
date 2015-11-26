@@ -61,9 +61,10 @@ public class BashService extends Service {
         @Override
         public void run() {
             DownloadXML.getStreamAndParse(getApplicationContext());
-            if (!BashPreferences.getInstance(getApplicationContext()).isFirstStart()
+            if (!BashPreferences.getInstance(getApplicationContext()).isFirstStart(true)
                     && CounterOfNewItems.getInstance().getQuotesCounter() != 0)
                 NotificationHelper.showNotification(getApplicationContext());
+            else CounterOfNewItems.getInstance().setCounterTooZero();
             Intent downloadStartIntent = new Intent();
             downloadStartIntent.setAction(Constants.ACTION_DOWNLOAD_FINISHED);
             sendBroadcast(downloadStartIntent);

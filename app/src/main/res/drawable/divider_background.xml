@@ -1,0 +1,9 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="90"
+        android:endColor="@color/bash_item_date_color"
+        android:centerColor="@color/bash_item_background"
+        android:startColor="@color/bash_item_background"
+        android:type="linear" />
+</shape>

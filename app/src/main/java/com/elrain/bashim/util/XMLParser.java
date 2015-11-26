@@ -24,7 +24,7 @@ import javax.xml.parsers.SAXParserFactory;
 /**
  * Created by denys.husher on 03.11.2015.
  */
-public class XMLParser extends DefaultHandler {
+public final class XMLParser extends DefaultHandler {
 
     private static final String TAG_ITEM = "item";
     private static final String TAG_GUID = "guid";

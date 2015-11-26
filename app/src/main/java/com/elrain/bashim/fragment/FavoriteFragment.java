@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.LoaderManager;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -16,9 +17,10 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SearchView;
 
+import com.elrain.bashim.BashContentProvider;
 import com.elrain.bashim.R;
 import com.elrain.bashim.adapter.CommonCursorAdapter;
-import com.elrain.bashim.fragment.helper.CommonLoader;
+import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.fragment.helper.PostQuotListener;
 import com.elrain.bashim.fragment.helper.SearchHelper;
 import com.elrain.bashim.util.Constants;
@@ -52,10 +54,10 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
         getLoaderManager().initLoader(Constants.ID_LOADER, null, FavoriteFragment.this);
     }
 
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_search, menu);
+        menu.findItem(R.id.aRefresh).setVisible(false);
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         if (null != searchView) {
@@ -68,9 +70,15 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (null == args) return CommonLoader.getInstance(getActivity()).getFavorites().build();
-        else return CommonLoader.getInstance(getActivity()).getFavorites()
-                .addSearch(args.getString(Constants.KEY_SEARCH_STRING)).build();
+        if (null == args)
+            return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
+                    QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.IS_FAVORITE + " =? ",
+                    new String[]{String.valueOf(1)}, null);
+        else return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
+                QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.IS_FAVORITE + " =? "
+                + " AND " + QuotesTableHelper.DESCRIPTION + " LIKE '%"
+                + args.getString(Constants.KEY_SEARCH_STRING) + "%'", new String[]{String.valueOf(1)},
+                null);
     }
 
     @Override

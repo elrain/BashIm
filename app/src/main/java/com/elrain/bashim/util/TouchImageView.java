@@ -80,6 +80,7 @@ public class TouchImageView extends ImageView {
     private ScaleGestureDetector mScaleDetector;
     private GestureDetector mGestureDetector;
     private OnTouchListener userTouchListener = null;
+
     public TouchImageView(Context context) {
         super(context);
         sharedConstructing(context);

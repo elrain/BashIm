@@ -24,9 +24,9 @@ public class BashPreferences {
         return mInstance;
     }
 
-    public boolean isFirstStart() {
+    public boolean isFirstStart(boolean isChangeNeeded) {
         boolean result = mPreferences.getBoolean(KEY_FIRST_START, true);
-        if (result)
+        if (result && isChangeNeeded)
             mPreferences.edit().putBoolean(KEY_FIRST_START, false).apply();
         return result;
     }
@@ -38,5 +38,4 @@ public class BashPreferences {
     public void setLastTag(String lastTag) {
         mPreferences.edit().putString(KEY_LAST_TAG, lastTag).apply();
     }
-
 }

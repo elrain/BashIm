@@ -14,7 +14,7 @@ import com.elrain.bashim.reciver.BashBroadcastReceiver;
 /**
  * Created by denys.husher on 17.11.2015.
  */
-public class AlarmUtil implements SharedPreferences.OnSharedPreferenceChangeListener {
+public final class AlarmUtil implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static AlarmUtil mInstance;
     private final AlarmManager mAlarmManager;
     private final PendingIntent mAlarmPIntent;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group>
+    <group android:checkableBehavior="single">
 
         <item
             android:id="@+id/aMain"
@@ -28,6 +28,9 @@
             android:icon="@android:drawable/star_big_on"
             android:title="@string/action_favorite" />
 
+    </group>
+
+    <group>
         <item
             android:id="@+id/aPreferences"
             android:icon="@android:drawable/ic_menu_manage"

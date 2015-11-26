@@ -15,7 +15,7 @@ import java.util.ArrayList;
 /**
  * Created by denys.husher on 23.11.2015.
  */
-public class HtmlParser {
+public final class HtmlParser {
 
     private static final String HREF = "href";
     private static final String HTTP_BASH_IM = "http://bash.im";
@@ -24,6 +24,7 @@ public class HtmlParser {
     private static final String SPAN_DATE = "span.date";
     private static final String A_ID = "a.id";
     private static final String DIV_TEXT = "div.text";
+    public static final String QUOTE = "Цитата ";
     private static OnHtmlParsed mListener;
 
     public static void getRandomQuotes(OnHtmlParsed listener, String url) {
@@ -51,7 +52,7 @@ public class HtmlParser {
                         continue;
                     BashItem item = new BashItem();
                     item.setDescription(Jsoup.parse(String.valueOf(newQuote)).select(DIV_TEXT).html());
-                    item.setTitle(action.select(A_ID).text());
+                    item.setTitle(QUOTE + action.select(A_ID).text());
                     item.setLink(HTTP_BASH_IM + action.select(A_ID).attr(HREF));
                     item.setPubDate(DateUtil.parseDateFromXml(date));
                     quotes.add(item);

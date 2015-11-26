@@ -3,7 +3,7 @@ package com.elrain.bashim.util;
 /**
  * Created by denys.husher on 04.11.2015.
  */
-public class Constants {
+public final class Constants {
 
     public static final String INTENT_DOWNLOAD = "come.elrain.bashim.download";
     public static final String ACTION_DOWNLOAD_STARTED = "come.elrain.bashim.DOWNLOAD_STARTED";

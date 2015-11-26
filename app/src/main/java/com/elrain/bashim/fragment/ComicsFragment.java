@@ -2,6 +2,7 @@ package com.elrain.bashim.fragment;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -13,11 +14,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.elrain.bashim.BashContentProvider;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.ImageScaleActivity;
 import com.elrain.bashim.adapter.CommonCursorAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
-import com.elrain.bashim.fragment.helper.CommonLoader;
 import com.elrain.bashim.fragment.helper.PostQuotListener;
 import com.elrain.bashim.util.Constants;
 
@@ -48,7 +49,9 @@ public class ComicsFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return CommonLoader.getInstance(getActivity()).getComics().build();
+        return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
+                QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.AUTHOR + " IS NOT NULL ",
+                null, null);
     }
 
     @Override

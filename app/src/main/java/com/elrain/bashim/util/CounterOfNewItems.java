@@ -3,7 +3,7 @@ package com.elrain.bashim.util;
 /**
  * Created by denys.husher on 04.11.2015.
  */
-public class CounterOfNewItems {
+public final class CounterOfNewItems {
     private static final CounterOfNewItems ourInstance = new CounterOfNewItems();
     private int quotesCounter;
 

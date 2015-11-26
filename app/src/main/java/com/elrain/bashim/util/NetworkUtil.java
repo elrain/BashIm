@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 /**
  * Created by denys.husher on 03.11.2015.
  */
-public class NetworkUtil {
+public final class NetworkUtil {
     /**
      * Check does WI-FI or mobile network enabled and connected.
      *

@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * Created by denys.husher on 04.11.2015.
  */
-public class DateUtil {
+public final class DateUtil {
 
     /**
      * Parses date from <code>String</code> to <code>Date</code>. If ParseException happened will be returned <code>new Date()</code>
