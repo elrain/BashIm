@@ -30,10 +30,10 @@ import com.elrain.bashim.util.AlarmUtil;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.ScreenUtil;
 
-import io.fabric.sdk.android.Fabric;
 import java.util.HashMap;
 
 import de.greenrobot.event.EventBus;
+import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener {
@@ -59,7 +59,9 @@ public class MainActivity extends AppCompatActivity
         Fabric.with(this, new Answers());
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
-        mLastTag = BashPreferences.getInstance(this).getLastTag();
+        if (null != savedInstanceState && ScreenUtil.isTablet(this))
+            mLastTag = BashPreferences.getInstance(this).getLastTag();
+        else mLastTag = TAG_MAIN;
         EventBus.getDefault().register(this);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srLayout);
         mSwipeRefreshLayout.setOnRefreshListener(this);

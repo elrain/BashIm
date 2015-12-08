@@ -21,7 +21,6 @@ import com.elrain.bashim.BashContentProvider;
 import com.elrain.bashim.R;
 import com.elrain.bashim.adapter.CommonCursorAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
-import com.elrain.bashim.fragment.helper.PostQuotListener;
 import com.elrain.bashim.fragment.helper.SearchHelper;
 import com.elrain.bashim.util.Constants;
 
@@ -50,7 +49,6 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
         mQuotesCursorAdapter = new CommonCursorAdapter(getActivity());
         ListView lvItems = (ListView) view.findViewById(R.id.lvBashItems);
         lvItems.setAdapter(mQuotesCursorAdapter);
-        lvItems.setOnItemLongClickListener(new PostQuotListener(getActivity()));
         getLoaderManager().initLoader(Constants.ID_LOADER, null, FavoriteFragment.this);
     }
 

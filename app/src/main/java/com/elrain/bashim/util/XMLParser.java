@@ -93,36 +93,29 @@ public final class XMLParser extends DefaultHandler {
     public void endElement(String uri, String localName, String qName) throws SAXException {
         super.endElement(uri, localName, qName);
         if (isItemOpen) {
-            if (TAG_GUID.equals(qName)) {
-                bashItem.setGuid(mStringBuilder.toString());
+            if (TAG_GUID.equals(qName))
                 isGuidOpen = false;
-                mStringBuilder = new StringBuilder();
-            } else if (TAG_LINK.equals(qName)) {
+            else if (TAG_LINK.equals(qName)) {
                 bashItem.setLink(mStringBuilder.toString());
                 isLinkOpen = false;
-                mStringBuilder = new StringBuilder();
             } else if (TAG_DESCRIPTION.equals(qName)) {
                 String description = mStringBuilder.toString();
                 if (description.contains(DESCRIPTION_CONTAINS))
                     bashItem.setDescription(description.substring(description.indexOf(HTTP), description.length() - 2));
                 else bashItem.setDescription(mStringBuilder.toString());
                 isDescriptionOpen = false;
-                mStringBuilder = new StringBuilder();
             } else if (TAG_TITLE.equals(qName)) {
                 bashItem.setTitle(mStringBuilder.toString());
                 isTitleOpen = false;
-                mStringBuilder = new StringBuilder();
             } else if (TAG_PUB_DATE.equals(qName)) {
                 bashItem.setPubDate(DateUtil.parseDateFromXml(mStringBuilder.toString()));
                 isPubDateOpen = false;
-                mStringBuilder = new StringBuilder();
             } else if (TAG_AUTHOR.equals(qName)) {
                 bashItem.setAuthor(mStringBuilder.toString());
                 isAuthorOpen = false;
-                mStringBuilder = new StringBuilder();
-            } else QuotesTableHelper.inputQuot(mContext, bashItem);
+            } else QuotesTableHelper.saveQuot(mContext, bashItem);
+            mStringBuilder = new StringBuilder();
         }
-
     }
 
     @Override

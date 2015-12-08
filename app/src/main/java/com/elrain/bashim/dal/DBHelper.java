@@ -31,9 +31,5 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion == 1 && newVersion == 2)
-            QuotesTableHelper.from1To2(db);
-        if (oldVersion == 2 && newVersion == 3)
-            QuotesTableHelper.from2To3(db);
     }
 }

@@ -19,7 +19,6 @@ import com.elrain.bashim.R;
 import com.elrain.bashim.activity.ImageScaleActivity;
 import com.elrain.bashim.adapter.CommonCursorAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
-import com.elrain.bashim.fragment.helper.PostQuotListener;
 import com.elrain.bashim.util.Constants;
 
 /**
@@ -42,7 +41,6 @@ public class ComicsFragment extends Fragment implements LoaderManager.LoaderCall
         mComicsCursorAdapter = new CommonCursorAdapter(getActivity());
         ListView lvItems = (ListView) view.findViewById(R.id.lvBashItems);
         lvItems.setAdapter(mComicsCursorAdapter);
-        lvItems.setOnItemLongClickListener(new PostQuotListener(getActivity()));
         lvItems.setOnItemClickListener(this);
         getLoaderManager().initLoader(Constants.ID_LOADER, null, ComicsFragment.this);
     }

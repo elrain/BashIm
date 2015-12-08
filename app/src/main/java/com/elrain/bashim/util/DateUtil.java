@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by denys.husher on 04.11.2015.
@@ -19,16 +20,16 @@ public final class DateUtil {
      */
     public static Date parseDateFromXml(String dateString) {
         if (null == dateString) return new Date();
-        SimpleDateFormat f = new SimpleDateFormat("EEE, dd MMM yyyy H:mm:ss");
+        SimpleDateFormat f = new SimpleDateFormat("EEE, dd MMM yyyy H:mm:ss", Locale.US);
         Date d = new Date();
         try {
             d = f.parse(dateString);
         } catch (ParseException e) {
-            f = new SimpleDateFormat("dd.MM.yy H:mm");
+            f = new SimpleDateFormat("dd.MM.yy H:mm", Locale.US);
             try {
                 d = f.parse(dateString);
             } catch (ParseException e1) {
-                f = new SimpleDateFormat("yyyy-MM-dd H:mm");
+                f = new SimpleDateFormat("yyyy-MM-dd H:mm", Locale.US);
                 try {
                     d = f.parse(dateString);
                 } catch (ParseException e2) {

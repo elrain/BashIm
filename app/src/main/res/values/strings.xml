@@ -41,6 +41,11 @@
     <string name="preferences_title_notifications">Notifications</string>
     <string name="preferences_title_alarm_frequency">Update frequency</string>
 
+    <string name="menu_context_copy">Copy</string>
+    <string name="menu_context_share">Share</string>
+
+    <string name="menu_context_title">Select the action</string>
+
     <string-array name="listArray">
         <item>Never</item>
         <item>30 minutes</item>

@@ -3,24 +3,22 @@ package com.elrain.bashim.fragment;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.Html;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
 
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.helper.DialogsHelper;
-import com.elrain.bashim.adapter.RandomAdapter;
+import com.elrain.bashim.adapter.RecyclerAdapter;
 import com.elrain.bashim.message.RefreshMessage;
 import com.elrain.bashim.object.BashItem;
 import com.elrain.bashim.util.Constants;
@@ -39,7 +37,11 @@ public class BestFragment extends Fragment implements HtmlParser.OnHtmlParsed {
     private static final String YEAR = "year/";
     private static final String MONTH = "month/";
     private static final String DIVIDER = "/";
-    private RandomAdapter mRandomAdapter;
+    private RecyclerAdapter mBestAdapter;
+    private RecyclerView mRvItems;
+    private String[] years;
+    private String[] months;
+    private ArrayAdapter<String> yearAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,28 +52,19 @@ public class BestFragment extends Fragment implements HtmlParser.OnHtmlParsed {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.main_fragment, container, false);
+        return inflater.inflate(R.layout.recycler_main_fragment, container, false);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ListView listView = (ListView) view.findViewById(R.id.lvBashItems);
-        mRandomAdapter = new RandomAdapter(getActivity(), new ArrayList<BashItem>());
-        listView.setAdapter(mRandomAdapter);
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-                sharingIntent.setType(Constants.TEXT_PLAIN);
-                RandomAdapter.ViewHolder holder = (RandomAdapter.ViewHolder) view.getTag();
-                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT,
-                        Html.fromHtml(String.format(Constants.SHARE_FORMATTER, holder.tvText.getText(),
-                                holder.link)).toString());
-                startActivity(sharingIntent);
-                return true;
-            }
-        });
+        years = getResources().getStringArray(R.array.years);
+        months = getResources().getStringArray(R.array.months);
+        yearAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, years);
+        mRvItems = (RecyclerView) view.findViewById(R.id.lvBashItems);
+        mBestAdapter = new RecyclerAdapter(getActivity(), new ArrayList<BashItem>());
+        mRvItems.setAdapter(mBestAdapter);
+        mRvItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         downloadAndParse(Constants.BEST_URL);
     }
 
@@ -115,10 +108,6 @@ public class BestFragment extends Fragment implements HtmlParser.OnHtmlParsed {
         final Spinner spYears = (Spinner) view.findViewById(R.id.spYear);
         final Spinner spMonth = (Spinner) view.findViewById(R.id.spMonth);
 
-        final String[] years = getResources().getStringArray(R.array.years);
-        final String[] months = getResources().getStringArray(R.array.months);
-
-        ArrayAdapter<String> yearAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, years);
         yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spYears.setAdapter(yearAdapter);
 
@@ -143,8 +132,8 @@ public class BestFragment extends Fragment implements HtmlParser.OnHtmlParsed {
 
     @Override
     public void returnResult(ArrayList<BashItem> quotes) {
-        mRandomAdapter.setAdapter(quotes);
-        EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED, this));
+        mBestAdapter.setAdapter(quotes);
+        EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED, BestFragment.this));
+        mRvItems.scrollToPosition(0);
     }
-
 }

@@ -24,7 +24,7 @@ public final class HtmlParser {
     private static final String SPAN_DATE = "span.date";
     private static final String A_ID = "a.id";
     private static final String DIV_TEXT = "div.text";
-    public static final String QUOTE = "Цитата ";
+    private static final String QUOTE = "Цитата ";
     private static OnHtmlParsed mListener;
 
     public static void getRandomQuotes(OnHtmlParsed listener, String url) {

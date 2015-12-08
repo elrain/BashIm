@@ -9,7 +9,6 @@ public class BashItem {
     private String title;
     private String description;
     private String link;
-    private String guid;
     private Date pubDate;
     private String author;
 
@@ -35,14 +34,6 @@ public class BashItem {
 
     public void setLink(String link) {
         this.link = link;
-    }
-
-    public String getGuid() {
-        return guid;
-    }
-
-    public void setGuid(String guid) {
-        this.guid = guid;
     }
 
     public Date getPubDate() {
