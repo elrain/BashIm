@@ -20,11 +20,13 @@ import com.elrain.bashim.activity.ImageScaleActivity;
 import com.elrain.bashim.adapter.CommonCursorAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.util.Constants;
+import com.elrain.bashim.util.ContextMenuListener;
 
 /**
  * Created by denys.husher on 12.11.2015.
  */
-public class ComicsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
+public class ComicsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+        AdapterView.OnItemClickListener {
 
     private CommonCursorAdapter mComicsCursorAdapter;
 
@@ -37,11 +39,13 @@ public class ComicsFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        ContextMenuListener menuListener = new ContextMenuListener(getActivity(), false);
         mComicsCursorAdapter = new CommonCursorAdapter(getActivity());
         ListView lvItems = (ListView) view.findViewById(R.id.lvBashItems);
         lvItems.setAdapter(mComicsCursorAdapter);
         lvItems.setOnItemClickListener(this);
+        lvItems.setOnItemLongClickListener(menuListener);
+        lvItems.setOnCreateContextMenuListener(menuListener);
         getLoaderManager().initLoader(Constants.ID_LOADER, null, ComicsFragment.this);
     }
 
@@ -65,7 +69,7 @@ public class ComicsFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(getActivity(), ImageScaleActivity.class);
-        intent.putExtra(Constants.KEY_INTENT_IMAGE_URL, QuotesTableHelper.getUrlForComicsById(getActivity(), id));
+        intent.putExtra(Constants.KEY_INTENT_IMAGE_ID, id);
         getActivity().startActivity(intent);
         getActivity().overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }

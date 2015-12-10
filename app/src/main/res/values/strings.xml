@@ -36,9 +36,11 @@
     </plurals>
 
     <string name="preferences_key_notifications">showNotifications</string>
+    <string name="preferences_key_only_wifi">onlyWifi</string>
     <string name="preferences_key_alarm_frequency">frequency</string>
 
     <string name="preferences_title_notifications">Notifications</string>
+    <string name="preferences_title_only_wifi">Use only WiFi</string>
     <string name="preferences_title_alarm_frequency">Update frequency</string>
 
     <string name="menu_context_copy">Copy</string>

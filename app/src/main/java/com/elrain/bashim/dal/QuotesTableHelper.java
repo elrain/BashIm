@@ -8,6 +8,9 @@ import android.net.Uri;
 
 import com.elrain.bashim.BashContentProvider;
 import com.elrain.bashim.object.BashItem;
+import com.elrain.bashim.object.ImageSimpleItem;
+
+import java.util.ArrayList;
 
 /**
  * Created by denys.husher on 03.11.2015.
@@ -61,18 +64,24 @@ public class QuotesTableHelper {
         return null;
     }
 
-    public static String getUrlForComicsById(Context context, long id) {
+    public static ArrayList<ImageSimpleItem> getImages(Context context) {
         Cursor cursor = null;
+        ArrayList<ImageSimpleItem> images = new ArrayList<>();
         try {
             cursor = context.getContentResolver().query(Uri.withAppendedPath(
-                            BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION}, ID + "=?",
-                    new String[]{String.valueOf(id)}, null);
-            if (null != cursor && cursor.moveToNext())
-                return cursor.getString(cursor.getColumnIndex(DESCRIPTION));
+                    BashContentProvider.QUOTES_CONTENT_URI, "/" + 0), new String[]{ID,
+                    DESCRIPTION, TITLE}, AUTHOR + " IS NOT NULL ", null, null);
+            while (null != cursor && cursor.moveToNext()) {
+                ImageSimpleItem isi = new ImageSimpleItem();
+                isi.setId(cursor.getLong(cursor.getColumnIndex(ID)));
+                isi.setLink(cursor.getString(cursor.getColumnIndex(DESCRIPTION)));
+                isi.setTitle(cursor.getString(cursor.getColumnIndex(TITLE)));
+                images.add(isi);
+            }
         } finally {
             if (null != cursor) cursor.close();
         }
-        return null;
+        return images;
     }
 
     public static void makeFavorite(Context context, long id, boolean isFavorite) {

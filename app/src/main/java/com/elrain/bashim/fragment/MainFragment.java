@@ -35,6 +35,7 @@ import com.elrain.bashim.fragment.helper.SearchHelper;
 import com.elrain.bashim.message.RefreshMessage;
 import com.elrain.bashim.service.BashService;
 import com.elrain.bashim.util.Constants;
+import com.elrain.bashim.util.ContextMenuListener;
 import com.elrain.bashim.util.NetworkUtil;
 
 import de.greenrobot.event.EventBus;
@@ -75,11 +76,13 @@ public class MainFragment extends Fragment implements ServiceConnection,
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        ContextMenuListener menuListener = new ContextMenuListener(getActivity(), false);
         getActivity().startService(new Intent(getActivity(), BashService.class));
         mQuotesCursorAdapter = new CommonCursorAdapter(getActivity());
         ListView lvItems = (ListView) view.findViewById(R.id.lvBashItems);
         lvItems.setAdapter(mQuotesCursorAdapter);
+        lvItems.setOnCreateContextMenuListener(menuListener);
+        lvItems.setOnItemLongClickListener(menuListener);
         getLoaderManager().initLoader(Constants.ID_LOADER, null, MainFragment.this);
         initRssDownloading();
     }

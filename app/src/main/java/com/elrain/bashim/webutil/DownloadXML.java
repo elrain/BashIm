@@ -19,6 +19,9 @@ import javax.xml.parsers.ParserConfigurationException;
  * Created by denys.husher on 03.11.2015.
  */
 public final class DownloadXML {
+
+    private static final int TIMEOUT_MILLIS = 30 * 1000;
+
     /**
      * Creates a new <code>URL</code> instance by parsing specific url. Open a new connection to the
      * resource referred to by this url. Get an <code>InputStream</code> for reading data from the
@@ -31,6 +34,7 @@ public final class DownloadXML {
             URL[] url = new URL[]{new URL(BuildConfig.RSS_URL), new URL(Constants.COMMICS_RSS_URL)};
             for (URL link : url) {
                 URLConnection urlConn = link.openConnection();
+                urlConn.setConnectTimeout(TIMEOUT_MILLIS);
                 InputStream is = urlConn.getInputStream();
                 XMLParser xmlParser = new XMLParser(context);
                 xmlParser.parseXml(is);

@@ -3,7 +3,10 @@ package com.elrain.bashim.util;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+
+import com.elrain.bashim.R;
 
 /**
  * Created by denys.husher on 03.11.2015.
@@ -17,22 +20,17 @@ public final class NetworkUtil {
      */
 
     public static boolean isDeviceOnline(@NonNull Context context) {
-        boolean status = false;
         try {
             ConnectivityManager cv = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = cv.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-            if (networkInfo != null && networkInfo.getState() == NetworkInfo.State.CONNECTED) {
-                status = true;
-            } else {
-                networkInfo = cv.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                if (networkInfo != null && networkInfo.getState() == NetworkInfo.State.CONNECTED) {
-                    status = true;
-                }
-            }
+            NetworkInfo ni = cv.getActiveNetworkInfo();
+            boolean isOnlyWifi = PreferenceManager.getDefaultSharedPreferences(context)
+                    .getBoolean(context.getString(R.string.preferences_key_only_wifi), false);
+            if (isOnlyWifi && ni.getType() == ConnectivityManager.TYPE_WIFI)
+                return ni.isConnectedOrConnecting();
+            else return ni.isConnectedOrConnecting();
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
-        return status;
     }
 }

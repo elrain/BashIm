@@ -9,21 +9,24 @@ import android.text.Html;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ShareEvent;
 import com.elrain.bashim.R;
+import com.elrain.bashim.dal.QuotesTableHelper;
 
 /**
  * Created by denys.husher on 08.12.2015.
  */
-public class ContextMenuListener implements View.OnCreateContextMenuListener {
+public class ContextMenuListener implements View.OnCreateContextMenuListener,
+        AdapterView.OnItemLongClickListener {
 
     private static final String TYPE_COMICS = "comics";
     private static final String TYPE_QUOTES = "quotes";
-    public static final String CLIP_LABEL = "label";
-    public static final String TOAST_COPIED = "Copied";
+    private static final String CLIP_LABEL = "label";
+    private static final String TOAST_COPIED = "Copied";
 
     private final Context mContext;
     private String mText;
@@ -42,10 +45,6 @@ public class ContextMenuListener implements View.OnCreateContextMenuListener {
 
     public void setLink(String link) {
         mLink = link;
-    }
-
-    public void setAuthor(String author) {
-        mAuthor = author;
     }
 
     @Override
@@ -102,5 +101,15 @@ public class ContextMenuListener implements View.OnCreateContextMenuListener {
     @NonNull
     private String getText() {
         return Html.fromHtml(String.format(Constants.SHARE_FORMATTER, mText, mLink)).toString();
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        String[] dataToShare = QuotesTableHelper.getTextToShare(mContext, id);
+        if (null == dataToShare) return true;
+        mText = Html.fromHtml(dataToShare[0]).toString();
+        mLink = dataToShare[1];
+        mAuthor = dataToShare[2];
+        return false;
     }
 }

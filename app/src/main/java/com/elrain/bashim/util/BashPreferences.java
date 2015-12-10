@@ -24,9 +24,9 @@ public class BashPreferences {
         return mInstance;
     }
 
-    public boolean isFirstStart(boolean isChangeNeeded) {
+    public boolean isFirstStart() {
         boolean result = mPreferences.getBoolean(KEY_FIRST_START, true);
-        if (result && isChangeNeeded)
+        if (result)
             mPreferences.edit().putBoolean(KEY_FIRST_START, false).apply();
         return result;
     }

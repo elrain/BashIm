@@ -51,7 +51,7 @@ public final class DateUtil {
         if (null == date) return null;
         Calendar c = Calendar.getInstance();
         c.setTime(date);
-        int hours = date.getHours();
+        int hours = c.get(Calendar.HOUR);
         int minutes = c.get(Calendar.MINUTE);
         int year = c.get(Calendar.YEAR);
         int day = c.get(Calendar.DAY_OF_MONTH);

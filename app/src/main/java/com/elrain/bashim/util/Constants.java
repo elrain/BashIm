@@ -13,7 +13,7 @@ public final class Constants {
     public static final String TEXT_PLAIN = "text/plain";
     public static final int ID_LOADER = 2204;
     public static final String KEY_OPEN_MAIN_ACTIVITY = "openMain";
-    public static final String KEY_INTENT_IMAGE_URL = "imageUrl";
+    public static final String KEY_INTENT_IMAGE_ID = "imageId";
     public static final String SHARE_FORMATTER = "%s <br/> %s";
     public static final String SHARE_FORMATTER_CLIPBOARD = "%s \n %s";
 

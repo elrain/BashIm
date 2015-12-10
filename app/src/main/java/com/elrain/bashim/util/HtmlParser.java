@@ -1,6 +1,7 @@
 package com.elrain.bashim.util;
 
 import android.os.AsyncTask;
+import android.text.Html;
 
 import com.elrain.bashim.object.BashItem;
 
@@ -51,7 +52,7 @@ public final class HtmlParser {
                     if ("".equals(date))
                         continue;
                     BashItem item = new BashItem();
-                    item.setDescription(Jsoup.parse(String.valueOf(newQuote)).select(DIV_TEXT).html());
+                    item.setDescription(Html.fromHtml(Jsoup.parse(String.valueOf(newQuote)).select(DIV_TEXT).html()).toString());
                     item.setTitle(QUOTE + action.select(A_ID).text());
                     item.setLink(HTTP_BASH_IM + action.select(A_ID).attr(HREF));
                     item.setPubDate(DateUtil.parseDateFromXml(date));

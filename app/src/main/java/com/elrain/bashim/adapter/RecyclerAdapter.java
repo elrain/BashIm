@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
-import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +11,8 @@ import android.widget.TextView;
 
 import com.elrain.bashim.R;
 import com.elrain.bashim.object.BashItem;
-import com.elrain.bashim.util.DateUtil;
 import com.elrain.bashim.util.ContextMenuListener;
+import com.elrain.bashim.util.DateUtil;
 
 import java.util.ArrayList;
 
@@ -43,7 +41,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         return new ViewHolder(v);
     }
 
-    public BashItem getItem(int position) {
+    private BashItem getItem(int position) {
         return mItems.get(position);
     }
 
@@ -51,7 +49,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.tvPubDate.setText(DateUtil.getItemPubDate(getItem(position).getPubDate()));
         holder.tvTitle.setText(getItem(position).getTitle());
-        holder.setText(Html.fromHtml(getItem(position).getDescription()));
+        holder.setText(getItem(position).getDescription());
         holder.setLink(getItem(position).getLink());
         holder.tvTitle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,7 +69,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         final TextView tvPubDate;
         private final TextView tvText;
         final TextView tvTitle;
-        private ContextMenuListener mContextMenuListener;
+        private final ContextMenuListener mContextMenuListener;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -88,9 +86,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             mContextMenuListener.setLink(link);
         }
 
-        public void setText(Spanned text){
+        public void setText(String text) {
             tvText.setText(text);
-            mContextMenuListener.setText(text.toString());
+            mContextMenuListener.setText(text);
         }
     }
 }

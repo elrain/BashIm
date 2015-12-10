@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.Html;
-import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,6 @@ import android.widget.TextView;
 
 import com.elrain.bashim.R;
 import com.elrain.bashim.dal.QuotesTableHelper;
-import com.elrain.bashim.util.ContextMenuListener;
 import com.elrain.bashim.util.DateUtil;
 import com.squareup.picasso.Picasso;
 
@@ -37,7 +35,7 @@ public class CommonCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, final Context context, Cursor cursor) {
-        final ViewHolder holder = new ViewHolder(context, view);
+        final ViewHolder holder = new ViewHolder(view);
         final boolean isFavorite = cursor.getInt(cursor.getColumnIndex(QuotesTableHelper.IS_FAVORITE)) == 1;
         final boolean isAuthorNonNull = null != cursor.getString(cursor.getColumnIndex(QuotesTableHelper.AUTHOR));
         final String link = cursor.getString(cursor.getColumnIndex(QuotesTableHelper.LINK));
@@ -60,17 +58,13 @@ public class CommonCursorAdapter extends CursorAdapter {
             holder.tvText.setVisibility(View.GONE);
             holder.ivComics.setVisibility(View.VISIBLE);
             final String url = cursor.getString(cursor.getColumnIndex(QuotesTableHelper.DESCRIPTION));
-            holder.setLink(url);
             Picasso.with(context).load(url).into(holder.ivComics);
             holder.tvTitle.setText(cursor.getString(cursor.getColumnIndex(QuotesTableHelper.AUTHOR)));
-            holder.setAuthor(cursor.getString(cursor.getColumnIndex(QuotesTableHelper.AUTHOR)));
         } else {
-            holder.setLink(link);
             holder.tvText.setVisibility(View.VISIBLE);
             holder.ivComics.setVisibility(View.GONE);
-            holder.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(QuotesTableHelper.DESCRIPTION))));
+            holder.tvText.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(QuotesTableHelper.DESCRIPTION))));
             holder.tvTitle.setText(title);
-            holder.setAuthor(null);
             holder.tvTitle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -87,29 +81,13 @@ public class CommonCursorAdapter extends CursorAdapter {
         final TextView tvPubDate;
         final TextView tvText;
         final TextView tvTitle;
-        private ContextMenuListener mContextMenuListener;
 
-        public ViewHolder(Context context, View v) {
+        public ViewHolder(View v) {
             ivComics = (ImageView) v.findViewById(R.id.ivComics);
             tvPubDate = (TextView) v.findViewById(R.id.tvBashItemPubDate);
             ivFavorite = (ImageView) v.findViewById(R.id.ivFavorite);
             tvText = (TextView) v.findViewById(R.id.tvBashItemText);
             tvTitle = (TextView) v.findViewById(R.id.tvBashItemTitle);
-            mContextMenuListener = new ContextMenuListener(context, false);
-            v.setOnCreateContextMenuListener(mContextMenuListener);
-        }
-
-        public void setLink(String link) {
-            mContextMenuListener.setLink(link);
-        }
-
-        public void setAuthor(String author) {
-            mContextMenuListener.setAuthor(author);
-        }
-
-        public void setText(Spanned text){
-            tvText.setText(text);
-            mContextMenuListener.setText(text.toString());
         }
     }
 }
