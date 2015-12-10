@@ -15,13 +15,14 @@ import android.widget.Toast;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ShareEvent;
 import com.elrain.bashim.R;
+import com.elrain.bashim.activity.ImagePagerActivity;
 import com.elrain.bashim.dal.QuotesTableHelper;
 
 /**
  * Created by denys.husher on 08.12.2015.
  */
 public class ContextMenuListener implements View.OnCreateContextMenuListener,
-        AdapterView.OnItemLongClickListener {
+        AdapterView.OnItemLongClickListener{
 
     private static final String TYPE_COMICS = "comics";
     private static final String TYPE_QUOTES = "quotes";

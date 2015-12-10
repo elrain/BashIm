@@ -1,6 +1,5 @@
 package com.elrain.bashim.fragment;
 
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.app.SearchManager;
@@ -36,7 +35,6 @@ import com.elrain.bashim.message.RefreshMessage;
 import com.elrain.bashim.service.BashService;
 import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.ContextMenuListener;
-import com.elrain.bashim.util.HtmlParser;
 import com.elrain.bashim.util.NetworkUtil;
 
 import de.greenrobot.event.EventBus;
@@ -50,7 +48,6 @@ public class MainFragment extends Fragment implements ServiceConnection,
     private boolean isBound = false;
     private BashService mBashService;
     private CommonCursorAdapter mQuotesCursorAdapter;
-    private AlertDialog mNoInternetDialog;
     private BroadcastReceiver mBroadcastReceiver;
 
     @Override
@@ -92,7 +89,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
         NetworkUtil.isDeviceOnline(getActivity(), new NetworkUtil.OnDeviceOnlineListener() {
             @Override
             public void connected() {
-                if(isBound) mBashService.downloadXml();
+                if (isBound) mBashService.downloadXml();
                 else downloadRss();
             }
 
@@ -148,8 +145,6 @@ public class MainFragment extends Fragment implements ServiceConnection,
     }
 
     private void onDownloadStarted() {
-        if (null != mNoInternetDialog && mNoInternetDialog.isShowing())
-            mNoInternetDialog.dismiss();
         EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.STARTED, this));
     }
 

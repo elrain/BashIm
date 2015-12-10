@@ -18,5 +18,10 @@
     <SwitchPreference
         android:defaultValue="false"
         android:key="@string/preferences_key_only_wifi"
-        android:title="@string/preferences_title_only_wifi"/>
+        android:title="@string/preferences_title_only_wifi" />
+
+    <Preference
+        android:key="@string/preferences_key_version"
+        android:summary="1.4.6.2"
+        android:title="@string/preferences_title_app_version" />
 </PreferenceScreen>

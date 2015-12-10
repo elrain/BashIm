@@ -5,6 +5,7 @@ import android.app.LoaderManager;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -14,20 +15,23 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
 
 import com.elrain.bashim.BashContentProvider;
 import com.elrain.bashim.R;
+import com.elrain.bashim.activity.ImageScaleActivity;
 import com.elrain.bashim.adapter.CommonCursorAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.fragment.helper.SearchHelper;
 import com.elrain.bashim.util.Constants;
+import com.elrain.bashim.util.ContextMenuListener;
 
 /**
  * Created by denys.husher on 05.11.2015.
  */
-public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
 
     private CommonCursorAdapter mQuotesCursorAdapter;
 
@@ -49,6 +53,10 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
         mQuotesCursorAdapter = new CommonCursorAdapter(getActivity());
         ListView lvItems = (ListView) view.findViewById(R.id.lvBashItems);
         lvItems.setAdapter(mQuotesCursorAdapter);
+        ContextMenuListener menuListener = new ContextMenuListener(getActivity(), false);
+        lvItems.setOnCreateContextMenuListener(menuListener);
+        lvItems.setOnItemLongClickListener(menuListener);
+        lvItems.setOnItemClickListener(this);
         getLoaderManager().initLoader(Constants.ID_LOADER, null, FavoriteFragment.this);
     }
 
@@ -87,5 +95,15 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mQuotesCursorAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        String url = QuotesTableHelper.getUrlForComicsById(getActivity(), id);
+        if (null != url) {
+            Intent intent = new Intent(getActivity(), ImageScaleActivity.class);
+            intent.putExtra(Constants.KEY_INTENT_IMAGE_URL, url);
+            getActivity().startActivity(intent);
+        }
     }
 }

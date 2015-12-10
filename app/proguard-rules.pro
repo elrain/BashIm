@@ -18,3 +18,10 @@
 
 -dontwarn com.squareup.picasso.**
 -keep class android.support.v7.widget.LinearLayoutManager { *; }
+-keepclassmembers class ** {
+    public void onEvent*(***);
+}
+-keep class org.jsoup.Jsoup {*;}
+-keep class org.jsoup.nodes.Document
+-keep class org.jsoup.nodes.Element
+-keep class org.jsoup.select.Elements

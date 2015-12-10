@@ -54,11 +54,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
+//        Fabric.with(this, new Crashlytics());
+//        Fabric.with(this, new Answers());
         if (!ScreenUtil.isTablet(this))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        Fabric.with(this, new Answers());
-        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         if (null != savedInstanceState && ScreenUtil.isTablet(this))
             mLastTag = BashPreferences.getInstance(this).getLastTag();
@@ -219,7 +218,6 @@ public class MainActivity extends AppCompatActivity
         EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.STARTED, null));
     }
 
-    @SuppressWarnings("unused")
     public void onEventMainThread(RefreshMessage message) {
         if (message.mState == RefreshMessage.State.FINISHED && null != message.mFrom) {
             mSwipeRefreshLayout.setRefreshing(false);

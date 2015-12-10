@@ -16,7 +16,7 @@ import android.widget.ListView;
 
 import com.elrain.bashim.BashContentProvider;
 import com.elrain.bashim.R;
-import com.elrain.bashim.activity.ImageScaleActivity;
+import com.elrain.bashim.activity.ImagePagerActivity;
 import com.elrain.bashim.adapter.CommonCursorAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.util.Constants;
@@ -68,7 +68,7 @@ public class ComicsFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Intent intent = new Intent(getActivity(), ImageScaleActivity.class);
+        Intent intent = new Intent(getActivity(), ImagePagerActivity.class);
         intent.putExtra(Constants.KEY_INTENT_IMAGE_ID, id);
         getActivity().startActivity(intent);
         getActivity().overridePendingTransition(R.anim.fade_in, R.anim.fade_out);

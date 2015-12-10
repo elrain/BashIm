@@ -39,9 +39,6 @@ public class BestFragment extends Fragment implements HtmlParser.OnHtmlParsed {
     private static final String DIVIDER = "/";
     private RecyclerAdapter mBestAdapter;
     private RecyclerView mRvItems;
-    private String[] years;
-    private String[] months;
-    private ArrayAdapter<String> yearAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,9 +55,6 @@ public class BestFragment extends Fragment implements HtmlParser.OnHtmlParsed {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        years = getResources().getStringArray(R.array.years);
-        months = getResources().getStringArray(R.array.months);
-        yearAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, years);
         mRvItems = (RecyclerView) view.findViewById(R.id.lvBashItems);
         mBestAdapter = new RecyclerAdapter(getActivity(), new ArrayList<BashItem>());
         mRvItems.setAdapter(mBestAdapter);
@@ -119,16 +113,21 @@ public class BestFragment extends Fragment implements HtmlParser.OnHtmlParsed {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.date_picker_view, null);
         builder.setView(view);
+        builder.setTitle(R.string.dialog_title_date_picker);
+
         final Spinner spYears = (Spinner) view.findViewById(R.id.spYear);
         final Spinner spMonth = (Spinner) view.findViewById(R.id.spMonth);
+        final String[] years = getResources().getStringArray(R.array.years);
+        final String[] months = getResources().getStringArray(R.array.months);
 
+        final ArrayAdapter<String>yearAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, years);
         yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spYears.setAdapter(yearAdapter);
 
-        ArrayAdapter<String> monthAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, months);
+        final ArrayAdapter<String> monthAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, months);
         monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spMonth.setAdapter(monthAdapter);
-        builder.setTitle(R.string.dialog_title_date_picker);
+
         builder.setPositiveButton(R.string.dialog_btn_text_done, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
