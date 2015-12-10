@@ -23,6 +23,8 @@
 
     <string name="dialog_text_no_internet">Check your connection to the Internet and click Retry
         to download new quotes or click Cancel to close this dialog.</string>
+    <string name="dialog_text_no_internet_by_settings">No available WiFi connections. Check your
+        connection or change application settings.</string>
     <string name="dialog_text_year">Year: </string>
     <string name="dialog_text_month">Month: </string>
 

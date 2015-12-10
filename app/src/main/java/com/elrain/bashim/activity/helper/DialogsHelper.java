@@ -27,4 +27,13 @@ public class DialogsHelper {
         builder.setNegativeButton(R.string.dialog_btn_text_cancel, CLOSE_LISTENER);
         return builder.create();
     }
+
+    public static AlertDialog noInternetByPreferencesDialog(Context context, @NonNull DialogInterface.OnClickListener listener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(R.string.dialog_title_no_internet);
+        builder.setMessage(R.string.dialog_text_no_internet_by_settings);
+        builder.setPositiveButton(R.string.dialog_btn_text_retry, listener);
+        builder.setNegativeButton(R.string.dialog_btn_text_cancel, CLOSE_LISTENER);
+        return builder.create();
+    }
 }

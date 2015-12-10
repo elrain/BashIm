@@ -69,19 +69,33 @@ public class BestFragment extends Fragment implements HtmlParser.OnHtmlParsed {
     }
 
     private void downloadAndParse(final String url) {
-        if (NetworkUtil.isDeviceOnline(getActivity())) {
-            EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.STARTED, this));
-            HtmlParser.getRandomQuotes(this, url);
-        } else {
-            EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED, this));
-            DialogsHelper.noInternetDialog(getActivity(), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    downloadAndParse(url);
-                }
-            }).show();
-        }
+        NetworkUtil.isDeviceOnline(getActivity(), new NetworkUtil.OnDeviceOnlineListener() {
+            @Override
+            public void connected() {
+                EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.STARTED, BestFragment.this));
+                HtmlParser.getRandomQuotes(BestFragment.this, url);
+            }
 
+            @Override
+            public void disconnected() {
+                DialogsHelper.noInternetDialog(getActivity(), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        downloadAndParse(url);
+                    }
+                }).show();
+            }
+
+            @Override
+            public void onlyFiWiPossible() {
+                DialogsHelper.noInternetByPreferencesDialog(getActivity(), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        downloadAndParse(url);
+                    }
+                }).show();
+            }
+        });
     }
 
     @Override

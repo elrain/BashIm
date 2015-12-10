@@ -80,19 +80,33 @@ public class RandomFragment extends Fragment implements HtmlParser.OnHtmlParsed 
     }
 
     private void downloadAndParse() {
-        if (NetworkUtil.isDeviceOnline(getActivity())) {
-            EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.STARTED, this));
-            HtmlParser.getRandomQuotes(this, Constants.RANDOM_URL);
-        } else {
-            EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED, this));
-            DialogsHelper.noInternetDialog(getActivity(), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    downloadAndParse();
-                }
-            }).show();
-        }
+        NetworkUtil.isDeviceOnline(getActivity(), new NetworkUtil.OnDeviceOnlineListener() {
+            @Override
+            public void connected() {
+                EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.STARTED, RandomFragment.this));
+                HtmlParser.getRandomQuotes(RandomFragment.this, Constants.RANDOM_URL);
+            }
 
+            @Override
+            public void disconnected() {
+                DialogsHelper.noInternetDialog(getActivity(), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        downloadAndParse();
+                    }
+                }).show();
+            }
+
+            @Override
+            public void onlyFiWiPossible() {
+                DialogsHelper.noInternetByPreferencesDialog(getActivity(), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        downloadAndParse();
+                    }
+                }).show();
+            }
+        });
     }
 
     @Override

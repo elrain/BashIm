@@ -36,6 +36,7 @@ import com.elrain.bashim.message.RefreshMessage;
 import com.elrain.bashim.service.BashService;
 import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.ContextMenuListener;
+import com.elrain.bashim.util.HtmlParser;
 import com.elrain.bashim.util.NetworkUtil;
 
 import de.greenrobot.event.EventBus;
@@ -88,18 +89,33 @@ public class MainFragment extends Fragment implements ServiceConnection,
     }
 
     private void initRssDownloading() {
-        if (!NetworkUtil.isDeviceOnline(getActivity())) {
-            EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED, this));
-            mNoInternetDialog = DialogsHelper.noInternetDialog(getActivity(), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    initRssDownloading();
-                }
-            });
-            mNoInternetDialog.show();
-        } else if (isBound)
-            mBashService.downloadXml();
-        else downloadRss();
+        NetworkUtil.isDeviceOnline(getActivity(), new NetworkUtil.OnDeviceOnlineListener() {
+            @Override
+            public void connected() {
+                if(isBound) mBashService.downloadXml();
+                else downloadRss();
+            }
+
+            @Override
+            public void disconnected() {
+                DialogsHelper.noInternetDialog(getActivity(), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        initRssDownloading();
+                    }
+                }).show();
+            }
+
+            @Override
+            public void onlyFiWiPossible() {
+                DialogsHelper.noInternetByPreferencesDialog(getActivity(), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        initRssDownloading();
+                    }
+                }).show();
+            }
+        });
     }
 
     @Override
