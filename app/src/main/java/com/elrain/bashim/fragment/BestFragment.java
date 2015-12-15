@@ -22,8 +22,8 @@ import com.elrain.bashim.adapter.RecyclerAdapter;
 import com.elrain.bashim.message.RefreshMessage;
 import com.elrain.bashim.object.BashItem;
 import com.elrain.bashim.util.Constants;
-import com.elrain.bashim.util.HtmlParser;
 import com.elrain.bashim.util.NetworkUtil;
+import com.elrain.bashim.webutil.HtmlWorker;
 
 import java.util.ArrayList;
 
@@ -32,7 +32,7 @@ import de.greenrobot.event.EventBus;
 /**
  * Created by denys.husher on 24.11.2015.
  */
-public class BestFragment extends Fragment implements HtmlParser.OnHtmlParsed {
+public class BestFragment extends Fragment implements HtmlWorker.OnHtmlParsed {
 
     private static final String YEAR = "year/";
     private static final String MONTH = "month/";
@@ -67,7 +67,7 @@ public class BestFragment extends Fragment implements HtmlParser.OnHtmlParsed {
             @Override
             public void connected() {
                 EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.STARTED, BestFragment.this));
-                HtmlParser.getRandomQuotes(BestFragment.this, url);
+                HtmlWorker.getRandomQuotes(BestFragment.this, url);
             }
 
             @Override
@@ -120,7 +120,7 @@ public class BestFragment extends Fragment implements HtmlParser.OnHtmlParsed {
         final String[] years = getResources().getStringArray(R.array.years);
         final String[] months = getResources().getStringArray(R.array.months);
 
-        final ArrayAdapter<String>yearAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, years);
+        final ArrayAdapter<String> yearAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, years);
         yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spYears.setAdapter(yearAdapter);
 

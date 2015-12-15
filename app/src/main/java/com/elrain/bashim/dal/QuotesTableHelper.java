@@ -42,7 +42,7 @@ public class QuotesTableHelper {
         cv.put(TITLE, bashItem.getTitle());
         cv.put(PUB_DATE, bashItem.getPubDate().getTime());
         cv.put(DESCRIPTION, bashItem.getDescription());
-        cv.put(IS_FAVORITE, false);
+        cv.put(IS_FAVORITE, bashItem.isFavorite());
         cv.put(AUTHOR, bashItem.getAuthor());
         context.getContentResolver().insert(BashContentProvider.QUOTES_CONTENT_URI, cv);
     }
@@ -98,11 +98,37 @@ public class QuotesTableHelper {
                             BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION},
                     AUTHOR + " IS NOT NULL AND " + ID + "=?",
                     new String[]{String.valueOf(id)}, null);
-            if(null != cursor && cursor.moveToNext())
+            if (null != cursor && cursor.moveToNext())
                 result = cursor.getString(cursor.getColumnIndex(DESCRIPTION));
         } finally {
             if (null != cursor) cursor.close();
         }
         return result;
+    }
+
+    public static void makeOrInsertAsFavorite(Context context, BashItem item) {
+        ContentValues cv = new ContentValues();
+        cv.put(IS_FAVORITE, true);
+        long updatedRow = context.getContentResolver().update(Uri.withAppendedPath(
+                        BashContentProvider.QUOTES_CONTENT_URI, "/" + 0), cv, LINK + " =? ",
+                new String[]{item.getLink()});
+        if (updatedRow == 0) {
+            item.setIsFavorite(true);
+            saveQuot(context, item);
+        }
+    }
+
+    public static boolean isFavorite(Context mContext, String link) {
+        Cursor cursor = null;
+        try {
+            cursor = mContext.getContentResolver().query(Uri.withAppendedPath(
+                            BashContentProvider.QUOTES_CONTENT_URI, "/" + 0), new String[]{IS_FAVORITE},
+                    LINK + " =? ", new String[]{link}, null);
+            if (null != cursor && cursor.moveToNext())
+                return cursor.getInt(cursor.getColumnIndex(IS_FAVORITE)) == 1;
+        } finally {
+            if (null != cursor) cursor.close();
+        }
+        return false;
     }
 }

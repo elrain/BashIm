@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/groupQuotes"
+        android:checkableBehavior="single">
 
         <item
             android:id="@+id/aMain"
@@ -17,7 +19,11 @@
             android:id="@+id/aBest"
             android:icon="@android:drawable/ic_menu_help"
             android:title="@string/action_best" />
+    </group>
 
+    <group
+        android:id="@+id/groupAdditional"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/aComics"
             android:icon="@android:drawable/button_onoff_indicator_on"
@@ -27,13 +33,9 @@
             android:id="@+id/aFavorite"
             android:icon="@android:drawable/star_big_on"
             android:title="@string/action_favorite" />
-
     </group>
-
-    <group>
-        <item
-            android:id="@+id/aPreferences"
-            android:icon="@android:drawable/ic_menu_manage"
-            android:title="@string/activity_preferences" />
-    </group>
+    <item
+        android:id="@+id/aPreferences"
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="@string/activity_preferences" />
 </menu>

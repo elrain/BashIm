@@ -7,9 +7,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.elrain.bashim.R;
+import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.object.BashItem;
 import com.elrain.bashim.util.ContextMenuListener;
 import com.elrain.bashim.util.DateUtil;
@@ -36,7 +38,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_list_item_view,
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_view,
                 parent, false);
         return new ViewHolder(v);
     }
@@ -46,7 +48,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.tvPubDate.setText(DateUtil.getItemPubDate(getItem(position).getPubDate()));
         holder.tvTitle.setText(getItem(position).getTitle());
         holder.setText(getItem(position).getDescription());
@@ -58,6 +60,21 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                 mContext.startActivity(intent);
             }
         });
+
+        boolean isFavorite = QuotesTableHelper.isFavorite(mContext, getItem(position).getLink());
+
+        if (isFavorite)
+            holder.ivFavorite.setImageResource(android.R.drawable.star_big_on);
+        else
+            holder.ivFavorite.setImageResource(android.R.drawable.star_big_off);
+
+        holder.ivFavorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                QuotesTableHelper.makeOrInsertAsFavorite(mContext, getItem(position));
+                holder.ivFavorite.setImageResource(android.R.drawable.star_big_on);
+            }
+        });
     }
 
     @Override
@@ -66,9 +83,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        final TextView tvPubDate;
+        private final TextView tvPubDate;
         private final TextView tvText;
-        final TextView tvTitle;
+        private final TextView tvTitle;
+        private final ImageView ivFavorite;
         private final ContextMenuListener mContextMenuListener;
 
         public ViewHolder(View itemView) {
@@ -77,7 +95,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             tvText = (TextView) itemView.findViewById(R.id.tvBashItemText);
             tvTitle = (TextView) itemView.findViewById(R.id.tvBashItemTitle);
             itemView.findViewById(R.id.ivComics).setVisibility(View.GONE);
-            itemView.findViewById(R.id.ivFavorite).setVisibility(View.INVISIBLE);
+            ivFavorite = (ImageView) itemView.findViewById(R.id.ivFavorite);
             mContextMenuListener = new ContextMenuListener(mContext, true);
             itemView.setOnCreateContextMenuListener(mContextMenuListener);
         }

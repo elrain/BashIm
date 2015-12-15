@@ -20,8 +20,8 @@ import com.elrain.bashim.adapter.RecyclerAdapter;
 import com.elrain.bashim.message.RefreshMessage;
 import com.elrain.bashim.object.BashItem;
 import com.elrain.bashim.util.Constants;
-import com.elrain.bashim.util.HtmlParser;
 import com.elrain.bashim.util.NetworkUtil;
+import com.elrain.bashim.webutil.HtmlWorker;
 
 import java.util.ArrayList;
 
@@ -30,7 +30,7 @@ import de.greenrobot.event.EventBus;
 /**
  * Created by denys.husher on 23.11.2015.
  */
-public class RandomFragment extends Fragment implements HtmlParser.OnHtmlParsed {
+public class RandomFragment extends Fragment implements HtmlWorker.OnHtmlParsed {
 
     private RecyclerAdapter mRandomAdapter;
     private RecyclerView mRvItems;
@@ -84,7 +84,7 @@ public class RandomFragment extends Fragment implements HtmlParser.OnHtmlParsed 
             @Override
             public void connected() {
                 EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.STARTED, RandomFragment.this));
-                HtmlParser.getRandomQuotes(RandomFragment.this, Constants.RANDOM_URL);
+                HtmlWorker.getRandomQuotes(RandomFragment.this, Constants.RANDOM_URL);
             }
 
             @Override

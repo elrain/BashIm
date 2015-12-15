@@ -15,33 +15,27 @@ import android.widget.Toast;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ShareEvent;
 import com.elrain.bashim.R;
-import com.elrain.bashim.activity.ImagePagerActivity;
 import com.elrain.bashim.dal.QuotesTableHelper;
 
 /**
  * Created by denys.husher on 08.12.2015.
  */
 public class ContextMenuListener implements View.OnCreateContextMenuListener,
-        AdapterView.OnItemLongClickListener{
+        AdapterView.OnItemLongClickListener {
 
     private static final String TYPE_COMICS = "comics";
     private static final String TYPE_QUOTES = "quotes";
     private static final String CLIP_LABEL = "label";
-    private static final String TOAST_COPIED = "Copied";
 
     private final Context mContext;
+    private final boolean isBestOrRandom;
     private String mText;
     private String mLink;
-    private final boolean isBestOrRandom;
     private String mAuthor;
 
     public ContextMenuListener(Context context, boolean isBestOrRandom) {
         this.mContext = context;
         this.isBestOrRandom = isBestOrRandom;
-    }
-
-    public void setText(String text) {
-        mText = text;
     }
 
     public void setLink(String link) {
@@ -63,7 +57,8 @@ public class ContextMenuListener implements View.OnCreateContextMenuListener,
                     clip = ClipData.newPlainText(CLIP_LABEL, String.format(
                             Constants.SHARE_FORMATTER_CLIPBOARD, mText, mLink));
                 manager.setPrimaryClip(clip);
-                Toast.makeText(mContext, TOAST_COPIED, Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, mContext.getString(R.string.toast_text_copied),
+                        Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -102,6 +97,10 @@ public class ContextMenuListener implements View.OnCreateContextMenuListener,
     @NonNull
     private String getText() {
         return Html.fromHtml(String.format(Constants.SHARE_FORMATTER, mText, mLink)).toString();
+    }
+
+    public void setText(String text) {
+        mText = text;
     }
 
     @Override

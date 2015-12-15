@@ -11,6 +11,7 @@ public class BashItem {
     private String link;
     private Date pubDate;
     private String author;
+    private boolean isFavorite;
 
     public String getTitle() {
         return title;
@@ -50,5 +51,13 @@ public class BashItem {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public void setIsFavorite(boolean isFavorite) {
+        this.isFavorite = isFavorite;
     }
 }

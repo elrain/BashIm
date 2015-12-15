@@ -1,9 +1,10 @@
-package com.elrain.bashim.util;
+package com.elrain.bashim.webutil;
 
 import android.os.AsyncTask;
 import android.text.Html;
 
 import com.elrain.bashim.object.BashItem;
+import com.elrain.bashim.util.DateUtil;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 /**
  * Created by denys.husher on 23.11.2015.
  */
-public final class HtmlParser {
+public final class HtmlWorker {
 
     private static final String HREF = "href";
     private static final String HTTP_BASH_IM = "http://bash.im";

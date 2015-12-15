@@ -52,6 +52,8 @@
 
     <string name="menu_context_title">Select the action</string>
 
+    <string name="toast_text_copied">Copied</string>
+
     <string-array name="listArray">
         <item>Never</item>
         <item>30 minutes</item>

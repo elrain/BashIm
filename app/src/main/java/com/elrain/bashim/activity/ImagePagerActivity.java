@@ -49,7 +49,7 @@ public class ImagePagerActivity extends AppCompatActivity {
     private int getPosition(long id, ArrayList<ImageSimpleItem> images) {
         int size = images.size();
         for (int index = 0; index < size; ++index) {
-            if(id == images.get(index).getId()) return index;
+            if (id == images.get(index).getId()) return index;
         }
         return 1;
     }

@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.elrain.bashim.BuildConfig;
 import com.elrain.bashim.util.Constants;
-import com.elrain.bashim.util.XMLParser;
 
 import org.xml.sax.SAXException;
 
@@ -18,7 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
 /**
  * Created by denys.husher on 03.11.2015.
  */
-public final class DownloadXML {
+public final class XmlWorker {
 
     private static final int TIMEOUT_MILLIS = 30 * 1000;
 
@@ -36,7 +35,7 @@ public final class DownloadXML {
                 URLConnection urlConn = link.openConnection();
                 urlConn.setConnectTimeout(TIMEOUT_MILLIS);
                 InputStream is = urlConn.getInputStream();
-                XMLParser xmlParser = new XMLParser(context);
+                XmlParser xmlParser = new XmlParser(context);
                 xmlParser.parseXml(is);
             }
         } catch (ParserConfigurationException | SAXException | IOException e) {

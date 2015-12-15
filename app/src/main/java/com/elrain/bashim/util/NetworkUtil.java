@@ -15,7 +15,8 @@ public final class NetworkUtil {
 
     /**
      * Check does WI-FI or mobile network enabled and connected.
-     * @param context application context
+     *
+     * @param context  application context
      * @param listener which would notify about checking results
      * @see com.elrain.bashim.util.NetworkUtil.OnDeviceOnlineListener
      */
@@ -64,6 +65,7 @@ public final class NetworkUtil {
 
     /**
      * Interface for notifying of network connection checking results
+     *
      * @see OnDeviceOnlineListener#connected()
      * @see OnDeviceOnlineListener#disconnected()
      * @see OnDeviceOnlineListener#onlyFiWiPossible()

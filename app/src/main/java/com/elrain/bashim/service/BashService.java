@@ -11,7 +11,7 @@ import com.elrain.bashim.util.AlarmUtil;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.CounterOfNewItems;
-import com.elrain.bashim.webutil.DownloadXML;
+import com.elrain.bashim.webutil.XmlWorker;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -60,7 +60,7 @@ public class BashService extends Service {
     private class DownloadTask implements Runnable {
         @Override
         public void run() {
-            DownloadXML.getStreamAndParse(getApplicationContext());
+            XmlWorker.getStreamAndParse(getApplicationContext());
             if (!BashPreferences.getInstance(getApplicationContext()).isFirstStart()
                     && CounterOfNewItems.getInstance().getQuotesCounter() != 0)
                 NotificationHelper.showNotification(getApplicationContext());

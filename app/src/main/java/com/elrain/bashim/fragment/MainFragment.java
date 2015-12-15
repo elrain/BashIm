@@ -49,6 +49,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
     private BashService mBashService;
     private CommonCursorAdapter mQuotesCursorAdapter;
     private BroadcastReceiver mBroadcastReceiver;
+    private boolean isFirstSynced;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,7 +83,8 @@ public class MainFragment extends Fragment implements ServiceConnection,
         lvItems.setOnCreateContextMenuListener(menuListener);
         lvItems.setOnItemLongClickListener(menuListener);
         getLoaderManager().initLoader(Constants.ID_LOADER, null, MainFragment.this);
-        initRssDownloading();
+        if (!isFirstSynced)
+            initRssDownloading();
     }
 
     private void initRssDownloading() {
@@ -123,6 +125,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
         if (null != searchView) {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
             searchView.setIconifiedByDefault(false);
+            searchView.setSubmitButtonEnabled(true);
             searchView.setOnQueryTextListener(new SearchHelper(getActivity(), this));
         }
         super.onCreateOptionsMenu(menu, inflater);
@@ -180,6 +183,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
                             MainFragment.this));
                 }
             });
+        isFirstSynced = true;
     }
 
     @Override

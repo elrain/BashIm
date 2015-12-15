@@ -9,7 +9,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 
 import com.elrain.bashim.R;
-import com.elrain.bashim.reciver.BashBroadcastReceiver;
+import com.elrain.bashim.receiver.BashBroadcastReceiver;
 
 /**
  * Created by denys.husher on 17.11.2015.

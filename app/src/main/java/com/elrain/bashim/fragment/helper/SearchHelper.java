@@ -23,20 +23,16 @@ public class SearchHelper implements SearchView.OnQueryTextListener {
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        return false;
+        Bundle b = new Bundle();
+        b.putString(Constants.KEY_SEARCH_STRING, query);
+        mActivity.getLoaderManager().restartLoader(Constants.ID_LOADER, b, mClazz);
+        return true;
     }
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        if (newText.length() == 0) {
+        if (newText.length() == 0)
             mActivity.getLoaderManager().restartLoader(Constants.ID_LOADER, null, mClazz);
-            return false;
-        } else if (newText.length() < 3) return false;
-        else {
-            Bundle b = new Bundle();
-            b.putString(Constants.KEY_SEARCH_STRING, newText);
-            mActivity.getLoaderManager().restartLoader(Constants.ID_LOADER, b, mClazz);
-            return true;
-        }
+        return false;
     }
 }

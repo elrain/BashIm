@@ -1,4 +1,4 @@
-package com.elrain.bashim.reciver;
+package com.elrain.bashim.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
