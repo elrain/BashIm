@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.elrain.bashim.BuildConfig;
 import com.elrain.bashim.util.Constants;
+import com.elrain.bashim.util.XmlParser;
 
 import org.xml.sax.SAXException;
 
