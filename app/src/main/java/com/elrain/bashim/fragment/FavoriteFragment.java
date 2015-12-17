@@ -10,30 +10,30 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.SearchView;
 
 import com.elrain.bashim.BashContentProvider;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.ImageScaleActivity;
-import com.elrain.bashim.adapter.CommonCursorAdapter;
+import com.elrain.bashim.adapter.CommonAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.fragment.helper.SearchHelper;
 import com.elrain.bashim.util.Constants;
-import com.elrain.bashim.util.ContextMenuListener;
 
 /**
  * Created by denys.husher on 05.11.2015.
  */
 public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
 
-    private CommonCursorAdapter mQuotesCursorAdapter;
+    private CommonAdapter mQuotesCursorAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,13 +50,11 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mQuotesCursorAdapter = new CommonCursorAdapter(getActivity());
-        ListView lvItems = (ListView) view.findViewById(R.id.lvBashItems);
+        mQuotesCursorAdapter = new CommonAdapter(getActivity(), true);
+        RecyclerView lvItems = (RecyclerView) view.findViewById(R.id.lvBashItems);
+        lvItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         lvItems.setAdapter(mQuotesCursorAdapter);
-        ContextMenuListener menuListener = new ContextMenuListener(getActivity(), false);
-        lvItems.setOnCreateContextMenuListener(menuListener);
-        lvItems.setOnItemLongClickListener(menuListener);
-        lvItems.setOnItemClickListener(this);
+//        lvItems.setOnItemClickListener(this);
         getLoaderManager().initLoader(Constants.ID_LOADER, null, FavoriteFragment.this);
     }
 
@@ -89,7 +87,7 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mQuotesCursorAdapter.swapCursor(data);
+        mQuotesCursorAdapter.changeCursor(data);
     }
 
     @Override

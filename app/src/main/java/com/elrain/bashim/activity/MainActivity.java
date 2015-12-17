@@ -28,6 +28,7 @@ import com.elrain.bashim.fragment.RandomFragment;
 import com.elrain.bashim.message.RefreshMessage;
 import com.elrain.bashim.util.AlarmUtil;
 import com.elrain.bashim.util.BashPreferences;
+import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.ScreenUtil;
 
 import java.util.HashMap;
@@ -37,12 +38,6 @@ import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener {
-
-    private static final String TAG_FAVORITE = "favorite";
-    private static final String TAG_MAIN = "main";
-    private static final String TAG_COMICS = "comics";
-    private static final String TAG_RANDOM = "random";
-    private static final String TAG_BEST = "best";
 
     private String mLastTag;
     private HashMap<String, Fragment> mFragmentMap;
@@ -61,7 +56,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         if (null != savedInstanceState && ScreenUtil.isTablet(this))
             mLastTag = BashPreferences.getInstance(this).getLastTag();
-        else mLastTag = TAG_MAIN;
+        else mLastTag = getString(R.string.action_main);
         EventBus.getDefault().register(this);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srLayout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -73,31 +68,25 @@ public class MainActivity extends AppCompatActivity
         initFragmentMap();
         initActionBar();
         if (null != savedInstanceState && ScreenUtil.isTablet(this))
-            changeFragment(null == mLastTag ? TAG_MAIN : mLastTag);
-        else changeFragment(TAG_MAIN);
+            changeFragment(null == mLastTag ? getString(R.string.action_main) : mLastTag);
+        else changeFragment(getString(R.string.action_main));
         setActionBarTitle();
+        if (getIntent().getBooleanExtra(Constants.KEY_OPEN_MAIN_ACTIVITY, false))
+            BashPreferences.getInstance(this).resetQuotesCounter();
     }
 
     private void setActionBarTitle() {
         if (null != getSupportActionBar())
-            switch (mLastTag) {
-                case TAG_COMICS:
-                    getSupportActionBar().setTitle(R.string.action_comics);
-                    break;
-                case TAG_FAVORITE:
-                    getSupportActionBar().setTitle(R.string.action_favorite);
-                    break;
-                case TAG_RANDOM:
-                    getSupportActionBar().setTitle(R.string.action_random);
-                    break;
-                case TAG_BEST:
-                    getSupportActionBar().setTitle(R.string.action_best);
-                    break;
-                case TAG_MAIN:
-                default:
-                    getSupportActionBar().setTitle(R.string.action_main);
-                    break;
-            }
+            if (getString(R.string.action_comics).equals(mLastTag))
+                getSupportActionBar().setTitle(R.string.action_comics);
+            else if (getString(R.string.action_favorite).equals(mLastTag))
+                getSupportActionBar().setTitle(R.string.action_favorite);
+            else if (getString(R.string.action_random).equals(mLastTag))
+                getSupportActionBar().setTitle(R.string.action_random);
+            else if (getString(R.string.action_best).equals(mLastTag))
+                getSupportActionBar().setTitle(R.string.action_best);
+            else if (getString(R.string.action_main).equals(mLastTag))
+                getSupportActionBar().setTitle(R.string.action_main);
     }
 
     @Override
@@ -119,11 +108,11 @@ public class MainActivity extends AppCompatActivity
 
     private void initFragmentMap() {
         mFragmentMap = new HashMap<>();
-        mFragmentMap.put(TAG_FAVORITE, new FavoriteFragment());
-        mFragmentMap.put(TAG_MAIN, new MainFragment());
-        mFragmentMap.put(TAG_COMICS, new ComicsFragment());
-        mFragmentMap.put(TAG_RANDOM, new RandomFragment());
-        mFragmentMap.put(TAG_BEST, new BestFragment());
+        mFragmentMap.put(getString(R.string.action_favorite), new FavoriteFragment());
+        mFragmentMap.put(getString(R.string.action_main), new MainFragment());
+        mFragmentMap.put(getString(R.string.action_comics), new ComicsFragment());
+        mFragmentMap.put(getString(R.string.action_random), new RandomFragment());
+        mFragmentMap.put(getString(R.string.action_best), new BestFragment());
     }
 
     private void initActionBar() {
@@ -160,26 +149,26 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.aMain) {
             if (null != getSupportActionBar())
                 getSupportActionBar().setTitle(R.string.action_main);
-            changeFragment(TAG_MAIN);
+            changeFragment(getString(R.string.action_main));
         } else if (id == R.id.aFavorite) {
             if (null != getSupportActionBar())
                 getSupportActionBar().setTitle(R.string.action_favorite);
-            changeFragment(TAG_FAVORITE);
+            changeFragment(getString(R.string.action_favorite));
         } else if (id == R.id.aComics) {
             if (null != getSupportActionBar())
                 getSupportActionBar().setTitle(R.string.action_comics);
-            changeFragment(TAG_COMICS);
+            changeFragment(getString(R.string.action_comics));
         } else if (id == R.id.aPreferences) {
             Intent in = new Intent(MainActivity.this, PreferencesActivity.class);
             startActivity(in);
         } else if (id == R.id.aRandom) {
             if (null != getSupportActionBar())
                 getSupportActionBar().setTitle(R.string.action_random);
-            changeFragment(TAG_RANDOM);
+            changeFragment(getString(R.string.action_random));
         } else if (id == R.id.aBest) {
             if (null != getSupportActionBar())
                 getSupportActionBar().setTitle(R.string.action_best);
-            changeFragment(TAG_BEST);
+            changeFragment(getString(R.string.action_best));
         }
         if (!isTablet) {
             drawer.closeDrawer(GravityCompat.START);
@@ -205,11 +194,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     private int getSelectedItem() {
-        if (null == mLastTag || TAG_MAIN.equals(mLastTag)) return 0;
-        else if (TAG_RANDOM.equals(mLastTag)) return 1;
-        else if (TAG_BEST.equals(mLastTag)) return 2;
-        else if (TAG_COMICS.equals(mLastTag)) return 3;
-        else if (TAG_FAVORITE.equals(mLastTag)) return 4;
+        if (null == mLastTag || getString(R.string.action_main).equals(mLastTag)) return 0;
+        else if (getString(R.string.action_random).equals(mLastTag)) return 1;
+        else if (getString(R.string.action_best).equals(mLastTag)) return 2;
+        else if (getString(R.string.action_comics).equals(mLastTag)) return 3;
+        else if (getString(R.string.action_favorite).equals(mLastTag)) return 4;
         else return 0;
     }
 
@@ -218,6 +207,7 @@ public class MainActivity extends AppCompatActivity
         EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.STARTED, null));
     }
 
+    @SuppressWarnings("unused")
     public void onEventMainThread(RefreshMessage message) {
         if (message.mState == RefreshMessage.State.FINISHED && null != message.mFrom) {
             mSwipeRefreshLayout.setRefreshing(false);

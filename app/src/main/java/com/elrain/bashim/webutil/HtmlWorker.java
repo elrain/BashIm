@@ -42,18 +42,16 @@ public final class HtmlWorker {
         @Override
         protected ArrayList<BashItem> doInBackground(String... params) {
             ArrayList<BashItem> quotes = new ArrayList<>();
-            Document document;
             try {
-                document = Jsoup.connect(params[0]).get();
+                Document document = Jsoup.connect(params[0]).get();
                 Elements quotesElements = document.select(DIV_QUOTE);
                 for (Element quote : quotesElements) {
-                    Element newQuote = document.select(DIV_QUOTE).get(quotesElements.indexOf(quote));
-                    Elements action = Jsoup.parse(String.valueOf(newQuote)).select(DIV_ACTIONS);
+                    Elements action = Jsoup.parse(String.valueOf(quote)).select(DIV_ACTIONS);
                     String date = action.select(SPAN_DATE).text();
                     if ("".equals(date))
                         continue;
                     BashItem item = new BashItem();
-                    item.setDescription(Html.fromHtml(Jsoup.parse(String.valueOf(newQuote)).select(DIV_TEXT).html()).toString());
+                    item.setDescription(Html.fromHtml(Jsoup.parse(String.valueOf(quote)).select(DIV_TEXT).html()).toString());
                     item.setTitle(QUOTE + action.select(A_ID).text());
                     item.setLink(HTTP_BASH_IM + action.select(A_ID).attr(HREF));
                     item.setPubDate(DateUtil.parseDateFromXml(date));

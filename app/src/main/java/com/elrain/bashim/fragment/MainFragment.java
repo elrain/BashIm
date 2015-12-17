@@ -16,25 +16,25 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.SearchView;
 
 import com.elrain.bashim.BashContentProvider;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.helper.DialogsHelper;
-import com.elrain.bashim.adapter.CommonCursorAdapter;
+import com.elrain.bashim.adapter.CommonAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.fragment.helper.SearchHelper;
 import com.elrain.bashim.message.RefreshMessage;
 import com.elrain.bashim.service.BashService;
 import com.elrain.bashim.util.Constants;
-import com.elrain.bashim.util.ContextMenuListener;
 import com.elrain.bashim.util.NetworkUtil;
 
 import de.greenrobot.event.EventBus;
@@ -47,7 +47,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
 
     private boolean isBound = false;
     private BashService mBashService;
-    private CommonCursorAdapter mQuotesCursorAdapter;
+    private CommonAdapter mQuotesCursorAdapter;
     private BroadcastReceiver mBroadcastReceiver;
     private boolean isFirstSynced;
 
@@ -75,13 +75,11 @@ public class MainFragment extends Fragment implements ServiceConnection,
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ContextMenuListener menuListener = new ContextMenuListener(getActivity(), false);
         getActivity().startService(new Intent(getActivity(), BashService.class));
-        mQuotesCursorAdapter = new CommonCursorAdapter(getActivity());
-        ListView lvItems = (ListView) view.findViewById(R.id.lvBashItems);
+        mQuotesCursorAdapter = new CommonAdapter(getActivity());
+        RecyclerView lvItems = (RecyclerView) view.findViewById(R.id.lvBashItems);
+        lvItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         lvItems.setAdapter(mQuotesCursorAdapter);
-        lvItems.setOnCreateContextMenuListener(menuListener);
-        lvItems.setOnItemLongClickListener(menuListener);
         getLoaderManager().initLoader(Constants.ID_LOADER, null, MainFragment.this);
         if (!isFirstSynced)
             initRssDownloading();
@@ -212,7 +210,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mQuotesCursorAdapter.swapCursor(data);
+        mQuotesCursorAdapter.changeCursor(data);
     }
 
     @Override

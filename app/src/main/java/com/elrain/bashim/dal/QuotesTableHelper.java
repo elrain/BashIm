@@ -47,23 +47,6 @@ public class QuotesTableHelper {
         context.getContentResolver().insert(BashContentProvider.QUOTES_CONTENT_URI, cv);
     }
 
-    public static String[] getTextToShare(Context context, long id) {
-        Cursor cursor = null;
-        try {
-            cursor = context.getContentResolver().query(Uri.withAppendedPath(
-                            BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION, LINK, AUTHOR},
-                    ID + " = ?", new String[]{String.valueOf(id)}, null);
-            if (null != cursor && cursor.moveToNext()) {
-                return new String[]{cursor.getString(cursor.getColumnIndex(DESCRIPTION)),
-                        cursor.getString(cursor.getColumnIndex(LINK)),
-                        cursor.getString(cursor.getColumnIndex(AUTHOR))};
-            }
-        } finally {
-            if (null != cursor) cursor.close();
-        }
-        return null;
-    }
-
     public static ArrayList<ImageSimpleItem> getImages(Context context) {
         Cursor cursor = null;
         ArrayList<ImageSimpleItem> images = new ArrayList<>();

@@ -4,10 +4,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
+import com.bumptech.glide.Glide;
 import com.elrain.bashim.R;
 import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.TouchImageView;
-import com.squareup.picasso.Picasso;
 
 /**
  * Created by denys.husher on 10.12.2015.
@@ -29,7 +29,7 @@ public class ImageScaleActivity extends AppCompatActivity {
             finish();
         setContentView(R.layout.scale_image_view);
         TouchImageView iv = (TouchImageView) findViewById(R.id.ivComics);
-        Picasso.with(this).load(getIntent().getStringExtra(Constants.KEY_INTENT_IMAGE_URL)).into(iv);
+        Glide.with(this).load(getIntent().getStringExtra(Constants.KEY_INTENT_IMAGE_URL)).into(iv);
     }
 
     @Override

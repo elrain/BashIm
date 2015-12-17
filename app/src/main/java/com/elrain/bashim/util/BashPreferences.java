@@ -12,6 +12,7 @@ public class BashPreferences {
     private static final String BASH_SHARED_PREF = "BashSharedPref";
     private static final String KEY_FIRST_START = "firstStart";
     private static final String KEY_LAST_TAG = "lastTag";
+    private static final String KEY_NEW_QUOTES_COUNTER_TAG = "newQuotes";
     private static BashPreferences mInstance;
     private static SharedPreferences mPreferences;
 
@@ -26,8 +27,11 @@ public class BashPreferences {
 
     public boolean isFirstStart() {
         boolean result = mPreferences.getBoolean(KEY_FIRST_START, true);
-        if (result)
+        if (result) {
+            if (getQuotesCounter() != 0)
+                resetQuotesCounter();
             mPreferences.edit().putBoolean(KEY_FIRST_START, false).apply();
+        }
         return result;
     }
 
@@ -37,5 +41,19 @@ public class BashPreferences {
 
     public void setLastTag(String lastTag) {
         mPreferences.edit().putString(KEY_LAST_TAG, lastTag).apply();
+    }
+
+    public int getQuotesCounter() {
+        return mPreferences.getInt(KEY_NEW_QUOTES_COUNTER_TAG, 0);
+    }
+
+    public void addIncreaseQuotCounter() {
+        int count = mPreferences.getInt(KEY_NEW_QUOTES_COUNTER_TAG, 0);
+        ++count;
+        mPreferences.edit().putInt(KEY_NEW_QUOTES_COUNTER_TAG, count).apply();
+    }
+
+    public void resetQuotesCounter() {
+        mPreferences.edit().putInt(KEY_NEW_QUOTES_COUNTER_TAG, 0).apply();
     }
 }

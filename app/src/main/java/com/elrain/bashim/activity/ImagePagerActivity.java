@@ -11,12 +11,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
 import com.elrain.bashim.R;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.object.ImageSimpleItem;
 import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.TouchImageView;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -83,7 +83,7 @@ public class ImagePagerActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.scale_image_view, container, false);
             TouchImageView iv = (TouchImageView) rootView.findViewById(R.id.ivComics);
-            Picasso.with(getActivity()).load(getArguments().getString(QuotesTableHelper.LINK)).into(iv);
+            Glide.with(getActivity()).load(getArguments().getString(QuotesTableHelper.LINK)).into(iv);
             return rootView;
         }
     }

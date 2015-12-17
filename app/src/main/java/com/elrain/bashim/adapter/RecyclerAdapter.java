@@ -106,7 +106,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
         public void setText(String text) {
             tvText.setText(text);
-            mContextMenuListener.setText(text);
+            mContextMenuListener.setTextAndAuthor(text, null);
         }
     }
 }

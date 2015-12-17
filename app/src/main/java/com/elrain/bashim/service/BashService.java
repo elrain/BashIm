@@ -10,7 +10,6 @@ import com.elrain.bashim.activity.helper.NotificationHelper;
 import com.elrain.bashim.util.AlarmUtil;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
-import com.elrain.bashim.util.CounterOfNewItems;
 import com.elrain.bashim.webutil.XmlWorker;
 
 import java.util.concurrent.ExecutorService;
@@ -45,10 +44,14 @@ public class BashService extends Service {
     }
 
     public void downloadXml() {
-        Intent downloadStartIntent = new Intent();
-        downloadStartIntent.setAction(Constants.ACTION_DOWNLOAD_STARTED);
-        sendBroadcast(downloadStartIntent);
+        sendBroadcast(Constants.ACTION_DOWNLOAD_STARTED);
         executor.execute(new DownloadTask());
+    }
+
+    private void sendBroadcast(String actionDownloadStarted) {
+        Intent downloadStartIntent = new Intent();
+        downloadStartIntent.setAction(actionDownloadStarted);
+        sendBroadcast(downloadStartIntent);
     }
 
     public class LocalBinder extends Binder {
@@ -62,12 +65,9 @@ public class BashService extends Service {
         public void run() {
             XmlWorker.getStreamAndParse(getApplicationContext());
             if (!BashPreferences.getInstance(getApplicationContext()).isFirstStart()
-                    && CounterOfNewItems.getInstance().getQuotesCounter() != 0)
+                    && BashPreferences.getInstance(getApplicationContext()).getQuotesCounter() != 0)
                 NotificationHelper.showNotification(getApplicationContext());
-            else CounterOfNewItems.getInstance().setCounterTooZero();
-            Intent downloadStartIntent = new Intent();
-            downloadStartIntent.setAction(Constants.ACTION_DOWNLOAD_FINISHED);
-            sendBroadcast(downloadStartIntent);
+            sendBroadcast(Constants.ACTION_DOWNLOAD_FINISHED);
             stopSelf();
         }
     }

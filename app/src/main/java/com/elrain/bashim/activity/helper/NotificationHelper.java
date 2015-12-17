@@ -1,5 +1,6 @@
 package com.elrain.bashim.activity.helper;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -11,8 +12,9 @@ import android.support.v4.app.TaskStackBuilder;
 
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.MainActivity;
+import com.elrain.bashim.receiver.CancelNotificationReceiver;
+import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
-import com.elrain.bashim.util.CounterOfNewItems;
 
 /**
  * Created by denys.husher on 04.11.2015.
@@ -27,8 +29,8 @@ public class NotificationHelper {
             builder.setContentTitle(context.getString(R.string.app_name));
             builder.setAutoCancel(true);
             builder.setContentText(context.getResources().getQuantityString(R.plurals.notification_text,
-                    CounterOfNewItems.getInstance().getQuotesCounter(),
-                    CounterOfNewItems.getInstance().getQuotesCounter()));
+                    BashPreferences.getInstance(context).getQuotesCounter(),
+                    BashPreferences.getInstance(context).getQuotesCounter()));
             Intent intent = new Intent(context, MainActivity.class);
             intent.putExtra(Constants.KEY_OPEN_MAIN_ACTIVITY, true);
             TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
@@ -39,8 +41,9 @@ public class NotificationHelper {
             builder.setContentIntent(resultPendingIntent);
             NotificationManager mNotificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.notify(Constants.ID_NOTIFICATION, builder.build());
-            CounterOfNewItems.getInstance().setCounterTooZero();
+            Notification notification = builder.build();
+            notification.deleteIntent = PendingIntent.getBroadcast(context, 0, new Intent(context, CancelNotificationReceiver.class), 0);
+            mNotificationManager.notify(Constants.ID_NOTIFICATION, notification);
         }
     }
 }

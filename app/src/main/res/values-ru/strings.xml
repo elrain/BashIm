@@ -9,7 +9,7 @@
     <string name="searchable_label">Поиск</string>
     <string name="picker_label">Выберете дату</string>
 
-    <string name="action_main">Новые цитаты</string>
+    <string name="action_main">Цитаты</string>
     <string name="action_favorite">Сохраненные</string>
     <string name="action_comics">Комиксы</string>
     <string name="action_random">Случайные</string>

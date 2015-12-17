@@ -9,7 +9,7 @@
     <string name="searchable_label">Search</string>
     <string name="picker_label">Pick the date</string>
 
-    <string name="action_main">New Quotes</string>
+    <string name="action_main">Quotes</string>
     <string name="action_favorite">Favorites</string>
     <string name="action_comics">Comics</string>
     <string name="action_random">Random</string>

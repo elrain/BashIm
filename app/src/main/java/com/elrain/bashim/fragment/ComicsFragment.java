@@ -8,19 +8,19 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
 
 import com.elrain.bashim.BashContentProvider;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.ImagePagerActivity;
-import com.elrain.bashim.adapter.CommonCursorAdapter;
+import com.elrain.bashim.adapter.CommonAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.util.Constants;
-import com.elrain.bashim.util.ContextMenuListener;
 
 /**
  * Created by denys.husher on 12.11.2015.
@@ -28,7 +28,7 @@ import com.elrain.bashim.util.ContextMenuListener;
 public class ComicsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         AdapterView.OnItemClickListener {
 
-    private CommonCursorAdapter mComicsCursorAdapter;
+    private CommonAdapter mComicsCursorAdapter;
 
     @Nullable
     @Override
@@ -39,13 +39,10 @@ public class ComicsFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ContextMenuListener menuListener = new ContextMenuListener(getActivity(), false);
-        mComicsCursorAdapter = new CommonCursorAdapter(getActivity());
-        ListView lvItems = (ListView) view.findViewById(R.id.lvBashItems);
+        mComicsCursorAdapter = new CommonAdapter(getActivity(), false);
+        RecyclerView lvItems = (RecyclerView) view.findViewById(R.id.lvBashItems);
+        lvItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         lvItems.setAdapter(mComicsCursorAdapter);
-        lvItems.setOnItemClickListener(this);
-        lvItems.setOnItemLongClickListener(menuListener);
-        lvItems.setOnCreateContextMenuListener(menuListener);
         getLoaderManager().initLoader(Constants.ID_LOADER, null, ComicsFragment.this);
     }
 
@@ -58,7 +55,7 @@ public class ComicsFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mComicsCursorAdapter.swapCursor(data);
+        mComicsCursorAdapter.changeCursor(data);
     }
 
     @Override

@@ -9,19 +9,18 @@ import android.text.Html;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ShareEvent;
 import com.elrain.bashim.R;
-import com.elrain.bashim.dal.QuotesTableHelper;
+import com.elrain.bashim.activity.ImagePagerActivity;
+import com.elrain.bashim.activity.ImageScaleActivity;
 
 /**
  * Created by denys.husher on 08.12.2015.
  */
-public class ContextMenuListener implements View.OnCreateContextMenuListener,
-        AdapterView.OnItemLongClickListener {
+public class ContextMenuListener implements View.OnCreateContextMenuListener, View.OnClickListener {
 
     private static final String TYPE_COMICS = "comics";
     private static final String TYPE_QUOTES = "quotes";
@@ -32,6 +31,8 @@ public class ContextMenuListener implements View.OnCreateContextMenuListener,
     private String mText;
     private String mLink;
     private String mAuthor;
+    private boolean isGalleryNeeded;
+    private long mId;
 
     public ContextMenuListener(Context context, boolean isBestOrRandom) {
         this.mContext = context;
@@ -99,17 +100,27 @@ public class ContextMenuListener implements View.OnCreateContextMenuListener,
         return Html.fromHtml(String.format(Constants.SHARE_FORMATTER, mText, mLink)).toString();
     }
 
-    public void setText(String text) {
+    public void setTextAndAuthor(String text, String author) {
         mText = text;
+        mAuthor = author;
+    }
+
+    public void addClickListener(View v, long id, boolean isGalleryNeeded) {
+        this.isGalleryNeeded = isGalleryNeeded;
+        mId = id;
+        v.setOnClickListener(this);
     }
 
     @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        String[] dataToShare = QuotesTableHelper.getTextToShare(mContext, id);
-        if (null == dataToShare) return true;
-        mText = Html.fromHtml(dataToShare[0]).toString();
-        mLink = dataToShare[1];
-        mAuthor = dataToShare[2];
-        return false;
+    public void onClick(View v) {
+        if (isGalleryNeeded) {
+            Intent intent = new Intent(mContext, ImagePagerActivity.class);
+            intent.putExtra(Constants.KEY_INTENT_IMAGE_ID, mId);
+            mContext.startActivity(intent);
+        } else {
+            Intent intent = new Intent(mContext, ImageScaleActivity.class);
+            intent.putExtra(Constants.KEY_INTENT_IMAGE_URL, mText);
+            mContext.startActivity(intent);
+        }
     }
 }

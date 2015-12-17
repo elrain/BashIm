@@ -13,7 +13,7 @@ import android.text.TextUtils;
 
 import com.elrain.bashim.dal.DBHelper;
 import com.elrain.bashim.dal.QuotesTableHelper;
-import com.elrain.bashim.util.CounterOfNewItems;
+import com.elrain.bashim.util.BashPreferences;
 
 /**
  * Created by denys.husher on 03.11.2015.
@@ -88,7 +88,8 @@ public class BashContentProvider extends ContentProvider {
         if (rowId != -1)
             if (null == values.getAsString(QuotesTableHelper.AUTHOR)
                     || "".equals(values.getAsString(QuotesTableHelper.AUTHOR)))
-                CounterOfNewItems.getInstance().addQuotes();
+                if (null != getContext())
+                    BashPreferences.getInstance(getContext()).addIncreaseQuotCounter();
         Uri resultUri = ContentUris.withAppendedId(uri, rowId);
         if (null != getContext() && null != getContext().getContentResolver())
             getContext().getContentResolver().notifyChange(resultUri, null);

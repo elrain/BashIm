@@ -44,7 +44,7 @@ public class RandomFragment extends Fragment implements HtmlWorker.OnHtmlParsed 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.recycler_main_fragment, container, false);
+        return inflater.inflate(R.layout.main_fragment, container, false);
     }
 
     @Override
