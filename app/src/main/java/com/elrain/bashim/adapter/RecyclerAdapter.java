@@ -72,7 +72,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             @Override
             public void onClick(View v) {
                 QuotesTableHelper.makeOrInsertAsFavorite(mContext, getItem(position));
-                holder.ivFavorite.setImageResource(android.R.drawable.star_big_on);
+                notifyDataSetChanged();
             }
         });
     }

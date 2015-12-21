@@ -12,7 +12,6 @@ import com.elrain.bashim.util.Constants;
 
 public class PreferencesActivity extends AppCompatActivity {
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

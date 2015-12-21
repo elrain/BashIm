@@ -51,9 +51,8 @@ public class QuotesTableHelper {
         Cursor cursor = null;
         ArrayList<ImageSimpleItem> images = new ArrayList<>();
         try {
-            cursor = context.getContentResolver().query(Uri.withAppendedPath(
-                    BashContentProvider.QUOTES_CONTENT_URI, "/" + 0), new String[]{ID,
-                    DESCRIPTION, TITLE}, AUTHOR + " IS NOT NULL ", null, null);
+            cursor = context.getContentResolver().query(BashContentProvider.QUOTES_CONTENT_URI,
+                    new String[]{ID, DESCRIPTION, TITLE, PUB_DATE}, AUTHOR + " IS NOT NULL ", null, null);
             while (null != cursor && cursor.moveToNext()) {
                 ImageSimpleItem isi = new ImageSimpleItem();
                 isi.setId(cursor.getLong(cursor.getColumnIndex(ID)));
@@ -91,7 +90,7 @@ public class QuotesTableHelper {
 
     public static void makeOrInsertAsFavorite(Context context, BashItem item) {
         ContentValues cv = new ContentValues();
-        cv.put(IS_FAVORITE, true);
+        cv.put(IS_FAVORITE, !isFavorite(context, item.getLink()));
         long updatedRow = context.getContentResolver().update(Uri.withAppendedPath(
                         BashContentProvider.QUOTES_CONTENT_URI, "/" + 0), cv, LINK + " =? ",
                 new String[]{item.getLink()});
@@ -104,9 +103,8 @@ public class QuotesTableHelper {
     public static boolean isFavorite(Context mContext, String link) {
         Cursor cursor = null;
         try {
-            cursor = mContext.getContentResolver().query(Uri.withAppendedPath(
-                            BashContentProvider.QUOTES_CONTENT_URI, "/" + 0), new String[]{IS_FAVORITE},
-                    LINK + " =? ", new String[]{link}, null);
+            cursor = mContext.getContentResolver().query(BashContentProvider.QUOTES_CONTENT_URI,
+                    new String[]{IS_FAVORITE}, LINK + " =? ", new String[]{link}, null);
             if (null != cursor && cursor.moveToNext())
                 return cursor.getInt(cursor.getColumnIndex(IS_FAVORITE)) == 1;
         } finally {

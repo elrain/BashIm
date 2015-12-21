@@ -54,7 +54,6 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
         RecyclerView lvItems = (RecyclerView) view.findViewById(R.id.lvBashItems);
         lvItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         lvItems.setAdapter(mQuotesCursorAdapter);
-//        lvItems.setOnItemClickListener(this);
         getLoaderManager().initLoader(Constants.ID_LOADER, null, FavoriteFragment.this);
     }
 
@@ -87,7 +86,7 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mQuotesCursorAdapter.changeCursor(data);
+        mQuotesCursorAdapter.swapCursor(data);
     }
 
     @Override

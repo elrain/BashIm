@@ -3,6 +3,7 @@ package com.elrain.bashim.adapter;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 
 /**
@@ -16,7 +17,7 @@ public abstract class RecyclerCursorAdapter<VH extends RecyclerView.ViewHolder> 
     private int mIdColumnIndex;
     private DataSetObserver mObserver;
 
-    RecyclerCursorAdapter(Context context, Cursor cursor) {
+    RecyclerCursorAdapter(Context context, @Nullable Cursor cursor) {
         this.mCursor = cursor;
         this.mContext = context;
         mDataValid = null != mCursor;
@@ -63,6 +64,12 @@ public abstract class RecyclerCursorAdapter<VH extends RecyclerView.ViewHolder> 
         else return 0;
     }
 
+    /**
+     * Change the underlying cursor to a new cursor. If there is an existing cursor it will be
+     * closed.
+     *
+     * @param cursor The new cursor to be used
+     */
     public void changeCursor(Cursor cursor) {
         Cursor old = swapCursor(cursor);
         if (old != null) {
@@ -70,6 +77,16 @@ public abstract class RecyclerCursorAdapter<VH extends RecyclerView.ViewHolder> 
         }
     }
 
+    /**
+     * Swap in a new Cursor, returning the old Cursor.  Unlike
+     * {@link #changeCursor(Cursor)}, the returned old Cursor is <em>not</em>
+     * closed.
+     *
+     * @param newCursor The new cursor to be used.
+     * @return Returns the previously set Cursor, or null if there wasa not one.
+     * If the given new Cursor is the same instance is the previously set
+     * Cursor, null is also returned.
+     */
     public Cursor swapCursor(Cursor newCursor) {
         if (newCursor == mCursor) {
             return null;

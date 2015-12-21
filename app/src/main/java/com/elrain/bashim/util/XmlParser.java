@@ -81,9 +81,8 @@ public final class XmlParser extends DefaultHandler {
             bashItem = new BashItem();
             bashItem.setIsFavorite(false);
             isItemOpen = true;
-        } else if (isItemOpen && TAG_DESCRIPTION.equals(qName)) {
-            isDescriptionOpen = true;
-        } else if (isItemOpen && TAG_GUID.equals(qName)) isGuidOpen = true;
+        } else if (isItemOpen && TAG_DESCRIPTION.equals(qName)) isDescriptionOpen = true;
+        else if (isItemOpen && TAG_GUID.equals(qName)) isGuidOpen = true;
         else if (isItemOpen && TAG_LINK.equals(qName)) isLinkOpen = true;
         else if (isItemOpen && TAG_PUB_DATE.equals(qName)) isPubDateOpen = true;
         else if (isItemOpen && TAG_TITLE.equals(qName)) isTitleOpen = true;
@@ -94,8 +93,7 @@ public final class XmlParser extends DefaultHandler {
     public void endElement(String uri, String localName, String qName) throws SAXException {
         super.endElement(uri, localName, qName);
         if (isItemOpen) {
-            if (TAG_GUID.equals(qName))
-                isGuidOpen = false;
+            if (TAG_GUID.equals(qName)) isGuidOpen = false;
             else if (TAG_LINK.equals(qName)) {
                 bashItem.setLink(mStringBuilder.toString());
                 isLinkOpen = false;

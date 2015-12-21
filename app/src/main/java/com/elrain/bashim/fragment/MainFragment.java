@@ -81,8 +81,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
         lvItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         lvItems.setAdapter(mQuotesCursorAdapter);
         getLoaderManager().initLoader(Constants.ID_LOADER, null, MainFragment.this);
-        if (!isFirstSynced)
-            initRssDownloading();
+        if (!isFirstSynced) initRssDownloading();
     }
 
     private void initRssDownloading() {
@@ -104,7 +103,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
             }
 
             @Override
-            public void onlyFiWiPossible() {
+            public void onlyWiFiPossible() {
                 DialogsHelper.noInternetByPreferencesDialog(getActivity(), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -210,7 +209,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mQuotesCursorAdapter.changeCursor(data);
+        mQuotesCursorAdapter.swapCursor(data);
     }
 
     @Override

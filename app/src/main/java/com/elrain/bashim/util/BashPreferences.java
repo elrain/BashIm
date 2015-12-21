@@ -13,6 +13,7 @@ public class BashPreferences {
     private static final String KEY_FIRST_START = "firstStart";
     private static final String KEY_LAST_TAG = "lastTag";
     private static final String KEY_NEW_QUOTES_COUNTER_TAG = "newQuotes";
+    public static final String KEY_SEARCH_FILTER = "searchFilter";
     private static BashPreferences mInstance;
     private static SharedPreferences mPreferences;
 
@@ -55,5 +56,13 @@ public class BashPreferences {
 
     public void resetQuotesCounter() {
         mPreferences.edit().putInt(KEY_NEW_QUOTES_COUNTER_TAG, 0).apply();
+    }
+
+    public void setSearchFilter(String filter) {
+        mPreferences.edit().putString(KEY_SEARCH_FILTER, filter).apply();
+    }
+
+    public String getSearchFilter() {
+        return mPreferences.getString(KEY_SEARCH_FILTER, null);
     }
 }

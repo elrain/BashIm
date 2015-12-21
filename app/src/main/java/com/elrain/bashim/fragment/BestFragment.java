@@ -81,7 +81,7 @@ public class BestFragment extends Fragment implements HtmlWorker.OnHtmlParsed {
             }
 
             @Override
-            public void onlyFiWiPossible() {
+            public void onlyWiFiPossible() {
                 DialogsHelper.noInternetByPreferencesDialog(getActivity(), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

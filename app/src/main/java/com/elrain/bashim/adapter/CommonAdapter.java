@@ -2,24 +2,34 @@ package com.elrain.bashim.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.style.TextAppearanceSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.elrain.bashim.R;
 import com.elrain.bashim.dal.QuotesTableHelper;
+import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.ContextMenuListener;
 import com.elrain.bashim.util.DateUtil;
+import com.squareup.picasso.Picasso;
 
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by denys.husher on 17.12.2015.
@@ -66,14 +76,20 @@ public class CommonAdapter extends RecyclerCursorAdapter<CommonAdapter.ViewHolde
             if (mFavorite) holder.makeClick(0, false);
             else
                 holder.makeClick(cursor.getLong(cursor.getColumnIndex(QuotesTableHelper.ID)), true);
-            Glide.with(getContext()).load(url).into(holder.ivComics);
+            Picasso.with(getContext()).load(url).config(Bitmap.Config.ALPHA_8).into(holder.ivComics);
             holder.tvTitle.setText(cursor.getString(cursor.getColumnIndex(QuotesTableHelper.AUTHOR)));
         } else {
             holder.tvText.setVisibility(View.VISIBLE);
             holder.ivComics.setVisibility(View.GONE);
-            Spanned text = Html.fromHtml(cursor.getString(cursor.getColumnIndex(QuotesTableHelper.DESCRIPTION)));
-            holder.tvText.setText(text);
-            holder.setText(text.toString(), null);
+            String description = cursor.getString(cursor.getColumnIndex(QuotesTableHelper.DESCRIPTION));
+            if (!description.contains("\n")) {
+                Spanned text = Html.fromHtml(description);
+                holder.tvText.setText(highlightTextileNeeded(text.toString()));
+                holder.setText(text.toString(), null);
+            } else{
+                holder.tvText.setText(highlightTextileNeeded(description));
+                holder.setText(description, null);
+            }
             holder.tvTitle.setText(title);
             holder.tvTitle.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -123,6 +139,19 @@ public class CommonAdapter extends RecyclerCursorAdapter<CommonAdapter.ViewHolde
         public void makeClick(long id, boolean isGalleryNeeded) {
             mContextMenuListener.addClickListener(mView, id, isGalleryNeeded);
         }
+    }
 
+    private Spanned highlightTextileNeeded(String text){
+        String filter = BashPreferences.getInstance(getContext()).getSearchFilter();
+        if(!TextUtils.isEmpty(filter)){
+            int startPos = text.toLowerCase(Locale.US).indexOf(filter.toLowerCase(Locale.US));
+            int endPos = startPos + filter.length();
+            Spannable spannable = new SpannableString(text);
+            ColorStateList blueColor = new ColorStateList(new int[][] { new int[] {}}, new int[] { Color.BLUE });
+            TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, blueColor, null);
+            spannable.setSpan(highlightSpan, startPos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            return spannable;
+        }
+        return new SpannableString(text);
     }
 }

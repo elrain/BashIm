@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
-        Fabric.with(this, new Answers());
+        Fabric.with(this, new Answers(), new Crashlytics());
         if (!ScreenUtil.isTablet(this))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
@@ -77,16 +77,11 @@ public class MainActivity extends AppCompatActivity
 
     private void setActionBarTitle() {
         if (null != getSupportActionBar())
-            if (getString(R.string.action_comics).equals(mLastTag))
-                getSupportActionBar().setTitle(R.string.action_comics);
-            else if (getString(R.string.action_favorite).equals(mLastTag))
-                getSupportActionBar().setTitle(R.string.action_favorite);
-            else if (getString(R.string.action_random).equals(mLastTag))
-                getSupportActionBar().setTitle(R.string.action_random);
-            else if (getString(R.string.action_best).equals(mLastTag))
-                getSupportActionBar().setTitle(R.string.action_best);
-            else if (getString(R.string.action_main).equals(mLastTag))
-                getSupportActionBar().setTitle(R.string.action_main);
+            if (getString(R.string.action_comics).equals(mLastTag)) getSupportActionBar().setTitle(R.string.action_comics);
+            else if (getString(R.string.action_favorite).equals(mLastTag)) getSupportActionBar().setTitle(R.string.action_favorite);
+            else if (getString(R.string.action_random).equals(mLastTag)) getSupportActionBar().setTitle(R.string.action_random);
+            else if (getString(R.string.action_best).equals(mLastTag)) getSupportActionBar().setTitle(R.string.action_best);
+            else if (getString(R.string.action_main).equals(mLastTag)) getSupportActionBar().setTitle(R.string.action_main);
     }
 
     @Override
@@ -137,9 +132,7 @@ public class MainActivity extends AppCompatActivity
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.START) && !isTablet) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
+        } else super.onBackPressed();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -147,32 +140,26 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.aMain) {
-            if (null != getSupportActionBar())
-                getSupportActionBar().setTitle(R.string.action_main);
+            if (null != getSupportActionBar()) getSupportActionBar().setTitle(R.string.action_main);
             changeFragment(getString(R.string.action_main));
         } else if (id == R.id.aFavorite) {
-            if (null != getSupportActionBar())
-                getSupportActionBar().setTitle(R.string.action_favorite);
+            if (null != getSupportActionBar()) getSupportActionBar().setTitle(R.string.action_favorite);
             changeFragment(getString(R.string.action_favorite));
         } else if (id == R.id.aComics) {
-            if (null != getSupportActionBar())
-                getSupportActionBar().setTitle(R.string.action_comics);
+            if (null != getSupportActionBar()) getSupportActionBar().setTitle(R.string.action_comics);
             changeFragment(getString(R.string.action_comics));
         } else if (id == R.id.aPreferences) {
             Intent in = new Intent(MainActivity.this, PreferencesActivity.class);
             startActivity(in);
         } else if (id == R.id.aRandom) {
-            if (null != getSupportActionBar())
-                getSupportActionBar().setTitle(R.string.action_random);
+            if (null != getSupportActionBar()) getSupportActionBar().setTitle(R.string.action_random);
             changeFragment(getString(R.string.action_random));
         } else if (id == R.id.aBest) {
-            if (null != getSupportActionBar())
-                getSupportActionBar().setTitle(R.string.action_best);
+            if (null != getSupportActionBar()) getSupportActionBar().setTitle(R.string.action_best);
             changeFragment(getString(R.string.action_best));
         }
-        if (!isTablet) {
-            drawer.closeDrawer(GravityCompat.START);
-        }
+        BashPreferences.getInstance(this).setSearchFilter(null);
+        if (!isTablet) drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 

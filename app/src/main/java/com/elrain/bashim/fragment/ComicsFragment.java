@@ -55,7 +55,7 @@ public class ComicsFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mComicsCursorAdapter.changeCursor(data);
+        mComicsCursorAdapter.swapCursor(data);
     }
 
     @Override

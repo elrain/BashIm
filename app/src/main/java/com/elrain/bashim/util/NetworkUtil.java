@@ -30,7 +30,7 @@ public final class NetworkUtil {
                 if (ni.getType() == ConnectivityManager.TYPE_WIFI) {
                     if (ni.isConnectedOrConnecting()) listener.connected();
                     else listener.disconnected();
-                } else listener.onlyFiWiPossible();
+                } else listener.onlyWiFiPossible();
             } else {
                 if (ni.isConnectedOrConnecting()) listener.connected();
                 else listener.disconnected();
@@ -68,7 +68,7 @@ public final class NetworkUtil {
      *
      * @see OnDeviceOnlineListener#connected()
      * @see OnDeviceOnlineListener#disconnected()
-     * @see OnDeviceOnlineListener#onlyFiWiPossible()
+     * @see OnDeviceOnlineListener#onlyWiFiPossible()
      */
     public interface OnDeviceOnlineListener {
         /**
@@ -85,7 +85,7 @@ public final class NetworkUtil {
          * Called if mobile connection is active but in application setting was selected
          * "use only WiFi connection"
          */
-        void onlyFiWiPossible();
+        void onlyWiFiPossible();
     }
 
 }
