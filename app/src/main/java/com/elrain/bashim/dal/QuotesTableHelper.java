@@ -6,15 +6,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
-import com.elrain.bashim.BashContentProvider;
 import com.elrain.bashim.object.BashItem;
 import com.elrain.bashim.object.ImageSimpleItem;
 
 import java.util.ArrayList;
 
-/**
- * Created by denys.husher on 03.11.2015.
- */
 public class QuotesTableHelper {
     public static final String TABLE = "quots";
     public static final String ID = "_id";
@@ -26,14 +22,39 @@ public class QuotesTableHelper {
     public static final String AUTHOR = "author";
     public static final String[] MAIN_SELECTION = {ID, DESCRIPTION, TITLE, PUB_DATE, LINK, IS_FAVORITE,
             AUTHOR};
-    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE + "( "
+    static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE + "( "
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + LINK + " TEXT NOT NULL, "
             + TITLE + " VARCHAR(50) NOT NULL, " + PUB_DATE + " DATE NOT NULL, "
             + DESCRIPTION + " TEXT NOT NULL, " + IS_FAVORITE + " BOOLEAN, " + AUTHOR + " CHAR(50), "
-            + "UNIQUE(" + LINK + ") ON CONFLICT IGNORE)";
+            + "UNIQUE(" + LINK + ") ON CONFLICT ABORT)";
 
     public static void createTable(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE);
+    }
+
+    public static void update3To4(SQLiteDatabase db) {
+        Cursor cursor = null;
+        try {
+            long id = 1;
+            cursor = db.rawQuery("SELECT " + DESCRIPTION + ", " + TITLE + ", " + PUB_DATE + ", "
+                    + LINK + ", " + IS_FAVORITE + ", " + AUTHOR + " FROM " + QuotesTableHelper.TABLE, null);
+            db.execSQL("DROP TABLE IF EXISTS " + QuotesTableHelper.TABLE);
+            db.execSQL(CREATE_TABLE);
+            while (cursor.moveToNext()) {
+                ContentValues cv = new ContentValues();
+                cv.put(ID, id);
+                cv.put(PUB_DATE, cursor.getLong(cursor.getColumnIndex(PUB_DATE)));
+                cv.put(IS_FAVORITE, cursor.getInt(cursor.getColumnIndex(IS_FAVORITE)) == 1);
+                cv.put(LINK, cursor.getString(cursor.getColumnIndex(LINK)));
+                cv.put(AUTHOR, cursor.getString(cursor.getColumnIndex(AUTHOR)));
+                cv.put(DESCRIPTION, cursor.getString(cursor.getColumnIndex(DESCRIPTION)));
+                cv.put(TITLE, cursor.getString(cursor.getColumnIndex(TITLE)));
+                db.insert(TABLE, null, cv);
+                ++id;
+            }
+        } finally {
+            if (null != cursor) cursor.close();
+        }
     }
 
     public static void saveQuot(Context context, BashItem bashItem) {

@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,18 +21,17 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.SearchView;
 
-import com.elrain.bashim.BashContentProvider;
+import com.elrain.bashim.dal.BashContentProvider;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.ImageScaleActivity;
 import com.elrain.bashim.adapter.CommonAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.fragment.helper.SearchHelper;
+import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
 
-/**
- * Created by denys.husher on 05.11.2015.
- */
-public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
+public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+        AdapterView.OnItemClickListener, BashPreferences.OnFilterChanged {
 
     private CommonAdapter mQuotesCursorAdapter;
 
@@ -58,6 +58,18 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        BashPreferences.getInstance(getActivity()).setFilterListener(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        BashPreferences.getInstance(getActivity()).removeFilterListener();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_search, menu);
         menu.findItem(R.id.aRefresh).setVisible(false);
@@ -66,21 +78,22 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
         if (null != searchView) {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
             searchView.setIconifiedByDefault(false);
-            searchView.setOnQueryTextListener(new SearchHelper(getActivity(), this));
+            searchView.setOnQueryTextListener(new SearchHelper(getActivity()));
         }
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (null == args)
+        String filter = BashPreferences.getInstance(getActivity().getApplicationContext()).getSearchFilter();
+        if (TextUtils.isEmpty(filter))
             return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
                     QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.IS_FAVORITE + " =? ",
                     new String[]{String.valueOf(1)}, null);
         else return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
                 QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.IS_FAVORITE + " =? "
-                + " AND " + QuotesTableHelper.DESCRIPTION + " LIKE '%"
-                + args.getString(Constants.KEY_SEARCH_STRING) + "%'", new String[]{String.valueOf(1)},
+                + " AND " + QuotesTableHelper.DESCRIPTION + " LIKE '%" + filter + "%'",
+                new String[]{String.valueOf(1)},
                 null);
     }
 
@@ -102,5 +115,10 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
             intent.putExtra(Constants.KEY_INTENT_IMAGE_URL, url);
             getActivity().startActivity(intent);
         }
+    }
+
+    @Override
+    public void onFilterChange() {
+        getLoaderManager().restartLoader(Constants.ID_LOADER, null, FavoriteFragment.this);
     }
 }

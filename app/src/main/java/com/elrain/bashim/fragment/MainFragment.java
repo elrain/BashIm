@@ -18,6 +18,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,30 +27,32 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 
-import com.elrain.bashim.BashContentProvider;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.helper.DialogsHelper;
 import com.elrain.bashim.adapter.CommonAdapter;
+import com.elrain.bashim.dal.BashContentProvider;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.fragment.helper.SearchHelper;
 import com.elrain.bashim.message.RefreshMessage;
 import com.elrain.bashim.service.BashService;
+import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.NetworkUtil;
 
 import de.greenrobot.event.EventBus;
 
-/**
- * Created by denys.husher on 05.11.2015.
- */
 public class MainFragment extends Fragment implements ServiceConnection,
-        LoaderManager.LoaderCallbacks<Cursor> {
+        LoaderManager.LoaderCallbacks<Cursor>, BashPreferences.OnFilterChanged {
 
     private boolean isBound = false;
     private BashService mBashService;
     private CommonAdapter mQuotesCursorAdapter;
     private BroadcastReceiver mBroadcastReceiver;
     private boolean isFirstSynced;
+    private boolean isLoadingInProcess;
+    private int firstVisibleItem;
+    private int visibleItemCount;
+    private int totalItemCount;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,7 +83,20 @@ public class MainFragment extends Fragment implements ServiceConnection,
         RecyclerView lvItems = (RecyclerView) view.findViewById(R.id.lvBashItems);
         lvItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         lvItems.setAdapter(mQuotesCursorAdapter);
-        getLoaderManager().initLoader(Constants.ID_LOADER, null, MainFragment.this);
+        lvItems.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                visibleItemCount = recyclerView.getChildCount();
+                totalItemCount = recyclerView.getLayoutManager().getItemCount();
+                firstVisibleItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+
+                if (!isLoadingInProcess && (totalItemCount - visibleItemCount) <= (firstVisibleItem + 3)) {
+                    getLoaderManager().restartLoader(Constants.ID_LOADER, null, MainFragment.this);
+                    isLoadingInProcess = true;
+                }
+            }
+        });
         if (!isFirstSynced) initRssDownloading();
     }
 
@@ -122,8 +138,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
         if (null != searchView) {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
             searchView.setIconifiedByDefault(false);
-            searchView.setSubmitButtonEnabled(true);
-            searchView.setOnQueryTextListener(new SearchHelper(getActivity(), this));
+            searchView.setOnQueryTextListener(new SearchHelper(getActivity()));
         }
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -153,6 +168,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
         super.onStart();
         getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_STARTED));
         getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_FINISHED));
+        BashPreferences.getInstance(getActivity()).setFilterListener(this);
     }
 
     @Override
@@ -164,6 +180,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
         }
         EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED, this));
         getActivity().unregisterReceiver(mBroadcastReceiver);
+        BashPreferences.getInstance(getActivity()).removeFilterListener();
     }
 
     private void onDownloadFinished() {
@@ -198,22 +215,30 @@ public class MainFragment extends Fragment implements ServiceConnection,
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (null == args)
+        String filter = BashPreferences.getInstance(getActivity().getApplicationContext()).getSearchFilter();
+        if (TextUtils.isEmpty(filter))
             return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
-                    QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.AUTHOR + " IS NULL ", null, null);
+                    QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.AUTHOR + " IS NULL ", null,
+                    QuotesTableHelper.PUB_DATE + " DESC, ROWID LIMIT " + (mQuotesCursorAdapter.getItemCount() + 10));
         else return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
-                QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.AUTHOR + " IS NULL "
-                + " AND " + QuotesTableHelper.DESCRIPTION + " LIKE '%"
-                + args.getString(Constants.KEY_SEARCH_STRING) + "%'", null, null);
+                QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.AUTHOR + " IS NULL AND "
+                + QuotesTableHelper.DESCRIPTION + " LIKE '%" + filter + "%'", null,
+                QuotesTableHelper.PUB_DATE + " DESC, ROWID LIMIT " + (mQuotesCursorAdapter.getItemCount() + 10));
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mQuotesCursorAdapter.swapCursor(data);
+        isLoadingInProcess = false;
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mQuotesCursorAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void onFilterChange() {
+        getLoaderManager().restartLoader(Constants.ID_LOADER, null, MainFragment.this);
     }
 }

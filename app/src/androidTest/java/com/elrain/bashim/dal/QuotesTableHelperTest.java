@@ -10,9 +10,6 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.Date;
 
-/**
- * Created by denys.husher on 24.12.2015.
- */
 public class QuotesTableHelperTest extends InstrumentationTestCase {
 
     private SQLiteDatabase db;
@@ -23,7 +20,6 @@ public class QuotesTableHelperTest extends InstrumentationTestCase {
         super.setUp();
         mDbHelper = new DBHelperMemory(getInstrumentation().getContext());
         db = mDbHelper.getWritableDatabase();
-
         ContentValues cv = new ContentValues();
 
         cv.put(QuotesTableHelper.TITLE, "title 1");

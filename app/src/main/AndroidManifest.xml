@@ -37,10 +37,9 @@
         </service>
 
         <receiver android:name=".receiver.BashBroadcastReceiver" />
-        <receiver android:name=".receiver.CancelNotificationReceiver" />
 
         <provider
-            android:name=".BashContentProvider"
+            android:name=".dal.BashContentProvider"
             android:authorities="com.elrain.bashim.Bash"
             android:exported="false" />
 

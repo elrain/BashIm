@@ -14,9 +14,6 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 
-/**
- * Created by denys.husher on 23.11.2015.
- */
 public final class HtmlWorker {
 
     private static final String HREF = "href";

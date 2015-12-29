@@ -31,6 +31,7 @@ import de.greenrobot.event.EventBus;
 
 /**
  * Created by denys.husher on 24.11.2015.
+ * Fragment for showing http://bash.im/best
  */
 public class BestFragment extends Fragment implements HtmlWorker.OnHtmlParsed {
 

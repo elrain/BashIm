@@ -18,9 +18,6 @@ import com.elrain.bashim.util.DateUtil;
 
 import java.util.ArrayList;
 
-/**
- * Created by denys.husher on 07.12.2015.
- */
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     private final Context mContext;
@@ -63,10 +60,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
         boolean isFavorite = QuotesTableHelper.isFavorite(mContext, getItem(position).getLink());
 
-        if (isFavorite)
-            holder.ivFavorite.setImageResource(android.R.drawable.star_big_on);
-        else
-            holder.ivFavorite.setImageResource(android.R.drawable.star_big_off);
+        if (isFavorite) holder.ivFavorite.setImageResource(android.R.drawable.star_big_on);
+        else holder.ivFavorite.setImageResource(android.R.drawable.star_big_off);
 
         holder.ivFavorite.setOnClickListener(new View.OnClickListener() {
             @Override

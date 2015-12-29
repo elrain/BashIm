@@ -6,9 +6,6 @@ import android.database.DataSetObserver;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 
-/**
- * Created by denys.husher on 17.12.2015.
- */
 public abstract class RecyclerCursorAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
 
     private Cursor mCursor;
@@ -65,31 +62,13 @@ public abstract class RecyclerCursorAdapter<VH extends RecyclerView.ViewHolder> 
     }
 
     /**
-     * Change the underlying cursor to a new cursor. If there is an existing cursor it will be
-     * closed.
-     *
-     * @param cursor The new cursor to be used
-     */
-    public void changeCursor(Cursor cursor) {
-        Cursor old = swapCursor(cursor);
-        if (old != null) {
-            old.close();
-        }
-    }
-
-    /**
-     * Swap in a new Cursor, returning the old Cursor.  Unlike
-     * {@link #changeCursor(Cursor)}, the returned old Cursor is <em>not</em>
-     * closed.
+     * Swap in a new Cursor, returning the old Cursor.
      *
      * @param newCursor The new cursor to be used.
-     * @return Returns the previously set Cursor, or null if there wasa not one.
-     * If the given new Cursor is the same instance is the previously set
-     * Cursor, null is also returned.
      */
-    public Cursor swapCursor(Cursor newCursor) {
+    public void swapCursor(Cursor newCursor) {
         if (newCursor == mCursor) {
-            return null;
+            return;
         }
         Cursor oldCursor = mCursor;
         if (oldCursor != null) {
@@ -106,7 +85,6 @@ public abstract class RecyclerCursorAdapter<VH extends RecyclerView.ViewHolder> 
             mDataValid = false;
             notifyDataSetChanged();
         }
-        return oldCursor;
     }
 
     private class MyDataSetObserver extends DataSetObserver {

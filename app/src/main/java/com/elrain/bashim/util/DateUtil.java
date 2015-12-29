@@ -6,10 +6,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * Created by denys.husher on 04.11.2015.
- */
 public final class DateUtil {
+
+    private static final String[] DATE_FORMATS = new String[]{"EEE, dd MMM yyyy H:mm:ss",
+            "dd.MM.yy H:mm", "yyyy-MM-dd H:mm"};
 
     /**
      * Parses date from <code>String</code> to <code>Date</code>. If ParseException happened will be returned <code>new Date()</code>
@@ -19,23 +19,17 @@ public final class DateUtil {
      * @return <code>Date</code> object with parsed date
      */
     public static Date parseDateFromXml(String dateString) {
-        if (null == dateString) return new Date();
-        SimpleDateFormat f = new SimpleDateFormat("EEE, dd MMM yyyy H:mm:ss", Locale.US);
         Date d = new Date();
-        try {
-            d = f.parse(dateString);
-        } catch (ParseException e) {
-            f = new SimpleDateFormat("dd.MM.yy H:mm", Locale.US);
+        if (null == dateString) return d;
+        SimpleDateFormat f = new SimpleDateFormat("", Locale.US);
+        for (String dateFormat : DATE_FORMATS) {
+            f.applyPattern(dateFormat);
             try {
                 d = f.parse(dateString);
-            } catch (ParseException e1) {
-                f = new SimpleDateFormat("yyyy-MM-dd H:mm", Locale.US);
-                try {
-                    d = f.parse(dateString);
-                } catch (ParseException e2) {
-                    e2.printStackTrace();
-                }
+            } catch (ParseException e) {
+                continue;
             }
+            break;
         }
         return d;
     }
@@ -51,7 +45,7 @@ public final class DateUtil {
         if (null == date) return null;
         Calendar c = Calendar.getInstance();
         c.setTime(date);
-        int hours = c.get(Calendar.HOUR);
+        int hours = date.getHours();
         int minutes = c.get(Calendar.MINUTE);
         int year = c.get(Calendar.YEAR);
         int day = c.get(Calendar.DAY_OF_MONTH);

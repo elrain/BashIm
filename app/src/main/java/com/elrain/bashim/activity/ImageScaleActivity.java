@@ -10,9 +10,6 @@ import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.TouchImageView;
 import com.squareup.picasso.Picasso;
 
-/**
- * Created by denys.husher on 10.12.2015.
- */
 public class ImageScaleActivity extends AppCompatActivity {
 
     @Override

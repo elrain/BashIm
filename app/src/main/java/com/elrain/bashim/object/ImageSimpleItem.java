@@ -1,8 +1,5 @@
 package com.elrain.bashim.object;
 
-/**
- * Created by denys.husher on 09.12.2015.
- */
 public class ImageSimpleItem {
     private long id;
     private String link;

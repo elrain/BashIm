@@ -1,15 +1,12 @@
 package com.elrain.bashim.util;
 
-/**
- * Created by denys.husher on 04.11.2015.
- */
 public final class Constants {
 
-    public static final String INTENT_DOWNLOAD = "come.elrain.bashim.download";
-    public static final String ACTION_DOWNLOAD_STARTED = "come.elrain.bashim.DOWNLOAD_STARTED";
-    public static final String ACTION_DOWNLOAD_FINISHED = "come.elrain.bashim.DOWNLOAD_FINISHED";
+    public static final String INTENT_DOWNLOAD = "com.elrain.bashim.download";
+    public static final String INTENT_CANCEL = "com.elrain.bashim.cancel";
+    public static final String ACTION_DOWNLOAD_STARTED = "com.elrain.bashim.DOWNLOAD_STARTED";
+    public static final String ACTION_DOWNLOAD_FINISHED = "com.elrain.bashim.DOWNLOAD_FINISHED";
     public static final int ID_NOTIFICATION = 2203;
-    public static final String KEY_SEARCH_STRING = "searchString";
     public static final String TEXT_PLAIN = "text/plain";
     public static final int ID_LOADER = 2204;
     public static final String KEY_OPEN_MAIN_ACTIVITY = "openMain";

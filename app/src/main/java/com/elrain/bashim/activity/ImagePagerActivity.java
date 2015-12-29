@@ -20,9 +20,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-/**
- * Created by denys.husher on 13.11.2015.
- */
 public class ImagePagerActivity extends AppCompatActivity {
 
     @Override

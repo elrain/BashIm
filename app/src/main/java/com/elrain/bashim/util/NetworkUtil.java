@@ -8,9 +8,6 @@ import android.support.annotation.NonNull;
 
 import com.elrain.bashim.R;
 
-/**
- * Created by denys.husher on 03.11.2015.
- */
 public final class NetworkUtil {
 
     /**

@@ -7,18 +7,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.MainActivity;
-import com.elrain.bashim.receiver.CancelNotificationReceiver;
+import com.elrain.bashim.receiver.BashBroadcastReceiver;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
 
-/**
- * Created by denys.husher on 04.11.2015.
- */
 public class NotificationHelper {
 
     public static void showNotification(Context context) {
@@ -42,8 +40,15 @@ public class NotificationHelper {
             NotificationManager mNotificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             Notification notification = builder.build();
-            notification.deleteIntent = PendingIntent.getBroadcast(context, 0, new Intent(context, CancelNotificationReceiver.class), 0);
+            notification.deleteIntent = PendingIntent.getBroadcast(context, 0, getCancelIntent(context), 0);
             mNotificationManager.notify(Constants.ID_NOTIFICATION, notification);
         }
+    }
+
+    @NonNull
+    private static Intent getCancelIntent(Context context) {
+        Intent cancelIntent = new Intent(context, BashBroadcastReceiver.class);
+        cancelIntent.setAction(Constants.INTENT_CANCEL);
+        return cancelIntent;
     }
 }

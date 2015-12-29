@@ -17,8 +17,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
 import com.elrain.bashim.R;
 import com.elrain.bashim.fragment.BestFragment;
 import com.elrain.bashim.fragment.ComicsFragment;
@@ -34,7 +32,6 @@ import com.elrain.bashim.util.ScreenUtil;
 import java.util.HashMap;
 
 import de.greenrobot.event.EventBus;
-import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener {
@@ -49,8 +46,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
-        Fabric.with(this, new Answers(), new Crashlytics());
+        BashPreferences.getInstance(this).setSearchFilter(null);
+//        Fabric.with(this, new Crashlytics());
+//        Fabric.with(this, new Answers(), new Crashlytics());
         if (!ScreenUtil.isTablet(this))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
@@ -77,11 +75,16 @@ public class MainActivity extends AppCompatActivity
 
     private void setActionBarTitle() {
         if (null != getSupportActionBar())
-            if (getString(R.string.action_comics).equals(mLastTag)) getSupportActionBar().setTitle(R.string.action_comics);
-            else if (getString(R.string.action_favorite).equals(mLastTag)) getSupportActionBar().setTitle(R.string.action_favorite);
-            else if (getString(R.string.action_random).equals(mLastTag)) getSupportActionBar().setTitle(R.string.action_random);
-            else if (getString(R.string.action_best).equals(mLastTag)) getSupportActionBar().setTitle(R.string.action_best);
-            else if (getString(R.string.action_main).equals(mLastTag)) getSupportActionBar().setTitle(R.string.action_main);
+            if (getString(R.string.action_comics).equals(mLastTag))
+                getSupportActionBar().setTitle(R.string.action_comics);
+            else if (getString(R.string.action_favorite).equals(mLastTag))
+                getSupportActionBar().setTitle(R.string.action_favorite);
+            else if (getString(R.string.action_random).equals(mLastTag))
+                getSupportActionBar().setTitle(R.string.action_random);
+            else if (getString(R.string.action_best).equals(mLastTag))
+                getSupportActionBar().setTitle(R.string.action_best);
+            else if (getString(R.string.action_main).equals(mLastTag))
+                getSupportActionBar().setTitle(R.string.action_main);
     }
 
     @Override
@@ -89,6 +92,7 @@ public class MainActivity extends AppCompatActivity
         super.onDestroy();
         AlarmUtil.getInstance(this).unsubscribeListener();
         EventBus.getDefault().unregister(this);
+        BashPreferences.getInstance(this).setSearchFilter(null);
     }
 
     @Override
@@ -143,16 +147,19 @@ public class MainActivity extends AppCompatActivity
             if (null != getSupportActionBar()) getSupportActionBar().setTitle(R.string.action_main);
             changeFragment(getString(R.string.action_main));
         } else if (id == R.id.aFavorite) {
-            if (null != getSupportActionBar()) getSupportActionBar().setTitle(R.string.action_favorite);
+            if (null != getSupportActionBar())
+                getSupportActionBar().setTitle(R.string.action_favorite);
             changeFragment(getString(R.string.action_favorite));
         } else if (id == R.id.aComics) {
-            if (null != getSupportActionBar()) getSupportActionBar().setTitle(R.string.action_comics);
+            if (null != getSupportActionBar())
+                getSupportActionBar().setTitle(R.string.action_comics);
             changeFragment(getString(R.string.action_comics));
         } else if (id == R.id.aPreferences) {
             Intent in = new Intent(MainActivity.this, PreferencesActivity.class);
             startActivity(in);
         } else if (id == R.id.aRandom) {
-            if (null != getSupportActionBar()) getSupportActionBar().setTitle(R.string.action_random);
+            if (null != getSupportActionBar())
+                getSupportActionBar().setTitle(R.string.action_random);
             changeFragment(getString(R.string.action_random));
         } else if (id == R.id.aBest) {
             if (null != getSupportActionBar()) getSupportActionBar().setTitle(R.string.action_best);

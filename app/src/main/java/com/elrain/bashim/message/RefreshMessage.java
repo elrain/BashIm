@@ -2,9 +2,6 @@ package com.elrain.bashim.message;
 
 import android.app.Fragment;
 
-/**
- * Created by denys.husher on 26.11.2015.
- */
 public final class RefreshMessage {
 
     public final State mState;

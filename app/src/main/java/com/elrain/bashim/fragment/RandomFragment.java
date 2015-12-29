@@ -27,9 +27,6 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
-/**
- * Created by denys.husher on 23.11.2015.
- */
 public class RandomFragment extends Fragment implements HtmlWorker.OnHtmlParsed {
 
     private RecyclerAdapter mRandomAdapter;

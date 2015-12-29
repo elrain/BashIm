@@ -52,10 +52,8 @@ public class ContextMenuListener implements View.OnCreateContextMenuListener, Vi
             public boolean onMenuItemClick(MenuItem item) {
                 ClipboardManager manager = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip;
-                if (null == mText)
-                    clip = ClipData.newPlainText(CLIP_LABEL, mLink);
-                else
-                    clip = ClipData.newPlainText(CLIP_LABEL, String.format(
+                if (null == mText) clip = ClipData.newPlainText(CLIP_LABEL, mLink);
+                else clip = ClipData.newPlainText(CLIP_LABEL, String.format(
                             Constants.SHARE_FORMATTER_CLIPBOARD, mText, mLink));
                 manager.setPrimaryClip(clip);
                 Toast.makeText(mContext, mContext.getString(R.string.toast_text_copied),
@@ -101,7 +99,8 @@ public class ContextMenuListener implements View.OnCreateContextMenuListener, Vi
     }
 
     public void setTextAndAuthor(String text, String author) {
-        mText = text;
+        if(null == author) mText = text;
+        else mLink = text;
         mAuthor = author;
     }
 

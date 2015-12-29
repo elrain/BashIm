@@ -7,9 +7,6 @@ import android.support.annotation.NonNull;
 
 import com.elrain.bashim.R;
 
-/**
- * Created by denys.husher on 03.11.2015.
- */
 public class DialogsHelper {
 
     private static final DialogInterface.OnClickListener CLOSE_LISTENER = new DialogInterface.OnClickListener() {

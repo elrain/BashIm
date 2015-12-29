@@ -1,41 +1,34 @@
 package com.elrain.bashim.fragment.helper;
 
-import android.app.Activity;
-import android.app.LoaderManager;
-import android.database.Cursor;
-import android.os.Bundle;
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.widget.SearchView;
 
 import com.elrain.bashim.util.BashPreferences;
-import com.elrain.bashim.util.Constants;
 
-/**
- * Created by denys.husher on 06.11.2015.
- */
 public class SearchHelper implements SearchView.OnQueryTextListener {
 
-    private final Activity mActivity;
-    private final LoaderManager.LoaderCallbacks<Cursor> mClazz;
+    private final Context mContext;
 
-    public SearchHelper(Activity activity, LoaderManager.LoaderCallbacks<Cursor> clazz) {
-        this.mActivity = activity;
-        this.mClazz = clazz;
+    public SearchHelper(@NonNull Context context) {
+        this.mContext = context;
     }
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        BashPreferences.getInstance(mActivity.getApplicationContext()).setSearchFilter(query);
-        Bundle b = new Bundle();
-        b.putString(Constants.KEY_SEARCH_STRING, query);
-        mActivity.getLoaderManager().restartLoader(Constants.ID_LOADER, b, mClazz);
-        return true;
+        if (!TextUtils.isEmpty(query)) {
+            BashPreferences.getInstance(mContext).setSearchFilter(query);
+            return true;
+        }
+        return false;
     }
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        if (newText.length() == 0) {
-            BashPreferences.getInstance(mActivity.getApplicationContext()).setSearchFilter(null);
-            mActivity.getLoaderManager().restartLoader(Constants.ID_LOADER, null, mClazz);
+        if (TextUtils.isEmpty(newText)) {
+            BashPreferences.getInstance(mContext).setSearchFilter(null);
+            return true;
         }
         return false;
     }

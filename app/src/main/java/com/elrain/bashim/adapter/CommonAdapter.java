@@ -31,9 +31,6 @@ import com.squareup.picasso.Picasso;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * Created by denys.husher on 17.12.2015.
- */
 public class CommonAdapter extends RecyclerCursorAdapter<CommonAdapter.ViewHolder> {
 
     private boolean mFavorite;
@@ -86,7 +83,7 @@ public class CommonAdapter extends RecyclerCursorAdapter<CommonAdapter.ViewHolde
                 Spanned text = Html.fromHtml(description);
                 holder.tvText.setText(highlightTextileNeeded(text.toString()));
                 holder.setText(text.toString(), null);
-            } else{
+            } else {
                 holder.tvText.setText(highlightTextileNeeded(description));
                 holder.setText(description, null);
             }
@@ -141,14 +138,14 @@ public class CommonAdapter extends RecyclerCursorAdapter<CommonAdapter.ViewHolde
         }
     }
 
-    private Spanned highlightTextileNeeded(String text){
+    private Spanned highlightTextileNeeded(String text) {
         String filter = BashPreferences.getInstance(getContext()).getSearchFilter();
-        if(!TextUtils.isEmpty(filter)){
+        if (!TextUtils.isEmpty(filter)) {
             int startPos = text.toLowerCase(Locale.US).indexOf(filter.toLowerCase(Locale.US));
             int endPos = startPos + filter.length();
             Spannable spannable = new SpannableString(text);
-            ColorStateList blueColor = new ColorStateList(new int[][] { new int[] {}}, new int[] { Color.BLUE });
-            TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, blueColor, null);
+            ColorStateList blueColor = new ColorStateList(new int[][]{new int[]{}}, new int[]{Color.BLUE});
+            TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.ITALIC, -1, blueColor, null);
             spannable.setSpan(highlightSpan, startPos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             return spannable;
         }

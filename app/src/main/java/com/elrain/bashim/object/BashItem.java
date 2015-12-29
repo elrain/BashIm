@@ -2,9 +2,6 @@ package com.elrain.bashim.object;
 
 import java.util.Date;
 
-/**
- * Created by denys.husher on 03.11.2015.
- */
 public class BashItem {
     private String title;
     private String description;

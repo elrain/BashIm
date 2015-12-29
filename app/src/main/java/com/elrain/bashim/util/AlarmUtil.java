@@ -13,6 +13,8 @@ import com.elrain.bashim.receiver.BashBroadcastReceiver;
 
 /**
  * Created by denys.husher on 17.11.2015.
+ * This class provides access to the alarm. These allow you
+ * to change frequency of quotes update.
  */
 public final class AlarmUtil implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static AlarmUtil mInstance;
@@ -34,6 +36,11 @@ public final class AlarmUtil implements SharedPreferences.OnSharedPreferenceChan
                 PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
+    /**
+     * Return Instance of AlarmUtil class
+     * @param context application context
+     * @return instance of AlarmUtil
+     */
     public static AlarmUtil getInstance(Context context) {
         if (null == mInstance)
             mInstance = new AlarmUtil(context);
@@ -59,6 +66,11 @@ public final class AlarmUtil implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
+    /**
+     * This method allows you to setup alarm manager with inexact repeating
+     *
+     * @see AlarmManager#setInexactRepeating(int, long, long, PendingIntent)
+     */
     public void setAlarm() {
         if (!"0".equals(mSharedPref.getString(
                 mContext.getString(R.string.preferences_key_alarm_frequency), null)))
@@ -80,6 +92,9 @@ public final class AlarmUtil implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
+    /**
+     * Unsubscribe listener on changing preferences
+     */
     public void unsubscribeListener() {
         if (null != mSharedPref) mSharedPref.unregisterOnSharedPreferenceChangeListener(this);
     }
