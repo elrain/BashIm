@@ -98,6 +98,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
             }
         });
         if (!isFirstSynced) initRssDownloading();
+        getLoaderManager().initLoader(Constants.ID_LOADER, null, MainFragment.this);
     }
 
     private void initRssDownloading() {
