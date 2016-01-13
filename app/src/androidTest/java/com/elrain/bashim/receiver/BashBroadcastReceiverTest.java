@@ -2,7 +2,6 @@ package com.elrain.bashim.receiver;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.test.InstrumentationTestCase;
 import android.test.mock.MockContext;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -12,14 +11,12 @@ import com.elrain.bashim.util.Constants;
 
 public class BashBroadcastReceiverTest extends InstrumentationTestCase {
 
-    BashBroadcastReceiver mCancelNotificationReceiver;
-    SharedPreferences settings;
+    private BashBroadcastReceiver mCancelNotificationReceiver;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         mCancelNotificationReceiver = new BashBroadcastReceiver();
-        settings = PreferenceManager.getDefaultSharedPreferences(getInstrumentation().getContext());
     }
 
     @SmallTest
