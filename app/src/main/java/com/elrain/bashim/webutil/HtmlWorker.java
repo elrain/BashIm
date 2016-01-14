@@ -26,7 +26,7 @@ public final class HtmlWorker {
     private static final String QUOTE = "Цитата ";
     private static OnHtmlParsed mListener;
 
-    public static void getRandomQuotes(OnHtmlParsed listener, String url) {
+    public static void getQuotes(OnHtmlParsed listener, String url) {
         mListener = listener;
         new GetAndParseHtml().execute(url);
     }

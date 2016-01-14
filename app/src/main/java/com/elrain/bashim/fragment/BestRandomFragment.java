@@ -1,6 +1,5 @@
 package com.elrain.bashim.fragment;
 
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -13,11 +12,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.helper.DialogsHelper;
+import com.elrain.bashim.activity.helper.OnDatePicked;
 import com.elrain.bashim.adapter.RecyclerAdapter;
 import com.elrain.bashim.message.RefreshMessage;
 import com.elrain.bashim.object.BashItem;
@@ -33,13 +31,11 @@ import de.greenrobot.event.EventBus;
  * Created by denys.husher on 24.11.2015.
  * Fragment for showing http://bash.im/best
  */
-public class BestFragment extends Fragment implements HtmlWorker.OnHtmlParsed {
+public class BestRandomFragment extends Fragment implements HtmlWorker.OnHtmlParsed, OnDatePicked {
 
-    private static final String YEAR = "year/";
-    private static final String MONTH = "month/";
-    private static final String DIVIDER = "/";
     private RecyclerAdapter mBestAdapter;
     private RecyclerView mRvItems;
+    private Bundle mData;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,15 +56,15 @@ public class BestFragment extends Fragment implements HtmlWorker.OnHtmlParsed {
         mBestAdapter = new RecyclerAdapter(getActivity(), new ArrayList<BashItem>());
         mRvItems.setAdapter(mBestAdapter);
         mRvItems.setLayoutManager(new LinearLayoutManager(getActivity()));
-        downloadAndParse(Constants.BEST_URL);
+        downloadAndParse(mData.getString(Constants.PARSE));
     }
 
     private void downloadAndParse(final String url) {
         NetworkUtil.isDeviceOnline(getActivity(), new NetworkUtil.OnDeviceOnlineListener() {
             @Override
             public void connected() {
-                EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.STARTED, BestFragment.this));
-                HtmlWorker.getRandomQuotes(BestFragment.this, url);
+                EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.STARTED, BestRandomFragment.this));
+                HtmlWorker.getQuotes(BestRandomFragment.this, url);
             }
 
             @Override
@@ -97,57 +93,43 @@ public class BestFragment extends Fragment implements HtmlWorker.OnHtmlParsed {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_best, menu);
+        if (Constants.RANDOM_URL.equals(mData.getString(Constants.PARSE))) {
+            menu.findItem(R.id.aDatePicker).setVisible(false);
+            menu.findItem(R.id.aRefresh).setVisible(true);
+        } else if (Constants.BEST_URL.equals(mData.getString(Constants.PARSE))) {
+            menu.findItem(R.id.aDatePicker).setVisible(true);
+            menu.findItem(R.id.aRefresh).setVisible(false);
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.aDatePicker:
-                datePickerDialog().show();
+                DialogsHelper.datePickerDialog(getActivity(), this).show();
+                return true;
+            case R.id.aRefresh:
+                downloadAndParse(Constants.RANDOM_URL);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private AlertDialog datePickerDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.date_picker_view, null);
-        builder.setView(view);
-        builder.setTitle(R.string.dialog_title_date_picker);
-
-        final Spinner spYears = (Spinner) view.findViewById(R.id.spYear);
-        final Spinner spMonth = (Spinner) view.findViewById(R.id.spMonth);
-        final String[] years = getResources().getStringArray(R.array.years);
-        final String[] months = getResources().getStringArray(R.array.months);
-
-        final ArrayAdapter<String> yearAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, years);
-        yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spYears.setAdapter(yearAdapter);
-
-        final ArrayAdapter<String> monthAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, months);
-        monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spMonth.setAdapter(monthAdapter);
-
-        builder.setPositiveButton(R.string.dialog_btn_text_done, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (0 == spMonth.getSelectedItemPosition())
-                    downloadAndParse(Constants.BEST_URL + YEAR + years[spYears.getSelectedItemPosition()]);
-                else
-                    downloadAndParse(Constants.BEST_URL + MONTH
-                            + years[spYears.getSelectedItemPosition()] + DIVIDER
-                            + spMonth.getSelectedItemPosition());
-
-            }
-        });
-        return builder.create();
-    }
-
     @Override
     public void returnResult(ArrayList<BashItem> quotes) {
         mBestAdapter.setAdapter(quotes);
-        EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED, BestFragment.this));
+        EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED, BestRandomFragment.this));
         mRvItems.scrollToPosition(0);
+    }
+
+    @Override
+    public void setArguments(Bundle args) {
+        mData = args;
+    }
+
+    @Override
+    public void loadUrl(String url) {
+        downloadAndParse(url);
     }
 }

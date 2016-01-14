@@ -48,6 +48,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
     private BashService mBashService;
     private CommonAdapter mQuotesCursorAdapter;
     private BroadcastReceiver mBroadcastReceiver;
+    private SearchView mSearchView;
     private boolean isFirstSynced;
     private boolean isLoadingInProcess;
     private int firstVisibleItem;
@@ -65,6 +66,8 @@ public class MainFragment extends Fragment implements ServiceConnection,
                     onDownloadStarted();
                 else if (intent.getAction().equals(Constants.ACTION_DOWNLOAD_FINISHED))
                     onDownloadFinished();
+                else if (intent.getAction().equals(Constants.ACTION_DOWNLOAD_ABORTED))
+                    onAborted();
             }
         };
     }
@@ -135,11 +138,11 @@ public class MainFragment extends Fragment implements ServiceConnection,
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_search, menu);
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        if (null != searchView) {
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
-            searchView.setIconifiedByDefault(false);
-            searchView.setOnQueryTextListener(new SearchHelper(getActivity()));
+        mSearchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        if (null != mSearchView) {
+            mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+            mSearchView.setIconifiedByDefault(false);
+            mSearchView.setOnQueryTextListener(new SearchHelper(getActivity()));
         }
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -169,6 +172,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
         super.onStart();
         getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_STARTED));
         getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_FINISHED));
+        getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_ABORTED));
         BashPreferences.getInstance(getActivity()).setFilterListener(this);
     }
 
@@ -201,6 +205,10 @@ public class MainFragment extends Fragment implements ServiceConnection,
         isFirstSynced = true;
     }
 
+    private void onAborted() {
+        DialogsHelper.abortedDownload(getActivity()).show();
+    }
+
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         BashService.LocalBinder binder = (BashService.LocalBinder) service;
@@ -230,6 +238,8 @@ public class MainFragment extends Fragment implements ServiceConnection,
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mQuotesCursorAdapter.swapCursor(data);
+        if (null != mSearchView)
+            mSearchView.clearFocus();
         isLoadingInProcess = false;
     }
 

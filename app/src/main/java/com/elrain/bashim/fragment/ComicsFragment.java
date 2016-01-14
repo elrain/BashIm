@@ -65,7 +65,6 @@ public class ComicsFragment extends Fragment implements LoaderManager.LoaderCall
         getLoaderManager().initLoader(Constants.ID_LOADER, null, ComicsFragment.this);
     }
 
-
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,

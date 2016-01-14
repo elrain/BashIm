@@ -34,12 +34,12 @@ import javax.xml.parsers.ParserConfigurationException;
 public class BashService extends Service {
 
     private final IBinder mBinder = new LocalBinder();
-    private ExecutorService executor;
+    private ExecutorService mExecutor;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        executor = Executors.newFixedThreadPool(1);
+        mExecutor = Executors.newFixedThreadPool(1);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class BashService extends Service {
      */
     public void downloadXml() {
         sendBroadcast(Constants.ACTION_DOWNLOAD_STARTED);
-        executor.execute(new DownloadTask());
+        mExecutor.execute(new DownloadTask());
     }
 
     private void sendBroadcast(String actionDownloadStarted) {
@@ -99,7 +99,7 @@ public class BashService extends Service {
                     items = XmlParser.parseXml(XmlWorker.getStream(url));
                 } catch (ParserConfigurationException | SAXException | IOException e) {
                     e.printStackTrace();
-                    sendBroadcast(Constants.ACTION_DOWNLOAD_FINISHED);
+                    sendBroadcast(Constants.ACTION_DOWNLOAD_ABORTED);
                     stopSelf();
                     break;
                 }

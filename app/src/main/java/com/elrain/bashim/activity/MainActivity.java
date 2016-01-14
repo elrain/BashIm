@@ -18,11 +18,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.elrain.bashim.R;
-import com.elrain.bashim.fragment.BestFragment;
+import com.elrain.bashim.fragment.BestRandomFragment;
 import com.elrain.bashim.fragment.ComicsFragment;
 import com.elrain.bashim.fragment.FavoriteFragment;
 import com.elrain.bashim.fragment.MainFragment;
-import com.elrain.bashim.fragment.RandomFragment;
 import com.elrain.bashim.message.RefreshMessage;
 import com.elrain.bashim.util.AlarmUtil;
 import com.elrain.bashim.util.BashPreferences;
@@ -66,8 +65,8 @@ public class MainActivity extends AppCompatActivity
         initFragmentMap();
         initActionBar();
         if (null != savedInstanceState && ScreenUtil.isTablet(this))
-            changeFragment(null == mLastTag ? getString(R.string.action_main) : mLastTag);
-        else changeFragment(getString(R.string.action_main));
+            changeFragment(null == mLastTag ? getString(R.string.action_main) : mLastTag, null);
+        else changeFragment(getString(R.string.action_main), null);
         setActionBarTitle();
         if (getIntent().getBooleanExtra(Constants.KEY_OPEN_MAIN_ACTIVITY, false))
             BashPreferences.getInstance(this).resetQuotesCounter();
@@ -110,8 +109,8 @@ public class MainActivity extends AppCompatActivity
         mFragmentMap.put(getString(R.string.action_favorite), new FavoriteFragment());
         mFragmentMap.put(getString(R.string.action_main), new MainFragment());
         mFragmentMap.put(getString(R.string.action_comics), new ComicsFragment());
-        mFragmentMap.put(getString(R.string.action_random), new RandomFragment());
-        mFragmentMap.put(getString(R.string.action_best), new BestFragment());
+        mFragmentMap.put(getString(R.string.action_random), new BestRandomFragment());
+        mFragmentMap.put(getString(R.string.action_best), new BestRandomFragment());
     }
 
     private void initActionBar() {
@@ -145,34 +144,44 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         if (id == R.id.aMain) {
             if (null != getSupportActionBar()) getSupportActionBar().setTitle(R.string.action_main);
-            changeFragment(getString(R.string.action_main));
+            changeFragment(getString(R.string.action_main), null);
         } else if (id == R.id.aFavorite) {
             if (null != getSupportActionBar())
                 getSupportActionBar().setTitle(R.string.action_favorite);
-            changeFragment(getString(R.string.action_favorite));
+            changeFragment(getString(R.string.action_favorite), null);
         } else if (id == R.id.aComics) {
             if (null != getSupportActionBar())
                 getSupportActionBar().setTitle(R.string.action_comics);
-            changeFragment(getString(R.string.action_comics));
+            changeFragment(getString(R.string.action_comics), null);
         } else if (id == R.id.aPreferences) {
             Intent in = new Intent(MainActivity.this, PreferencesActivity.class);
             startActivity(in);
         } else if (id == R.id.aRandom) {
             if (null != getSupportActionBar())
                 getSupportActionBar().setTitle(R.string.action_random);
-            changeFragment(getString(R.string.action_random));
+            Bundle b = new Bundle();
+            b.putString(Constants.PARSE, Constants.RANDOM_URL);
+            changeFragment(getString(R.string.action_random), b);
         } else if (id == R.id.aBest) {
             if (null != getSupportActionBar()) getSupportActionBar().setTitle(R.string.action_best);
-            changeFragment(getString(R.string.action_best));
+            Bundle b = new Bundle();
+            b.putString(Constants.PARSE, Constants.BEST_URL);
+            changeFragment(getString(R.string.action_best), b);
         }
         BashPreferences.getInstance(this).setSearchFilter(null);
         if (!isTablet) drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    private void changeFragment(@NonNull String tag) {
+    private void changeFragment(@NonNull String tag, Bundle bundle) {
         Fragment currentFragment = mFragmentManager.findFragmentById(R.id.flContent);
         Fragment newFragment = mFragmentMap.get(tag);
+        if (null != bundle) {
+            if (null == newFragment.getArguments())
+                newFragment.setArguments(bundle);
+            else
+                newFragment.getArguments().putAll(bundle);
+        }
         if (newFragment != currentFragment) {
             FragmentTransaction ft = mFragmentManager.beginTransaction();
             if (null != newFragment) {

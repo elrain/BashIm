@@ -22,6 +22,8 @@
         Проверьте соединение или измените настройки приложения</string>
     <string name="dialog_text_year">Год: </string>
     <string name="dialog_text_month">Месяц: </string>
+    <string name="dialog_text_aborted_download">Загрузка была прервана. Повторите попытку позже
+        нажав на кнопку обновления нв верхней панели.</string>
 
     <string name="dialog_btn_text_cancel">Отмена</string>
     <string name="dialog_btn_text_retry">Повторить</string>

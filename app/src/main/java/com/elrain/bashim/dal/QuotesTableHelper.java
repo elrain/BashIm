@@ -90,23 +90,23 @@ public class QuotesTableHelper {
     public static void makeFavorite(Context context, long id, boolean isFavorite) {
         ContentValues cv = new ContentValues();
         cv.put(IS_FAVORITE, isFavorite);
-        context.getContentResolver().update(BashContentProvider.QUOTES_CONTENT_URI, cv, ID + "=?", new String[]{String.valueOf(id)});
+        context.getContentResolver().update(BashContentProvider.QUOTES_CONTENT_URI, cv, ID + "=?",
+                new String[]{String.valueOf(id)});
     }
 
     public static String getUrlForComicsById(Context context, long id) {
         Cursor cursor = null;
-        String result = null;
         try {
             cursor = context.getContentResolver().query(Uri.withAppendedPath(
                             BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION},
                     AUTHOR + " IS NOT NULL AND " + ID + "=?",
                     new String[]{String.valueOf(id)}, null);
             if (null != cursor && cursor.moveToNext())
-                result = cursor.getString(cursor.getColumnIndex(DESCRIPTION));
+                return cursor.getString(cursor.getColumnIndex(DESCRIPTION));
         } finally {
             if (null != cursor) cursor.close();
         }
-        return result;
+        return null;
     }
 
     public static void makeOrInsertAsFavorite(Context context, BashItem item) {

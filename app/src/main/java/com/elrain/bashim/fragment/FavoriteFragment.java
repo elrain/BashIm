@@ -93,8 +93,7 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
         else return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
                 QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.IS_FAVORITE + " =? "
                 + " AND " + QuotesTableHelper.DESCRIPTION + " LIKE '%" + filter + "%'",
-                new String[]{String.valueOf(1)},
-                null);
+                new String[]{String.valueOf(1)}, null);
     }
 
     @Override
