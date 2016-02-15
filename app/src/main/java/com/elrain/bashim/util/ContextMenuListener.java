@@ -47,28 +47,22 @@ public class ContextMenuListener implements View.OnCreateContextMenuListener, Vi
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         menu.setHeaderTitle(mContext.getString(R.string.menu_context_title));
         MenuItem miCopy = menu.add(0, v.getId(), 0, mContext.getString(R.string.menu_context_copy));
-        miCopy.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                ClipboardManager manager = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip;
-                if (null == mText) clip = ClipData.newPlainText(CLIP_LABEL, mLink);
-                else clip = ClipData.newPlainText(CLIP_LABEL, String.format(
-                            Constants.SHARE_FORMATTER_CLIPBOARD, mText, mLink));
-                manager.setPrimaryClip(clip);
-                Toast.makeText(mContext, mContext.getString(R.string.toast_text_copied),
-                        Toast.LENGTH_SHORT).show();
-                return true;
-            }
+        miCopy.setOnMenuItemClickListener(item -> {
+            ClipboardManager manager = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip;
+            if (null == mText) clip = ClipData.newPlainText(CLIP_LABEL, mLink);
+            else clip = ClipData.newPlainText(CLIP_LABEL, String.format(
+                        Constants.SHARE_FORMATTER_CLIPBOARD, mText, mLink));
+            manager.setPrimaryClip(clip);
+            Toast.makeText(mContext, mContext.getString(R.string.toast_text_copied),
+                    Toast.LENGTH_SHORT).show();
+            return true;
         });
         MenuItem miShare = menu.add(0, v.getId(), 0, mContext.getString(R.string.menu_context_share));
-        miShare.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if (isBestOrRandom) shareBestOrRandom();
-                else shareOther();
-                return false;
-            }
+        miShare.setOnMenuItemClickListener(item -> {
+            if (isBestOrRandom) shareBestOrRandom();
+            else shareOther();
+            return false;
         });
     }
 

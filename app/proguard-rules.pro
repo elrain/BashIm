@@ -25,3 +25,5 @@
 -keep class org.jsoup.nodes.Document
 -keep class org.jsoup.nodes.Element
 -keep class org.jsoup.select.Elements
+
+-dontwarn java.lang.invoke.*

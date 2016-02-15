@@ -45,10 +45,8 @@ public class PreferencesActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
             getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-            mLpUpdateFrequency = (ListPreference) findPreference(
-                    getActivity().getString(R.string.preferences_key_alarm_frequency));
-            String summary = getPreferenceManager().getSharedPreferences().getString(
-                    getActivity().getString(R.string.preferences_key_alarm_frequency),
+            mLpUpdateFrequency = (ListPreference) findPreference(getActivity().getString(R.string.preferences_key_alarm_frequency));
+            String summary = getPreferenceManager().getSharedPreferences().getString(getActivity().getString(R.string.preferences_key_alarm_frequency),
                     Constants.PREFERENCES_UPDATE_DEF_VALUE);
             mLpUpdateFrequency.setSummary(generateFrequencySummary(summary));
         }

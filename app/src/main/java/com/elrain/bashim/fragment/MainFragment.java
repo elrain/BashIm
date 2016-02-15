@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.CursorLoader;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
@@ -42,7 +41,7 @@ import com.elrain.bashim.util.NetworkUtil;
 import de.greenrobot.event.EventBus;
 
 public class MainFragment extends Fragment implements ServiceConnection,
-        LoaderManager.LoaderCallbacks<Cursor>, BashPreferences.OnFilterChanged {
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     private boolean isBound = false;
     private BashService mBashService;
@@ -114,22 +113,12 @@ public class MainFragment extends Fragment implements ServiceConnection,
 
             @Override
             public void disconnected() {
-                DialogsHelper.noInternetDialog(getActivity(), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        initRssDownloading();
-                    }
-                }).show();
+                DialogsHelper.noInternetDialog(getActivity(), (dialog, which) -> initRssDownloading()).show();
             }
 
             @Override
             public void onlyWiFiPossible() {
-                DialogsHelper.noInternetByPreferencesDialog(getActivity(), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        initRssDownloading();
-                    }
-                }).show();
+                DialogsHelper.noInternetByPreferencesDialog(getActivity(), (dialog, which) -> initRssDownloading()).show();
             }
         });
     }
@@ -173,7 +162,8 @@ public class MainFragment extends Fragment implements ServiceConnection,
         getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_STARTED));
         getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_FINISHED));
         getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_ABORTED));
-        BashPreferences.getInstance(getActivity()).setFilterListener(this);
+        BashPreferences.getInstance(getActivity()).setFilterListener(
+                () -> getLoaderManager().restartLoader(Constants.ID_LOADER, null, MainFragment.this));
     }
 
     @Override
@@ -194,13 +184,10 @@ public class MainFragment extends Fragment implements ServiceConnection,
             isBound = false;
         }
         if (null != getActivity())
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    getLoaderManager().restartLoader(Constants.ID_LOADER, null, MainFragment.this);
-                    EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED,
-                            MainFragment.this));
-                }
+            getActivity().runOnUiThread(() -> {
+                getLoaderManager().restartLoader(Constants.ID_LOADER, null, MainFragment.this);
+                EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED,
+                        MainFragment.this));
             });
         isFirstSynced = true;
     }
@@ -246,10 +233,5 @@ public class MainFragment extends Fragment implements ServiceConnection,
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mQuotesCursorAdapter.swapCursor(null);
-    }
-
-    @Override
-    public void onFilterChange() {
-        getLoaderManager().restartLoader(Constants.ID_LOADER, null, MainFragment.this);
     }
 }

@@ -1,6 +1,7 @@
 package com.elrain.bashim.webutil;
 
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.text.Html;
 
 import com.elrain.bashim.object.BashItem;
@@ -13,6 +14,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public final class HtmlWorker {
 
@@ -32,32 +34,13 @@ public final class HtmlWorker {
     }
 
     public interface OnHtmlParsed {
-        void returnResult(ArrayList<BashItem> quotes);
+        void returnResult(List<BashItem> quotes);
     }
 
     private static class GetAndParseHtml extends AsyncTask<String, Void, ArrayList<BashItem>> {
         @Override
         protected ArrayList<BashItem> doInBackground(String... params) {
-            ArrayList<BashItem> quotes = new ArrayList<>();
-            try {
-                Document document = Jsoup.connect(params[0]).get();
-                Elements quotesElements = document.select(DIV_QUOTE);
-                for (Element quote : quotesElements) {
-                    Elements action = Jsoup.parse(String.valueOf(quote)).select(DIV_ACTIONS);
-                    String date = action.select(SPAN_DATE).text();
-                    if ("".equals(date))
-                        continue;
-                    BashItem item = new BashItem();
-                    item.setDescription(Html.fromHtml(Jsoup.parse(String.valueOf(quote)).select(DIV_TEXT).html()).toString());
-                    item.setTitle(QUOTE + action.select(A_ID).text());
-                    item.setLink(HTTP_BASH_IM + action.select(A_ID).attr(HREF));
-                    item.setPubDate(DateUtil.parseDateFromXml(date));
-                    quotes.add(item);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return quotes;
+            return getBashItems(params[0]);
         }
 
         @Override
@@ -65,5 +48,29 @@ public final class HtmlWorker {
             super.onPostExecute(bashItems);
             mListener.returnResult(bashItems);
         }
+    }
+
+    @NonNull
+    private static ArrayList<BashItem> getBashItems(String param) {
+        ArrayList<BashItem> quotes = new ArrayList<>();
+        try {
+            Document document = Jsoup.connect(param).get();
+            Elements quotesElements = document.select(DIV_QUOTE);
+            for (Element quote : quotesElements) {
+                Elements action = Jsoup.parse(String.valueOf(quote)).select(DIV_ACTIONS);
+                String date = action.select(SPAN_DATE).text();
+                if ("".equals(date))
+                    continue;
+                BashItem item = new BashItem();
+                item.setDescription(Html.fromHtml(Jsoup.parse(String.valueOf(quote)).select(DIV_TEXT).html()).toString());
+                item.setTitle(QUOTE + action.select(A_ID).text());
+                item.setLink(HTTP_BASH_IM + action.select(A_ID).attr(HREF));
+                item.setPubDate(DateUtil.parseDateFromXml(date));
+                quotes.add(item);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return quotes;
     }
 }

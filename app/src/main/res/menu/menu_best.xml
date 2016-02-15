@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/aRefresh"
-        android:icon="@android:drawable/stat_notify_sync_noanim"
+        android:icon="@drawable/ic_autorenew_24dp"
         android:title="@string/action_refresh"
         app:showAsAction="always" />
     <item

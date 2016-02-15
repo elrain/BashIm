@@ -21,17 +21,17 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.SearchView;
 
-import com.elrain.bashim.dal.BashContentProvider;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.ImageScaleActivity;
 import com.elrain.bashim.adapter.CommonAdapter;
+import com.elrain.bashim.dal.BashContentProvider;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.fragment.helper.SearchHelper;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
 
 public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        AdapterView.OnItemClickListener, BashPreferences.OnFilterChanged {
+        AdapterView.OnItemClickListener {
 
     private CommonAdapter mQuotesCursorAdapter;
 
@@ -60,7 +60,8 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onStart() {
         super.onStart();
-        BashPreferences.getInstance(getActivity()).setFilterListener(this);
+        BashPreferences.getInstance(getActivity()).setFilterListener(
+                () -> getLoaderManager().restartLoader(Constants.ID_LOADER, null, FavoriteFragment.this));
     }
 
     @Override
@@ -114,10 +115,5 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
             intent.putExtra(Constants.KEY_INTENT_IMAGE_URL, url);
             getActivity().startActivity(intent);
         }
-    }
-
-    @Override
-    public void onFilterChange() {
-        getLoaderManager().restartLoader(Constants.ID_LOADER, null, FavoriteFragment.this);
     }
 }

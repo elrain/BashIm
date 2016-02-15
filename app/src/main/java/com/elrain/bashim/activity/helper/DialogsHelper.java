@@ -18,12 +18,7 @@ public class DialogsHelper {
     private static final String MONTH = "month/";
     private static final String DIVIDER = "/";
 
-    private static final DialogInterface.OnClickListener CLOSE_LISTENER = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            dialog.dismiss();
-        }
-    };
+    private static final DialogInterface.OnClickListener CLOSE_LISTENER = (dialog, which) -> dialog.dismiss();
 
     public static AlertDialog noInternetDialog(Context context, @NonNull DialogInterface.OnClickListener listener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -62,17 +57,14 @@ public class DialogsHelper {
         monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spMonth.setAdapter(monthAdapter);
 
-        builder.setPositiveButton(R.string.dialog_btn_text_done, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (0 == spMonth.getSelectedItemPosition())
-                    listener.loadUrl(Constants.BEST_URL + YEAR + years[spYears.getSelectedItemPosition()]);
-                else
-                    listener.loadUrl(Constants.BEST_URL + MONTH
-                            + years[spYears.getSelectedItemPosition()] + DIVIDER
-                            + spMonth.getSelectedItemPosition());
+        builder.setPositiveButton(R.string.dialog_btn_text_done, (dialog, which) -> {
+            if (0 == spMonth.getSelectedItemPosition())
+                listener.loadUrl(Constants.BEST_URL + YEAR + years[spYears.getSelectedItemPosition()]);
+            else
+                listener.loadUrl(Constants.BEST_URL + MONTH
+                        + years[spYears.getSelectedItemPosition()] + DIVIDER
+                        + spMonth.getSelectedItemPosition());
 
-            }
         });
         return builder.create();
     }

@@ -45,14 +45,9 @@ public final class DateUtil {
         if (null == date) return null;
         Calendar c = Calendar.getInstance();
         c.setTime(date);
-        int hours = date.getHours();
-        int minutes = c.get(Calendar.MINUTE);
-        int year = c.get(Calendar.YEAR);
-        int day = c.get(Calendar.DAY_OF_MONTH);
-        int month = c.get(Calendar.MONTH) + 1;
-
-        return year + "-" + isZeroNeeded(month) + "-" + isZeroNeeded(day) + " "
-                + isZeroNeeded(hours) + ":" + isZeroNeeded(minutes);
+        return c.get(Calendar.YEAR) + "-" + isZeroNeeded(c.get(Calendar.MONTH) + 1) + "-"
+                + isZeroNeeded(c.get(Calendar.DAY_OF_MONTH)) + " " + isZeroNeeded(date.getHours())
+                + ":" + isZeroNeeded(c.get(Calendar.MINUTE));
     }
 
     private static String isZeroNeeded(int value) {

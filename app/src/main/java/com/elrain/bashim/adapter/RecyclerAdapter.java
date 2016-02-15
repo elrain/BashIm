@@ -17,18 +17,19 @@ import com.elrain.bashim.util.ContextMenuListener;
 import com.elrain.bashim.util.DateUtil;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     private final Context mContext;
-    private ArrayList<BashItem> mItems;
+    private List<BashItem> mItems;
 
     public RecyclerAdapter(Context context, ArrayList<BashItem> items) {
         this.mItems = items;
         this.mContext = context;
     }
 
-    public void setAdapter(ArrayList<BashItem> items) {
+    public void addItems(List<BashItem> items) {
         mItems = items;
         this.notifyDataSetChanged();
     }
@@ -50,12 +51,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         holder.tvTitle.setText(getItem(position).getTitle());
         holder.setText(getItem(position).getDescription());
         holder.setLink(getItem(position).getLink());
-        holder.tvTitle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getItem(position).getLink()));
-                mContext.startActivity(intent);
-            }
+        holder.tvTitle.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getItem(position).getLink()));
+            mContext.startActivity(intent);
         });
 
         boolean isFavorite = QuotesTableHelper.isFavorite(mContext, getItem(position).getLink());
@@ -63,12 +61,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         if (isFavorite) holder.ivFavorite.setImageResource(android.R.drawable.star_big_on);
         else holder.ivFavorite.setImageResource(android.R.drawable.star_big_off);
 
-        holder.ivFavorite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                QuotesTableHelper.makeOrInsertAsFavorite(mContext, getItem(position));
-                notifyDataSetChanged();
-            }
+        holder.ivFavorite.setOnClickListener(v -> {
+            QuotesTableHelper.makeOrInsertAsFavorite(mContext, getItem(position));
+            notifyDataSetChanged();
         });
     }
 

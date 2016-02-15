@@ -1,7 +1,6 @@
 package com.elrain.bashim.fragment;
 
 import android.app.Fragment;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,7 +14,6 @@ import android.view.ViewGroup;
 
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.helper.DialogsHelper;
-import com.elrain.bashim.activity.helper.OnDatePicked;
 import com.elrain.bashim.adapter.RecyclerAdapter;
 import com.elrain.bashim.message.RefreshMessage;
 import com.elrain.bashim.object.BashItem;
@@ -24,6 +22,7 @@ import com.elrain.bashim.util.NetworkUtil;
 import com.elrain.bashim.webutil.HtmlWorker;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
@@ -31,7 +30,7 @@ import de.greenrobot.event.EventBus;
  * Created by denys.husher on 24.11.2015.
  * Fragment for showing http://bash.im/best
  */
-public class BestRandomFragment extends Fragment implements HtmlWorker.OnHtmlParsed, OnDatePicked {
+public class BestRandomFragment extends Fragment implements HtmlWorker.OnHtmlParsed {
 
     private RecyclerAdapter mBestAdapter;
     private RecyclerView mRvItems;
@@ -53,7 +52,7 @@ public class BestRandomFragment extends Fragment implements HtmlWorker.OnHtmlPar
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mRvItems = (RecyclerView) view.findViewById(R.id.lvBashItems);
-        mBestAdapter = new RecyclerAdapter(getActivity(), new ArrayList<BashItem>());
+        mBestAdapter = new RecyclerAdapter(getActivity(), new ArrayList<>());
         mRvItems.setAdapter(mBestAdapter);
         mRvItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         downloadAndParse(mData.getString(Constants.PARSE));
@@ -63,28 +62,21 @@ public class BestRandomFragment extends Fragment implements HtmlWorker.OnHtmlPar
         NetworkUtil.isDeviceOnline(getActivity(), new NetworkUtil.OnDeviceOnlineListener() {
             @Override
             public void connected() {
-                EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.STARTED, BestRandomFragment.this));
+                EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.STARTED,
+                        BestRandomFragment.this));
                 HtmlWorker.getQuotes(BestRandomFragment.this, url);
             }
 
             @Override
             public void disconnected() {
-                DialogsHelper.noInternetDialog(getActivity(), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        downloadAndParse(url);
-                    }
-                }).show();
+                DialogsHelper.noInternetDialog(getActivity(),
+                        (dialog, which) -> downloadAndParse(url)).show();
             }
 
             @Override
             public void onlyWiFiPossible() {
-                DialogsHelper.noInternetByPreferencesDialog(getActivity(), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        downloadAndParse(url);
-                    }
-                }).show();
+                DialogsHelper.noInternetByPreferencesDialog(getActivity(),
+                        (dialog, which) -> downloadAndParse(url)).show();
             }
         });
     }
@@ -106,7 +98,7 @@ public class BestRandomFragment extends Fragment implements HtmlWorker.OnHtmlPar
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.aDatePicker:
-                DialogsHelper.datePickerDialog(getActivity(), this).show();
+                DialogsHelper.datePickerDialog(getActivity(), this::downloadAndParse).show();
                 return true;
             case R.id.aRefresh:
                 downloadAndParse(Constants.RANDOM_URL);
@@ -117,19 +109,15 @@ public class BestRandomFragment extends Fragment implements HtmlWorker.OnHtmlPar
     }
 
     @Override
-    public void returnResult(ArrayList<BashItem> quotes) {
-        mBestAdapter.setAdapter(quotes);
-        EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED, BestRandomFragment.this));
+    public void returnResult(List<BashItem> quotes) {
+        mBestAdapter.addItems(quotes);
+        EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED,
+                BestRandomFragment.this));
         mRvItems.scrollToPosition(0);
     }
 
     @Override
     public void setArguments(Bundle args) {
         mData = args;
-    }
-
-    @Override
-    public void loadUrl(String url) {
-        downloadAndParse(url);
     }
 }

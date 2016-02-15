@@ -7,7 +7,7 @@
 
         <item
             android:id="@+id/aMain"
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@drawable/ic_message_24dp"
             android:title="@string/action_main" />
 
         <item
@@ -17,7 +17,7 @@
 
         <item
             android:id="@+id/aBest"
-            android:icon="@android:drawable/ic_menu_help"
+            android:icon="@drawable/ic_plus_one_24dp"
             android:title="@string/action_best" />
     </group>
 
@@ -26,12 +26,12 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/aComics"
-            android:icon="@android:drawable/button_onoff_indicator_on"
+            android:icon="@drawable/ic_local_attraction_24dp"
             android:title="@string/action_comics" />
 
         <item
             android:id="@+id/aFavorite"
-            android:icon="@android:drawable/star_big_on"
+            android:icon="@drawable/ic_star_outline_24dp"
             android:title="@string/action_favorite" />
     </group>
     <item

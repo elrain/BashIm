@@ -58,12 +58,7 @@ public class CommonAdapter extends RecyclerCursorAdapter<CommonAdapter.ViewHolde
             holder.ivFavorite.setImageResource(android.R.drawable.star_big_on);
         else
             holder.ivFavorite.setImageResource(android.R.drawable.star_big_off);
-        holder.ivFavorite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                QuotesTableHelper.makeFavorite(getContext(), id, !isFavorite);
-            }
-        });
+        holder.ivFavorite.setOnClickListener(v -> QuotesTableHelper.makeFavorite(getContext(), id, !isFavorite));
 
         if (isAuthorNonNull) {
             holder.tvText.setVisibility(View.GONE);
@@ -88,12 +83,9 @@ public class CommonAdapter extends RecyclerCursorAdapter<CommonAdapter.ViewHolde
                 holder.setText(description, null);
             }
             holder.tvTitle.setText(title);
-            holder.tvTitle.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
-                    getContext().startActivity(intent);
-                }
+            holder.tvTitle.setOnClickListener(v -> {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+                getContext().startActivity(intent);
             });
         }
     }

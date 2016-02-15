@@ -17,6 +17,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
 import com.elrain.bashim.R;
 import com.elrain.bashim.fragment.BestRandomFragment;
 import com.elrain.bashim.fragment.ComicsFragment;
@@ -31,6 +33,7 @@ import com.elrain.bashim.util.ScreenUtil;
 import java.util.HashMap;
 
 import de.greenrobot.event.EventBus;
+import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, SwipeRefreshLayout.OnRefreshListener {
@@ -46,8 +49,8 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         BashPreferences.getInstance(this).setSearchFilter(null);
-//        Fabric.with(this, new Crashlytics());
-//        Fabric.with(this, new Answers(), new Crashlytics());
+        Fabric.with(this, new Crashlytics());
+        Fabric.with(this, new Answers(), new Crashlytics());
         if (!ScreenUtil.isTablet(this))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
