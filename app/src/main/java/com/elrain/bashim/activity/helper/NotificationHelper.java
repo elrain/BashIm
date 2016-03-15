@@ -1,22 +1,22 @@
 package com.elrain.bashim.activity.helper;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.MainActivity;
-import com.elrain.bashim.receiver.BashBroadcastReceiver;
-import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
+import com.elrain.bashim.util.CounterOfNewItems;
 
+/**
+ * Created by denys.husher on 04.11.2015.
+ */
 public class NotificationHelper {
 
     public static void showNotification(Context context) {
@@ -27,8 +27,8 @@ public class NotificationHelper {
             builder.setContentTitle(context.getString(R.string.app_name));
             builder.setAutoCancel(true);
             builder.setContentText(context.getResources().getQuantityString(R.plurals.notification_text,
-                    BashPreferences.getInstance(context).getQuotesCounter(),
-                    BashPreferences.getInstance(context).getQuotesCounter()));
+                    CounterOfNewItems.getInstance().getQuotesCounter(),
+                    CounterOfNewItems.getInstance().getQuotesCounter()));
             Intent intent = new Intent(context, MainActivity.class);
             intent.putExtra(Constants.KEY_OPEN_MAIN_ACTIVITY, true);
             TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
@@ -39,16 +39,8 @@ public class NotificationHelper {
             builder.setContentIntent(resultPendingIntent);
             NotificationManager mNotificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            Notification notification = builder.build();
-            notification.deleteIntent = PendingIntent.getBroadcast(context, 0, getCancelIntent(context), 0);
-            mNotificationManager.notify(Constants.ID_NOTIFICATION, notification);
+            mNotificationManager.notify(Constants.ID_NOTIFICATION, builder.build());
+            CounterOfNewItems.getInstance().setCounterTooZero();
         }
-    }
-
-    @NonNull
-    private static Intent getCancelIntent(Context context) {
-        Intent cancelIntent = new Intent(context, BashBroadcastReceiver.class);
-        cancelIntent.setAction(Constants.INTENT_CANCEL);
-        return cancelIntent;
     }
 }
