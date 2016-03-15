@@ -5,6 +5,8 @@ import android.app.Application;
 import com.elrain.bashim.dal.DBHelper;
 import com.elrain.bashim.util.AlarmUtil;
 import com.elrain.bashim.util.BashPreferences;
+import com.squareup.sqlbrite.BriteDatabase;
+import com.squareup.sqlbrite.SqlBrite;
 
 import javax.inject.Singleton;
 
@@ -28,7 +30,7 @@ public class ProviderModule {
 
     @Provides
     @Singleton
-    DBHelper getDbHelper(Application application) {
-        return new DBHelper(application);
+    BriteDatabase getDbHelper(Application application) {
+        return SqlBrite.create().wrapDatabaseHelper(new DBHelper(application));
     }
 }
