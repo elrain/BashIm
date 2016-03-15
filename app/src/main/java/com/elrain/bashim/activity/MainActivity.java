@@ -19,6 +19,7 @@ import android.view.MenuItem;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
+import com.elrain.bashim.BashApp;
 import com.elrain.bashim.R;
 import com.elrain.bashim.fragment.BestRandomFragment;
 import com.elrain.bashim.fragment.ComicsFragment;
@@ -32,6 +33,8 @@ import com.elrain.bashim.util.ScreenUtil;
 
 import java.util.HashMap;
 
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 import io.fabric.sdk.android.Fabric;
 
@@ -44,18 +47,22 @@ public class MainActivity extends AppCompatActivity
     private boolean isTablet = false;
     private DrawerLayout drawer;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    
+    @Inject BashPreferences mPreferences;
+    @Inject AlarmUtil mAlarmUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        BashPreferences.getInstance(this).setSearchFilter(null);
-        Fabric.with(this, new Crashlytics());
-        Fabric.with(this, new Answers(), new Crashlytics());
+        ((BashApp)getApplication()).getComponent().inject(this);
+        mPreferences.setSearchFilter(null);
+//        Fabric.with(this, new Crashlytics());
+//        Fabric.with(this, new Answers(), new Crashlytics());
         if (!ScreenUtil.isTablet(this))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
         if (null != savedInstanceState && ScreenUtil.isTablet(this))
-            mLastTag = BashPreferences.getInstance(this).getLastTag();
+            mLastTag = mPreferences.getLastTag();
         else mLastTag = getString(R.string.action_main);
         EventBus.getDefault().register(this);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srLayout);
@@ -72,7 +79,7 @@ public class MainActivity extends AppCompatActivity
         else changeFragment(getString(R.string.action_main), null);
         setActionBarTitle();
         if (getIntent().getBooleanExtra(Constants.KEY_OPEN_MAIN_ACTIVITY, false))
-            BashPreferences.getInstance(this).resetQuotesCounter();
+            mPreferences.resetQuotesCounter();
     }
 
     private void setActionBarTitle() {
@@ -92,9 +99,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        AlarmUtil.getInstance(this).unsubscribeListener();
+        mAlarmUtil.unsubscribeListener();
         EventBus.getDefault().unregister(this);
-        BashPreferences.getInstance(this).setSearchFilter(null);
+        mPreferences.setSearchFilter(null);
     }
 
     @Override
@@ -171,7 +178,7 @@ public class MainActivity extends AppCompatActivity
             b.putString(Constants.PARSE, Constants.BEST_URL);
             changeFragment(getString(R.string.action_best), b);
         }
-        BashPreferences.getInstance(this).setSearchFilter(null);
+        mPreferences.setSearchFilter(null);
         if (!isTablet) drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -194,7 +201,7 @@ public class MainActivity extends AppCompatActivity
                 else ft.attach(mFragmentManager.findFragmentByTag(tag));
             }
             ft.commit();
-            BashPreferences.getInstance(this).setLastTag(tag);
+            mPreferences.setLastTag(tag);
             mLastTag = tag;
         }
     }

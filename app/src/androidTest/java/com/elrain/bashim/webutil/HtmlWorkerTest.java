@@ -7,6 +7,7 @@ import com.google.mockwebserver.MockResponse;
 import com.google.mockwebserver.MockWebServer;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -64,7 +65,7 @@ public class HtmlWorkerTest extends InstrumentationTestCase {
         mMockWebServer.enqueue(mockResponse);
         listener = new HtmlWorker.OnHtmlParsed() {
             @Override
-            public void returnResult(ArrayList<BashItem> quotes) {
+            public void returnResult(List<BashItem> quotes) {
                 assertEquals(3, quotes.size());
                 mCountDownLatch.countDown();
             }

@@ -1,4 +1,9 @@
 <resources>
+    <string name="app_name">Bash.im</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_top_title">www.bash.im</string>
     <string name="navigation_drawer_top_subtitle">Разработал Денис Гушер</string>
 
     <string name="searchable_label">Поиск</string>
@@ -28,6 +33,7 @@
     <string name="dialog_btn_text_cancel">Отмена</string>
     <string name="dialog_btn_text_retry">Повторить</string>
     <string name="dialog_btn_text_done">Показать</string>
+    <string name="dialog_btn_text_ok">OK</string>
 
     <plurals name="notification_text">
         <item quantity="one">У вас %d новая цитата</item>
@@ -59,6 +65,29 @@
         <item>1 час</item>
         <item>3 часа</item>
         <item>12 часов</item>
+    </string-array>
+
+    <string-array name="listValues">
+        <item>0</item>
+        <item>1800000</item>
+        <item>3600000</item>
+        <item>10800000</item>
+        <item>43200000</item>
+    </string-array>
+
+    <string-array name="years">
+        <item>2015</item>
+        <item>2014</item>
+        <item>2013</item>
+        <item>2012</item>
+        <item>2011</item>
+        <item>2010</item>
+        <item>2009</item>
+        <item>2008</item>
+        <item>2007</item>
+        <item>2006</item>
+        <item>2005</item>
+        <item>2004</item>
     </string-array>
 
     <string-array name="months">

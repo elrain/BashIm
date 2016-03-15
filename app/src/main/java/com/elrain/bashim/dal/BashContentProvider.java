@@ -12,7 +12,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import com.elrain.bashim.BashApp;
 import com.elrain.bashim.util.BashPreferences;
+
+import javax.inject.Inject;
 
 /**
  * Created by denys.husher on 03.11.2015.
@@ -32,18 +35,20 @@ public class BashContentProvider extends ContentProvider {
 
     private static final UriMatcher URI_MATCHER;
 
+    @Inject BashPreferences mBashPreferences;
+    @Inject DBHelper mDbHelper;
+
     static {
         URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
         URI_MATCHER.addURI(AUTHORITY, QUOTES_PATH, URI_ALL_QUOTES);
         URI_MATCHER.addURI(AUTHORITY, QUOTES_PATH + "/#", URI_QUOT_ID);
     }
 
-    private DBHelper mDbHelper;
-
     @Override
     public boolean onCreate() {
-        if (null != getContext())
-            mDbHelper = DBHelper.getInstance(getContext());
+        if (null != getContext()){
+            ((BashApp)getContext()).getComponent().inject(this);
+        }
         return true;
     }
 
@@ -91,7 +96,7 @@ public class BashContentProvider extends ContentProvider {
                 if (null == values.getAsString(QuotesTableHelper.AUTHOR)
                         || "".equals(values.getAsString(QuotesTableHelper.AUTHOR)))
                     if (null != getContext())
-                        BashPreferences.getInstance(getContext()).increaseQuotCounter();
+                        mBashPreferences.increaseQuotCounter();
             Uri resultUri = ContentUris.withAppendedId(uri, rowId);
             if (null != getContext() && null != getContext().getContentResolver())
                 getContext().getContentResolver().notifyChange(resultUri, null);

@@ -7,22 +7,16 @@ import android.support.annotation.NonNull;
 
 import com.elrain.bashim.util.BashPreferences;
 
+import javax.inject.Inject;
+
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final int DB_VERSION = 4;
     private static final String DB_NAME = "com_elrain_bashim.db";
-    private static DBHelper mInstance;
-    private final Context mContext;
+    @Inject BashPreferences mBashPreferences;
 
-    private DBHelper(Context context) {
+    public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
-        mContext = context;
-    }
-
-    public synchronized static DBHelper getInstance(@NonNull Context context) {
-        if (null == mInstance)
-            mInstance = new DBHelper(context);
-        return mInstance;
     }
 
     @Override
@@ -35,7 +29,7 @@ public class DBHelper extends SQLiteOpenHelper {
         switch (oldVersion) {
             case 3:
                 QuotesTableHelper.update3To4(db);
-                BashPreferences.getInstance(mContext).resetFirstStart();
+                mBashPreferences.resetFirstStart();
                 break;
         }
     }

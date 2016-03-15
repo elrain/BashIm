@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.elrain.bashim.BashApp;
 import com.elrain.bashim.R;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.util.BashPreferences;
@@ -31,12 +32,17 @@ import com.squareup.picasso.Picasso;
 import java.util.Date;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 public class CommonAdapter extends RecyclerCursorAdapter<CommonAdapter.ViewHolder> {
 
     private boolean mFavorite;
+    @Inject
+    BashPreferences mBashPreferences;
 
     public CommonAdapter(Context context) {
         super(context, null);
+        ((BashApp) context.getApplicationContext()).getComponent().inject(this);
     }
 
     public CommonAdapter(Context context, boolean isFavorite) {
@@ -131,7 +137,7 @@ public class CommonAdapter extends RecyclerCursorAdapter<CommonAdapter.ViewHolde
     }
 
     private Spanned highlightTextileNeeded(String text) {
-        String filter = BashPreferences.getInstance(getContext()).getSearchFilter();
+        String filter = mBashPreferences.getSearchFilter();
         if (!TextUtils.isEmpty(filter)) {
             int startPos = text.toLowerCase(Locale.US).indexOf(filter.toLowerCase(Locale.US));
             int endPos = startPos + filter.length();

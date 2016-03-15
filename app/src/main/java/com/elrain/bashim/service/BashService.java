@@ -6,6 +6,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
+import com.elrain.bashim.BashApp;
 import com.elrain.bashim.BuildConfig;
 import com.elrain.bashim.activity.helper.NotificationHelper;
 import com.elrain.bashim.dal.QuotesTableHelper;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.inject.Inject;
 import javax.xml.parsers.ParserConfigurationException;
 
 /**
@@ -35,10 +37,13 @@ public class BashService extends Service {
 
     private final IBinder mBinder = new LocalBinder();
     private ExecutorService mExecutor;
+    @Inject BashPreferences mBashPreferences;
+    @Inject AlarmUtil mAlarmUtil;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        ((BashApp)getApplicationContext()).getComponent().inject(this);
         mExecutor = Executors.newFixedThreadPool(1);
     }
 
@@ -46,7 +51,7 @@ public class BashService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (null != intent && intent.getBooleanExtra(Constants.INTENT_DOWNLOAD, false))
             downloadXml();
-        else AlarmUtil.getInstance(getApplicationContext()).setAlarm();
+        else mAlarmUtil.setAlarm();
         return START_REDELIVER_INTENT;
     }
 
@@ -107,8 +112,8 @@ public class BashService extends Service {
                     for (BashItem bi : items)
                         QuotesTableHelper.saveQuot(getApplicationContext(), bi);
             }
-            if (!BashPreferences.getInstance(getApplicationContext()).isFirstStart()
-                    && BashPreferences.getInstance(getApplicationContext()).getQuotesCounter() != 0)
+            if (!mBashPreferences.isFirstStart()
+                    && mBashPreferences.getQuotesCounter() != 0)
                 NotificationHelper.showNotification(getApplicationContext());
             sendBroadcast(Constants.ACTION_DOWNLOAD_FINISHED);
             stopSelf();

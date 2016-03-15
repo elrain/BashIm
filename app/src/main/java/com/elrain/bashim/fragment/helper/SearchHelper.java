@@ -5,20 +5,23 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.widget.SearchView;
 
+import com.elrain.bashim.BashApp;
 import com.elrain.bashim.util.BashPreferences;
+
+import javax.inject.Inject;
 
 public class SearchHelper implements SearchView.OnQueryTextListener {
 
-    private final Context mContext;
+    @Inject BashPreferences mBashPreferences;
 
     public SearchHelper(@NonNull Context context) {
-        this.mContext = context;
+        ((BashApp)context.getApplicationContext()).getComponent().inject(this);
     }
 
     @Override
     public boolean onQueryTextSubmit(String query) {
         if (!TextUtils.isEmpty(query)) {
-            BashPreferences.getInstance(mContext).setSearchFilter(query);
+            mBashPreferences.setSearchFilter(query);
             return true;
         }
         return false;
@@ -27,7 +30,7 @@ public class SearchHelper implements SearchView.OnQueryTextListener {
     @Override
     public boolean onQueryTextChange(String newText) {
         if (TextUtils.isEmpty(newText)) {
-            BashPreferences.getInstance(mContext).setSearchFilter(null);
+            mBashPreferences.setSearchFilter(null);
             return true;
         }
         return false;

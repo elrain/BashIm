@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.SearchView;
 
+import com.elrain.bashim.BashApp;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.ImageScaleActivity;
 import com.elrain.bashim.adapter.CommonAdapter;
@@ -30,15 +31,19 @@ import com.elrain.bashim.fragment.helper.SearchHelper;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
 
+import javax.inject.Inject;
+
 public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         AdapterView.OnItemClickListener {
 
     private CommonAdapter mQuotesCursorAdapter;
+    @Inject BashPreferences mBashPreferences;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
+        ((BashApp)getActivity().getApplication()).getComponent().inject(this);
     }
 
     @Nullable
@@ -60,14 +65,14 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onStart() {
         super.onStart();
-        BashPreferences.getInstance(getActivity()).setFilterListener(
+        mBashPreferences.setFilterListener(
                 () -> getLoaderManager().restartLoader(Constants.ID_LOADER, null, FavoriteFragment.this));
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        BashPreferences.getInstance(getActivity()).removeFilterListener();
+        mBashPreferences.removeFilterListener();
     }
 
     @Override
