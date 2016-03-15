@@ -4,8 +4,6 @@
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
@@ -27,6 +25,10 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity.ImagePagerActivity" />
+        <activity android:name=".activity.PreferencesActivity" />
+        <activity android:name=".activity.ImageScaleActivity" />
+
         <service
             android:name=".service.BashService"
             android:exported="false">
@@ -35,20 +37,16 @@
             </intent-filter>
         </service>
 
-        <receiver android:name=".reciver.BashBroadcastReceiver" />
+        <receiver android:name=".receiver.BashBroadcastReceiver" />
 
         <provider
-            android:name=".BashContentProvider"
+            android:name=".dal.BashContentProvider"
             android:authorities="com.elrain.bashim.Bash"
             android:exported="false" />
-
-        <activity android:name=".activity.ImageScaleActivity" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="a631efa7bfe29353f9a546d6fb7755a885cd0ca4" />
-
-        <activity android:name=".activity.PreferencesActivity" />
     </application>
 
 </manifest>

@@ -6,96 +6,131 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
-import com.elrain.bashim.BashContentProvider;
 import com.elrain.bashim.object.BashItem;
+import com.elrain.bashim.object.ImageSimpleItem;
 
-/**
- * Created by denys.husher on 03.11.2015.
- */
+import java.util.ArrayList;
+
 public class QuotesTableHelper {
     public static final String TABLE = "quots";
     public static final String ID = "_id";
-    private static final String GUID = "guid";
     public static final String LINK = "link";
     public static final String TITLE = "title";
     public static final String PUB_DATE = "pubDate";
     public static final String DESCRIPTION = "description";
     public static final String IS_FAVORITE = "isFavorite";
     public static final String AUTHOR = "author";
-
-    public static final String[] MAIN_SELECTION = {QuotesTableHelper.ID, QuotesTableHelper.DESCRIPTION, QuotesTableHelper.TITLE,
-            QuotesTableHelper.PUB_DATE, QuotesTableHelper.LINK, QuotesTableHelper.IS_FAVORITE,
-            QuotesTableHelper.AUTHOR};
-
-    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE + "( "
-            + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + GUID + " CHAR(65) NOT NULL, "
-            + LINK + " TEXT NOT NULL, " + TITLE + " VARCHAR(50) NOT NULL, "
-            + PUB_DATE + " DATE NOT NULL, " + DESCRIPTION + " TEXT NOT NULL, "
-            + IS_FAVORITE + " BOOLEAN, " + AUTHOR + " CHAR(50), " +
-            "UNIQUE(" + GUID + ") ON CONFLICT IGNORE)";
+    public static final String[] MAIN_SELECTION = {ID, DESCRIPTION, TITLE, PUB_DATE, LINK, IS_FAVORITE,
+            AUTHOR};
+    static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE + "( "
+            + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + LINK + " TEXT NOT NULL, "
+            + TITLE + " VARCHAR(50) NOT NULL, " + PUB_DATE + " DATE NOT NULL, "
+            + DESCRIPTION + " TEXT NOT NULL, " + IS_FAVORITE + " BOOLEAN, " + AUTHOR + " CHAR(50), "
+            + "UNIQUE(" + LINK + ") ON CONFLICT ABORT)";
 
     public static void createTable(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE);
     }
 
-    public static void from1To2(SQLiteDatabase db) {
-        db.execSQL("ALTER TABLE " + TABLE + " ADD COLUMN " + IS_FAVORITE + " BOOLEAN ");
-    }
-
-    public static void from2To3(SQLiteDatabase db) {
-        db.execSQL("ALTER TABLE " + TABLE + " ADD COLUMN " + AUTHOR + " CHAR(50) ");
-    }
-
-    public static void inputQuot(Context context, BashItem bashItem) {
-        ContentValues cv = new ContentValues();
-        cv.put(GUID, bashItem.getGuid());
-        cv.put(LINK, bashItem.getLink());
-        cv.put(TITLE, bashItem.getTitle());
-        cv.put(PUB_DATE, bashItem.getPubDate().getTime());
-        cv.put(DESCRIPTION, bashItem.getDescription());
-        cv.put(IS_FAVORITE, false);
-        cv.put(AUTHOR, bashItem.getAuthor());
-        context.getContentResolver().insert(BashContentProvider.QUOTES_CONTENT_URI, cv);
-    }
-
-    public static String[] getTextToShare(Context context, long id) {
+    public static void update3To4(SQLiteDatabase db) {
         Cursor cursor = null;
-        String[] result = null;
         try {
-            cursor = context.getContentResolver().query(Uri.withAppendedPath(
-                            BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION, LINK, AUTHOR},
-                    ID + " = ?", new String[]{String.valueOf(id)}, null);
-            if (null != cursor && cursor.moveToNext()) {
-                result = new String[3];
-                result[0] = cursor.getString(cursor.getColumnIndex(DESCRIPTION));
-                result[1] = cursor.getString(cursor.getColumnIndex(LINK));
-                result[2] = cursor.getString(cursor.getColumnIndex(AUTHOR));
-                cursor.close();
+            long id = 1;
+            cursor = db.rawQuery("SELECT " + DESCRIPTION + ", " + TITLE + ", " + PUB_DATE + ", "
+                    + LINK + ", " + IS_FAVORITE + ", " + AUTHOR + " FROM " + QuotesTableHelper.TABLE, null);
+            db.execSQL("DROP TABLE IF EXISTS " + QuotesTableHelper.TABLE);
+            db.execSQL(CREATE_TABLE);
+            while (cursor.moveToNext()) {
+                ContentValues cv = new ContentValues();
+                cv.put(ID, id);
+                cv.put(PUB_DATE, cursor.getLong(cursor.getColumnIndex(PUB_DATE)));
+                cv.put(IS_FAVORITE, cursor.getInt(cursor.getColumnIndex(IS_FAVORITE)) == 1);
+                cv.put(LINK, cursor.getString(cursor.getColumnIndex(LINK)));
+                cv.put(AUTHOR, cursor.getString(cursor.getColumnIndex(AUTHOR)));
+                cv.put(DESCRIPTION, cursor.getString(cursor.getColumnIndex(DESCRIPTION)));
+                cv.put(TITLE, cursor.getString(cursor.getColumnIndex(TITLE)));
+                db.insert(TABLE, null, cv);
+                ++id;
             }
         } finally {
             if (null != cursor) cursor.close();
         }
-        return result;
     }
 
-    public static String getUrlForComicsById(Context context, long id) {
+    public static void saveQuot(Context context, BashItem bashItem) {
+        ContentValues cv = new ContentValues();
+        cv.put(LINK, bashItem.getLink());
+        cv.put(TITLE, bashItem.getTitle());
+        cv.put(PUB_DATE, bashItem.getPubDate().getTime());
+        cv.put(DESCRIPTION, bashItem.getDescription());
+        cv.put(IS_FAVORITE, bashItem.isFavorite());
+        cv.put(AUTHOR, bashItem.getAuthor());
+        context.getContentResolver().insert(BashContentProvider.QUOTES_CONTENT_URI, cv);
+    }
+
+    public static ArrayList<ImageSimpleItem> getImages(Context context) {
         Cursor cursor = null;
-        String result = null;
+        ArrayList<ImageSimpleItem> images = new ArrayList<>();
         try {
-            cursor = context.getContentResolver().query(Uri.withAppendedPath(
-                            BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION}, ID + "=?",
-                    new String[]{String.valueOf(id)}, null);
-            if(null != cursor && cursor.moveToNext())
-                result = cursor.getString(cursor.getColumnIndex(DESCRIPTION));
+            cursor = context.getContentResolver().query(BashContentProvider.QUOTES_CONTENT_URI,
+                    new String[]{ID, DESCRIPTION, TITLE, PUB_DATE}, AUTHOR + " IS NOT NULL ", null, null);
+            while (null != cursor && cursor.moveToNext()) {
+                ImageSimpleItem isi = new ImageSimpleItem();
+                isi.setId(cursor.getLong(cursor.getColumnIndex(ID)));
+                isi.setLink(cursor.getString(cursor.getColumnIndex(DESCRIPTION)));
+                isi.setTitle(cursor.getString(cursor.getColumnIndex(TITLE)));
+                images.add(isi);
+            }
         } finally {
             if (null != cursor) cursor.close();
         }
-        return result;
+        return images;
     }
 
     public static void makeFavorite(Context context, long id, boolean isFavorite) {
         ContentValues cv = new ContentValues();
         cv.put(IS_FAVORITE, isFavorite);
-        context.getContentResolver().update(BashContentProvider.QUOTES_CONTENT_URI, cv, ID + "=?", new String[]{String.valueOf(id)});
+        context.getContentResolver().update(BashContentProvider.QUOTES_CONTENT_URI, cv, ID + "=?",
+                new String[]{String.valueOf(id)});
+    }
+
+    public static String getUrlForComicsById(Context context, long id) {
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(Uri.withAppendedPath(
+                            BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION},
+                    AUTHOR + " IS NOT NULL AND " + ID + "=?",
+                    new String[]{String.valueOf(id)}, null);
+            if (null != cursor && cursor.moveToNext())
+                return cursor.getString(cursor.getColumnIndex(DESCRIPTION));
+        } finally {
+            if (null != cursor) cursor.close();
+        }
+        return null;
+    }
+
+    public static void makeOrInsertAsFavorite(Context context, BashItem item) {
+        ContentValues cv = new ContentValues();
+        cv.put(IS_FAVORITE, !isFavorite(context, item.getLink()));
+        long updatedRow = context.getContentResolver().update(Uri.withAppendedPath(
+                        BashContentProvider.QUOTES_CONTENT_URI, "/" + 0), cv, LINK + " =? ",
+                new String[]{item.getLink()});
+        if (updatedRow == 0) {
+            item.setIsFavorite(true);
+            saveQuot(context, item);
+        }
+    }
+
+    public static boolean isFavorite(Context mContext, String link) {
+        Cursor cursor = null;
+        try {
+            cursor = mContext.getContentResolver().query(BashContentProvider.QUOTES_CONTENT_URI,
+                    new String[]{IS_FAVORITE}, LINK + " =? ", new String[]{link}, null);
+            if (null != cursor && cursor.moveToNext())
+                return cursor.getInt(cursor.getColumnIndex(IS_FAVORITE)) == 1;
+        } finally {
+            if (null != cursor) cursor.close();
+        }
+        return false;
     }
 }

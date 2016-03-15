@@ -12,7 +12,6 @@ import com.elrain.bashim.util.Constants;
 
 public class PreferencesActivity extends AppCompatActivity {
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,6 +24,17 @@ public class PreferencesActivity extends AppCompatActivity {
         getFragmentManager().beginTransaction().add(R.id.flSettings, new PreferencesFragment()).commit();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                PreferencesActivity.this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     public static class PreferencesFragment extends PreferenceFragment
             implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -35,10 +45,8 @@ public class PreferencesActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
             getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-            mLpUpdateFrequency = (ListPreference) findPreference(
-                    getActivity().getString(R.string.preferences_key_alarm_frequency));
-            String summary = getPreferenceManager().getSharedPreferences().getString(
-                    getActivity().getString(R.string.preferences_key_alarm_frequency),
+            mLpUpdateFrequency = (ListPreference) findPreference(getActivity().getString(R.string.preferences_key_alarm_frequency));
+            String summary = getPreferenceManager().getSharedPreferences().getString(getActivity().getString(R.string.preferences_key_alarm_frequency),
                     Constants.PREFERENCES_UPDATE_DEF_VALUE);
             mLpUpdateFrequency.setSummary(generateFrequencySummary(summary));
         }
@@ -59,17 +67,6 @@ public class PreferencesActivity extends AppCompatActivity {
                     return resultValues[index];
             }
             return resultValues[1];
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                PreferencesActivity.this.finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
         }
     }
 }
