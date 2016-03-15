@@ -9,20 +9,24 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 
 import com.elrain.bashim.R;
-import com.elrain.bashim.receiver.BashBroadcastReceiver;
+import com.elrain.bashim.reciver.BashBroadcastReceiver;
 
 /**
  * Created by denys.husher on 17.11.2015.
- * This class provides access to the alarm. These allow you
- * to change frequency of quotes update.
  */
-public final class AlarmUtil implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class AlarmUtil implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static AlarmUtil mInstance;
     private final AlarmManager mAlarmManager;
     private final PendingIntent mAlarmPIntent;
     private final PendingIntent mCancelPIntent;
     private final SharedPreferences mSharedPref;
     private final Context mContext;
+
+    public static AlarmUtil getInstance(Context context) {
+        if (null == mInstance)
+            mInstance = new AlarmUtil(context);
+        return mInstance;
+    }
 
     private AlarmUtil(Context context) {
         mContext = context;
@@ -34,17 +38,6 @@ public final class AlarmUtil implements SharedPreferences.OnSharedPreferenceChan
         mAlarmPIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
         mCancelPIntent = PendingIntent.getBroadcast(context, 0, alarmIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    /**
-     * Return Instance of AlarmUtil class
-     * @param context application context
-     * @return instance of AlarmUtil
-     */
-    public static AlarmUtil getInstance(Context context) {
-        if (null == mInstance)
-            mInstance = new AlarmUtil(context);
-        return mInstance;
     }
 
     /**
@@ -66,11 +59,6 @@ public final class AlarmUtil implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    /**
-     * This method allows you to setup alarm manager with inexact repeating
-     *
-     * @see AlarmManager#setInexactRepeating(int, long, long, PendingIntent)
-     */
     public void setAlarm() {
         if (!"0".equals(mSharedPref.getString(
                 mContext.getString(R.string.preferences_key_alarm_frequency), null)))
@@ -92,9 +80,6 @@ public final class AlarmUtil implements SharedPreferences.OnSharedPreferenceChan
         }
     }
 
-    /**
-     * Unsubscribe listener on changing preferences
-     */
     public void unsubscribeListener() {
         if (null != mSharedPref) mSharedPref.unregisterOnSharedPreferenceChangeListener(this);
     }
