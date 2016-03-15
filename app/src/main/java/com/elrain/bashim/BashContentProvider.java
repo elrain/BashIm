@@ -1,4 +1,4 @@
-package com.elrain.bashim.dal;
+package com.elrain.bashim;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -6,17 +6,17 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.elrain.bashim.util.BashPreferences;
+import com.elrain.bashim.dal.DBHelper;
+import com.elrain.bashim.dal.QuotesTableHelper;
+import com.elrain.bashim.util.CounterOfNewItems;
 
 /**
  * Created by denys.husher on 03.11.2015.
- * Application content provider
  */
 public class BashContentProvider extends ContentProvider {
 
@@ -52,8 +52,7 @@ public class BashContentProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         switch (URI_MATCHER.match(uri)) {
             case URI_ALL_QUOTES:
-                if (TextUtils.isEmpty(sortOrder))
-                    sortOrder = QuotesTableHelper.PUB_DATE + " DESC ";
+                if (TextUtils.isEmpty(sortOrder)) sortOrder = QuotesTableHelper.PUB_DATE + " DESC";
                 break;
             case URI_QUOT_ID:
                 break;
@@ -83,22 +82,17 @@ public class BashContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
-        try {
-            checkUri(uri);
-            SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            long rowId = db.insertOrThrow(QuotesTableHelper.TABLE, null, values);
-            if (rowId != -1)
-                if (null == values.getAsString(QuotesTableHelper.AUTHOR)
-                        || "".equals(values.getAsString(QuotesTableHelper.AUTHOR)))
-                    if (null != getContext())
-                        BashPreferences.getInstance(getContext()).increaseQuotCounter();
-            Uri resultUri = ContentUris.withAppendedId(uri, rowId);
-            if (null != getContext() && null != getContext().getContentResolver())
-                getContext().getContentResolver().notifyChange(resultUri, null);
-            return resultUri;
-        } catch (SQLiteException e) {
-            return null;
-        }
+        checkUri(uri);
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        long rowId = db.insert(QuotesTableHelper.TABLE, null, values);
+        if (rowId != -1)
+            if (null == values.getAsString(QuotesTableHelper.AUTHOR)
+                    || "".equals(values.getAsString(QuotesTableHelper.AUTHOR)))
+                CounterOfNewItems.getInstance().addQuotes();
+        Uri resultUri = ContentUris.withAppendedId(uri, rowId);
+        if (null != getContext() && null != getContext().getContentResolver())
+            getContext().getContentResolver().notifyChange(resultUri, null);
+        return resultUri;
     }
 
     @Override
