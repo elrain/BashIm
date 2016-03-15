@@ -1,17 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group>
+    <group
+        android:id="@+id/groupQuotes"
+        android:checkableBehavior="single">
 
         <item
             android:id="@+id/aMain"
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@drawable/ic_message_24dp"
             android:title="@string/action_main" />
 
         <item
-            android:id="@+id/aFavorite"
-            android:icon="@android:drawable/star_big_on"
-            android:title="@string/action_favorite" />
+            android:id="@+id/aRandom"
+            android:icon="@android:drawable/ic_menu_help"
+            android:title="@string/action_random" />
+
+        <item
+            android:id="@+id/aBest"
+            android:icon="@drawable/ic_plus_one_24dp"
+            android:title="@string/action_best" />
     </group>
 
+    <group
+        android:id="@+id/groupAdditional"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/aComics"
+            android:icon="@drawable/ic_local_attraction_24dp"
+            android:title="@string/action_comics" />
+
+        <item
+            android:id="@+id/aFavorite"
+            android:icon="@drawable/ic_star_outline_24dp"
+            android:title="@string/action_favorite" />
+    </group>
+    <item
+        android:id="@+id/aPreferences"
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="@string/activity_preferences" />
 </menu>

@@ -2,15 +2,12 @@ package com.elrain.bashim.object;
 
 import java.util.Date;
 
-/**
- * Created by denys.husher on 03.11.2015.
- */
 public class BashItem {
     private String title;
     private String description;
     private String link;
-    private String guid;
     private Date pubDate;
+    private String author;
     private boolean isFavorite;
 
     public String getTitle() {
@@ -37,20 +34,20 @@ public class BashItem {
         this.link = link;
     }
 
-    public String getGuid() {
-        return guid;
-    }
-
-    public void setGuid(String guid) {
-        this.guid = guid;
-    }
-
     public Date getPubDate() {
         return pubDate;
     }
 
     public void setPubDate(Date pubDate) {
         this.pubDate = pubDate;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
     }
 
     public boolean isFavorite() {

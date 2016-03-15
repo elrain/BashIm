@@ -1,0 +1,76 @@
+package com.elrain.bashim.webutil;
+
+import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.text.Html;
+
+import com.elrain.bashim.object.BashItem;
+import com.elrain.bashim.util.DateUtil;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public final class HtmlWorker {
+
+    private static final String HREF = "href";
+    private static final String HTTP_BASH_IM = "http://bash.im";
+    private static final String DIV_QUOTE = "div.quote";
+    private static final String DIV_ACTIONS = "div.actions";
+    private static final String SPAN_DATE = "span.date";
+    private static final String A_ID = "a.id";
+    private static final String DIV_TEXT = "div.text";
+    private static final String QUOTE = "Цитата ";
+    private static OnHtmlParsed mListener;
+
+    public static void getQuotes(OnHtmlParsed listener, String url) {
+        mListener = listener;
+        new GetAndParseHtml().execute(url);
+    }
+
+    public interface OnHtmlParsed {
+        void returnResult(List<BashItem> quotes);
+    }
+
+    private static class GetAndParseHtml extends AsyncTask<String, Void, ArrayList<BashItem>> {
+        @Override
+        protected ArrayList<BashItem> doInBackground(String... params) {
+            return getBashItems(params[0]);
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<BashItem> bashItems) {
+            super.onPostExecute(bashItems);
+            mListener.returnResult(bashItems);
+        }
+    }
+
+    @NonNull
+    private static ArrayList<BashItem> getBashItems(String param) {
+        ArrayList<BashItem> quotes = new ArrayList<>();
+        try {
+            Document document = Jsoup.connect(param).get();
+            Elements quotesElements = document.select(DIV_QUOTE);
+            for (Element quote : quotesElements) {
+                Elements action = Jsoup.parse(String.valueOf(quote)).select(DIV_ACTIONS);
+                String date = action.select(SPAN_DATE).text();
+                if ("".equals(date))
+                    continue;
+                BashItem item = new BashItem();
+                item.setDescription(Html.fromHtml(Jsoup.parse(String.valueOf(quote)).select(DIV_TEXT).html()).toString());
+                item.setTitle(QUOTE + action.select(A_ID).text());
+                item.setLink(HTTP_BASH_IM + action.select(A_ID).attr(HREF));
+                item.setPubDate(DateUtil.parseDateFromXml(date));
+                quotes.add(item);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return quotes;
+    }
+}
