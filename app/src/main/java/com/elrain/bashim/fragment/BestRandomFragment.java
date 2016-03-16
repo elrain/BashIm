@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.elrain.bashim.BashApp;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.helper.DialogsHelper;
 import com.elrain.bashim.adapter.RecyclerAdapter;
@@ -20,9 +21,12 @@ import com.elrain.bashim.object.BashItem;
 import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.NetworkUtil;
 import com.elrain.bashim.webutil.HtmlWorker;
+import com.squareup.sqlbrite.BriteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
@@ -35,10 +39,13 @@ public class BestRandomFragment extends Fragment implements HtmlWorker.OnHtmlPar
     private RecyclerAdapter mBestAdapter;
     private RecyclerView mRvItems;
     private Bundle mData;
+    @Inject
+    BriteDatabase mDb;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((BashApp)getActivity().getApplication()).getComponent().inject(this);
         setHasOptionsMenu(true);
     }
 
@@ -52,7 +59,7 @@ public class BestRandomFragment extends Fragment implements HtmlWorker.OnHtmlPar
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mRvItems = (RecyclerView) view.findViewById(R.id.lvBashItems);
-        mBestAdapter = new RecyclerAdapter(getActivity(), new ArrayList<>());
+        mBestAdapter = new RecyclerAdapter(getActivity(), mDb, new ArrayList<>());
         mRvItems.setAdapter(mBestAdapter);
         mRvItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         downloadAndParse(mData.getString(Constants.PARSE));

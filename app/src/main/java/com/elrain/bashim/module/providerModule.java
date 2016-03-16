@@ -8,6 +8,7 @@ import com.elrain.bashim.util.BashPreferences;
 import com.squareup.sqlbrite.BriteDatabase;
 import com.squareup.sqlbrite.SqlBrite;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -32,5 +33,11 @@ public class ProviderModule {
     @Singleton
     BriteDatabase getDbHelper(Application application) {
         return SqlBrite.create().wrapDatabaseHelper(new DBHelper(application));
+    }
+
+    @Provides
+    @Singleton
+    DBHelper getDbHelper2(Application application){
+        return new DBHelper(application);
     }
 }

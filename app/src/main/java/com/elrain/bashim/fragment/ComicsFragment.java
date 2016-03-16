@@ -15,10 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
+import com.elrain.bashim.adapter.CommonAdapterOld;
 import com.elrain.bashim.dal.BashContentProvider;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.ImagePagerActivity;
-import com.elrain.bashim.adapter.CommonAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.util.Constants;
 
@@ -29,7 +29,7 @@ import com.elrain.bashim.util.Constants;
 public class ComicsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         AdapterView.OnItemClickListener {
 
-    private CommonAdapter mComicsCursorAdapter;
+    private CommonAdapterOld mComicsCursorAdapter;
     private boolean isLoadingInProcess;
     private int firstVisibleItem;
     private int visibleItemCount;
@@ -44,7 +44,7 @@ public class ComicsFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mComicsCursorAdapter = new CommonAdapter(getActivity(), false);
+        mComicsCursorAdapter = new CommonAdapterOld(getActivity(), false);
         RecyclerView mLvItems = (RecyclerView) view.findViewById(R.id.lvBashItems);
         mLvItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         mLvItems.setAdapter(mComicsCursorAdapter);

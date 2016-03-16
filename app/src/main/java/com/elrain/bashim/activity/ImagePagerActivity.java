@@ -11,23 +11,32 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.elrain.bashim.BashApp;
 import com.elrain.bashim.R;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.object.ImageSimpleItem;
 import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.TouchImageView;
 import com.squareup.picasso.Picasso;
+import com.squareup.sqlbrite.BriteDatabase;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
 
 public class ImagePagerActivity extends AppCompatActivity {
+
+    @Inject
+    BriteDatabase mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((BashApp)getApplication()).getComponent().inject(this);
         setContentView(R.layout.activity_scale_image_view);
         long id = getIntent().getLongExtra(Constants.KEY_INTENT_IMAGE_ID, 1);
-        ArrayList<ImageSimpleItem> images = QuotesTableHelper.getImages(this);
+        List<ImageSimpleItem> images = QuotesTableHelper.getImages(mDb);
 
         if (null != getSupportActionBar()) {
             getSupportActionBar().setTitle(getString(R.string.action_comics));
@@ -43,7 +52,7 @@ public class ImagePagerActivity extends AppCompatActivity {
         viewPager.setCurrentItem(position);
     }
 
-    private int getPosition(long id, ArrayList<ImageSimpleItem> images) {
+    private int getPosition(long id, List<ImageSimpleItem> images) {
         int size = images.size();
         for (int index = 0; index < size; ++index) {
             if (id == images.get(index).getId()) return index;
@@ -87,9 +96,9 @@ public class ImagePagerActivity extends AppCompatActivity {
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        private final ArrayList<ImageSimpleItem> images;
+        private final List<ImageSimpleItem> images;
 
-        public SectionsPagerAdapter(FragmentManager fm, ArrayList<ImageSimpleItem> images) {
+        public SectionsPagerAdapter(FragmentManager fm, List<ImageSimpleItem> images) {
             super(fm);
             this.images = images;
         }

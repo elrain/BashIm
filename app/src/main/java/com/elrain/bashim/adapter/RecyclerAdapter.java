@@ -15,6 +15,7 @@ import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.object.BashItem;
 import com.elrain.bashim.util.ContextMenuListener;
 import com.elrain.bashim.util.DateUtil;
+import com.squareup.sqlbrite.BriteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +24,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
     private final Context mContext;
     private List<BashItem> mItems;
+    private final BriteDatabase mDb;
 
-    public RecyclerAdapter(Context context, ArrayList<BashItem> items) {
-        this.mItems = items;
+    public RecyclerAdapter(Context context, BriteDatabase db, ArrayList<BashItem> items) {
         this.mContext = context;
+        this.mItems = items;
+        this.mDb = db;
     }
 
     public void addItems(List<BashItem> items) {
@@ -56,13 +59,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             mContext.startActivity(intent);
         });
 
-        boolean isFavorite = QuotesTableHelper.isFavorite(mContext, getItem(position).getLink());
+        boolean isFavorite = QuotesTableHelper.isFavorite(mDb, getItem(position).getLink());
 
         if (isFavorite) holder.ivFavorite.setImageResource(android.R.drawable.star_big_on);
         else holder.ivFavorite.setImageResource(android.R.drawable.star_big_off);
 
         holder.ivFavorite.setOnClickListener(v -> {
-            QuotesTableHelper.makeOrInsertAsFavorite(mContext, getItem(position));
+            QuotesTableHelper.makeOrInsertAsFavorite(mDb, getItem(position));
             notifyDataSetChanged();
         });
     }

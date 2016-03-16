@@ -3,12 +3,21 @@ package com.elrain.bashim.object;
 import java.util.Date;
 
 public class BashItem {
+    private long id;
     private String title;
     private String description;
     private String link;
     private Date pubDate;
     private String author;
     private boolean isFavorite;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getTitle() {
         return title;

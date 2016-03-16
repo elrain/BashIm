@@ -3,6 +3,7 @@ package com.elrain.bashim.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -20,66 +21,47 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.elrain.bashim.BashApp;
 import com.elrain.bashim.R;
 import com.elrain.bashim.dal.QuotesTableHelper;
-import com.elrain.bashim.object.BashItem;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.ContextMenuListener;
 import com.elrain.bashim.util.DateUtil;
 import com.squareup.picasso.Picasso;
 import com.squareup.sqlbrite.BriteDatabase;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 import java.util.Locale;
 
-public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.ViewHolder> {
+import javax.inject.Inject;
 
-    private List<BashItem> mItems;
-    private final Context mContext;
-    private final BashPreferences mBashPreferences;
-    private final BriteDatabase mDb;
+public class CommonAdapterOld extends RecyclerCursorAdapter<CommonAdapterOld.ViewHolder> {
+
     private boolean mFavorite;
+    @Inject BashPreferences mBashPreferences;
+    @Inject BriteDatabase mDb;
 
-    public CommonAdapter(Context context, BashPreferences mBashPreferences, BriteDatabase briteDatabase) {
-        this.mContext = context;
-        this.mBashPreferences = mBashPreferences;
-        this.mDb = briteDatabase;
-        if (null == mItems)
-            mItems = new ArrayList<>();
+    public CommonAdapterOld(Context context) {
+        super(context, null);
+        ((BashApp)context.getApplicationContext()).getComponent().inject(this);
     }
 
-    public CommonAdapter(Context context, BashPreferences mBashPreferences, BriteDatabase briteDatabase,
-                         boolean isFavorite) {
-        this.mContext = context;
-        this.mBashPreferences = mBashPreferences;
-        this.mFavorite = isFavorite;
-        this.mDb = briteDatabase;
-        if (null == mItems)
-            mItems = new ArrayList<>();
-    }
-
-    public void addItems(List<BashItem> items) {
-        mItems.clear();
-        mItems.addAll(items);
-        this.notifyDataSetChanged();
+    public CommonAdapterOld(Context context, boolean isFavorite) {
+        super(context, null);
+        mFavorite = isFavorite;
+        ((BashApp)context.getApplicationContext()).getComponent().inject(this);
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.list_item_view, parent, false);
-        return new ViewHolder(v);
-    }
-
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        final boolean isFavorite = getItem(position).isFavorite();
-        final boolean isAuthorNonNull = !TextUtils.isEmpty(getItem(position).getAuthor());
-        final String link = getItem(position).getLink();
+    public void onBindViewHolder(ViewHolder holder, Cursor cursor) {
+        final boolean isFavorite = cursor.getInt(cursor.getColumnIndex(QuotesTableHelper.IS_FAVORITE)) == 1;
+        final boolean isAuthorNonNull = null != cursor.getString(cursor.getColumnIndex(QuotesTableHelper.AUTHOR));
+        final String link = cursor.getString(cursor.getColumnIndex(QuotesTableHelper.LINK));
         holder.setLink(link);
-        final String title = getItem(position).getTitle();
-        final long id = getItemId(position);
-        holder.tvPubDate.setText(DateUtil.getItemPubDate(getItem(position).getPubDate()));
+        final String title = cursor.getString(cursor.getColumnIndex(QuotesTableHelper.TITLE));
+        final long id = cursor.getLong(cursor.getColumnIndex(QuotesTableHelper.ID));
+        holder.tvPubDate.setText(DateUtil.getItemPubDate(new Date(cursor.getLong(
+                cursor.getColumnIndex(QuotesTableHelper.PUB_DATE)))));
         if (isFavorite)
             holder.ivFavorite.setImageResource(android.R.drawable.star_big_on);
         else
@@ -89,17 +71,17 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.ViewHolder
         if (isAuthorNonNull) {
             holder.tvText.setVisibility(View.GONE);
             holder.ivComics.setVisibility(View.VISIBLE);
-            final String url = getItem(position).getDescription();
-            holder.setText(url, getItem(position).getAuthor());
+            final String url = cursor.getString(cursor.getColumnIndex(QuotesTableHelper.DESCRIPTION));
+            holder.setText(url, cursor.getString(cursor.getColumnIndex(QuotesTableHelper.AUTHOR)));
             if (mFavorite) holder.makeClick(0, false);
             else
-                holder.makeClick(getItemId(position), true);
-            Picasso.with(mContext).load(url).config(Bitmap.Config.ALPHA_8).into(holder.ivComics);
-            holder.tvTitle.setText(getItem(position).getAuthor());
+                holder.makeClick(cursor.getLong(cursor.getColumnIndex(QuotesTableHelper.ID)), true);
+            Picasso.with(getContext()).load(url).config(Bitmap.Config.ALPHA_8).into(holder.ivComics);
+            holder.tvTitle.setText(cursor.getString(cursor.getColumnIndex(QuotesTableHelper.AUTHOR)));
         } else {
             holder.tvText.setVisibility(View.VISIBLE);
             holder.ivComics.setVisibility(View.GONE);
-            String description = getItem(position).getDescription();
+            String description = cursor.getString(cursor.getColumnIndex(QuotesTableHelper.DESCRIPTION));
             if (!description.contains("\n")) {
                 Spanned text = Html.fromHtml(description);
                 holder.tvText.setText(highlightTextileNeeded(text.toString()));
@@ -111,23 +93,15 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.ViewHolder
             holder.tvTitle.setText(title);
             holder.tvTitle.setOnClickListener(v -> {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
-                mContext.startActivity(intent);
+                getContext().startActivity(intent);
             });
         }
     }
 
     @Override
-    public int getItemCount() {
-        return mItems.size();
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return mItems.get(position).getId();
-    }
-
-    public BashItem getItem(int position) {
-        return mItems.get(position);
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(getContext()).inflate(R.layout.list_item_view, parent, false);
+        return new ViewHolder(v);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -147,7 +121,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.ViewHolder
             ivFavorite = (ImageView) v.findViewById(R.id.ivFavorite);
             tvText = (TextView) v.findViewById(R.id.tvBashItemText);
             tvTitle = (TextView) v.findViewById(R.id.tvBashItemTitle);
-            mContextMenuListener = new ContextMenuListener(mContext, false);
+            mContextMenuListener = new ContextMenuListener(getContext(), false);
             v.setOnCreateContextMenuListener(mContextMenuListener);
         }
 

@@ -5,11 +5,22 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.elrain.bashim.object.BashItem;
 import com.elrain.bashim.object.ImageSimpleItem;
+import com.squareup.sqlbrite.BriteDatabase;
+import com.squareup.sqlbrite.SqlBrite;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class QuotesTableHelper {
     public static final String TABLE = "quots";
@@ -57,7 +68,39 @@ public class QuotesTableHelper {
         }
     }
 
-    public static void saveQuot(Context context, BashItem bashItem) {
+    public static Observable<List<BashItem>> getBashItems(BriteDatabase db, String filter, int count) {
+        Observable<SqlBrite.Query> queryObservable;
+        if (TextUtils.isEmpty(filter)) {
+            queryObservable = db.createQuery(TABLE,
+                    String.format(Locale.US, "SELECT %s, %s, %s, %s, %s, %s, %s FROM %s WHERE %s IS NULL " +
+                                    "ORDER BY %s DESC, ROWID LIMIT %d", ID, DESCRIPTION, TITLE, PUB_DATE,
+                            LINK, IS_FAVORITE, AUTHOR, TABLE, AUTHOR, PUB_DATE, count));
+        } else {
+            queryObservable = db.createQuery(TABLE,
+                    String.format(Locale.US, "SELECT %s, %s, %s, %s, %s, %s, %s FROM %s WHERE %s IS NULL " +
+                                    "AND %s LIKE '%%%s%%' ORDER BY %s DESC, ROWID LIMIT %d",
+                            ID, DESCRIPTION, TITLE, PUB_DATE, LINK, IS_FAVORITE, AUTHOR, TABLE,
+                            AUTHOR, DESCRIPTION, filter, PUB_DATE, count));
+        }
+        return queryObservable.map(query -> {
+            List<BashItem> items = new ArrayList<>();
+            Cursor cursor = query.run();
+            while (cursor.moveToNext()) {
+                BashItem item = new BashItem();
+                item.setId(cursor.getLong(cursor.getColumnIndex(ID)));
+                item.setAuthor(cursor.getString(cursor.getColumnIndex(AUTHOR)));
+                item.setDescription(cursor.getString(cursor.getColumnIndex(DESCRIPTION)));
+                item.setLink(cursor.getString(cursor.getColumnIndex(LINK)));
+                item.setTitle(cursor.getString(cursor.getColumnIndex(TITLE)));
+                item.setIsFavorite(cursor.getInt(cursor.getColumnIndex(IS_FAVORITE)) == 1);
+                item.setPubDate(new Date(cursor.getLong(cursor.getColumnIndex(PUB_DATE))));
+                items.add(item);
+            }
+            return items;
+        }).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public static void saveQuot(BriteDatabase db, BashItem bashItem) {
         ContentValues cv = new ContentValues();
         cv.put(LINK, bashItem.getLink());
         cv.put(TITLE, bashItem.getTitle());
@@ -65,15 +108,15 @@ public class QuotesTableHelper {
         cv.put(DESCRIPTION, bashItem.getDescription());
         cv.put(IS_FAVORITE, bashItem.isFavorite());
         cv.put(AUTHOR, bashItem.getAuthor());
-        context.getContentResolver().insert(BashContentProvider.QUOTES_CONTENT_URI, cv);
+        db.insert(TABLE, cv, SQLiteDatabase.CONFLICT_IGNORE);
     }
 
-    public static ArrayList<ImageSimpleItem> getImages(Context context) {
+    public static List<ImageSimpleItem> getImages(BriteDatabase db) {
         Cursor cursor = null;
         ArrayList<ImageSimpleItem> images = new ArrayList<>();
         try {
-            cursor = context.getContentResolver().query(BashContentProvider.QUOTES_CONTENT_URI,
-                    new String[]{ID, DESCRIPTION, TITLE, PUB_DATE}, AUTHOR + " IS NOT NULL ", null, null);
+            cursor = db.query(String.format("SELECT %s, %s, %s, %s FROM %s WHERE %s IS NOT NULL ",
+                    ID, DESCRIPTION, TITLE, PUB_DATE, TABLE, AUTHOR));
             while (null != cursor && cursor.moveToNext()) {
                 ImageSimpleItem isi = new ImageSimpleItem();
                 isi.setId(cursor.getLong(cursor.getColumnIndex(ID)));
@@ -87,18 +130,17 @@ public class QuotesTableHelper {
         return images;
     }
 
-    public static void makeFavorite(Context context, long id, boolean isFavorite) {
+    public static void makeFavorite(BriteDatabase db, long id, boolean isFavorite) {
         ContentValues cv = new ContentValues();
         cv.put(IS_FAVORITE, isFavorite);
-        context.getContentResolver().update(BashContentProvider.QUOTES_CONTENT_URI, cv, ID + "=?",
-                new String[]{String.valueOf(id)});
+        db.update(TABLE, cv, ID + "=?", String.valueOf(id));
     }
 
     public static String getUrlForComicsById(Context context, long id) {
         Cursor cursor = null;
         try {
             cursor = context.getContentResolver().query(Uri.withAppendedPath(
-                            BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION},
+                    BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION},
                     AUTHOR + " IS NOT NULL AND " + ID + "=?",
                     new String[]{String.valueOf(id)}, null);
             if (null != cursor && cursor.moveToNext())
@@ -109,28 +151,40 @@ public class QuotesTableHelper {
         return null;
     }
 
-    public static void makeOrInsertAsFavorite(Context context, BashItem item) {
+    public static void makeOrInsertAsFavorite(BriteDatabase db, BashItem item) {
         ContentValues cv = new ContentValues();
-        cv.put(IS_FAVORITE, !isFavorite(context, item.getLink()));
-        long updatedRow = context.getContentResolver().update(Uri.withAppendedPath(
-                        BashContentProvider.QUOTES_CONTENT_URI, "/" + 0), cv, LINK + " =? ",
-                new String[]{item.getLink()});
+        cv.put(IS_FAVORITE, !isFavorite(db, item.getLink()));
+        long updatedRow = db.update(TABLE, cv, LINK + " =? ", item.getLink());
         if (updatedRow == 0) {
             item.setIsFavorite(true);
-            saveQuot(context, item);
+            saveQuot(db, item);
         }
     }
 
-    public static boolean isFavorite(Context mContext, String link) {
+    public static boolean isFavorite(BriteDatabase db, String link) {
         Cursor cursor = null;
         try {
-            cursor = mContext.getContentResolver().query(BashContentProvider.QUOTES_CONTENT_URI,
-                    new String[]{IS_FAVORITE}, LINK + " =? ", new String[]{link}, null);
+            cursor = db.query(String.format("SELECT %s FROM %s WHERE %s =? ", IS_FAVORITE, TABLE,
+                    LINK), link);
             if (null != cursor && cursor.moveToNext())
                 return cursor.getInt(cursor.getColumnIndex(IS_FAVORITE)) == 1;
         } finally {
             if (null != cursor) cursor.close();
         }
         return false;
+    }
+
+    @Nullable
+    public static Date getLastQuotePubTime(BriteDatabase db) {
+        Cursor cursor = null;
+        try {
+            cursor = db.query(String.format("SELECT %s from %s WHERE %s = (SELECT max(%s) FROM %s)",
+                    PUB_DATE, TABLE, ID, ID, TABLE));
+            if (cursor.moveToNext())
+                return new Date(cursor.getLong(cursor.getColumnIndex(PUB_DATE)));
+        } finally {
+            if (null != cursor) cursor.close();
+        }
+        return null;
     }
 }

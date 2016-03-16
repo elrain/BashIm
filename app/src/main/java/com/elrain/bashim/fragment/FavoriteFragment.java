@@ -24,7 +24,7 @@ import android.widget.SearchView;
 import com.elrain.bashim.BashApp;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.ImageScaleActivity;
-import com.elrain.bashim.adapter.CommonAdapter;
+import com.elrain.bashim.adapter.CommonAdapterOld;
 import com.elrain.bashim.dal.BashContentProvider;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.fragment.helper.SearchHelper;
@@ -36,7 +36,7 @@ import javax.inject.Inject;
 public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         AdapterView.OnItemClickListener {
 
-    private CommonAdapter mQuotesCursorAdapter;
+    private CommonAdapterOld mQuotesCursorAdapter;
     @Inject BashPreferences mBashPreferences;
 
     @Override
@@ -55,7 +55,7 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mQuotesCursorAdapter = new CommonAdapter(getActivity(), true);
+        mQuotesCursorAdapter = new CommonAdapterOld(getActivity(), true);
         RecyclerView lvItems = (RecyclerView) view.findViewById(R.id.lvBashItems);
         lvItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         lvItems.setAdapter(mQuotesCursorAdapter);

@@ -63,12 +63,9 @@ public class HtmlWorkerTest extends InstrumentationTestCase {
         mCountDownLatch = new CountDownLatch(1);
         MockResponse mockResponse = new MockResponse().setBody(HTML_QUOTES);
         mMockWebServer.enqueue(mockResponse);
-        listener = new HtmlWorker.OnHtmlParsed() {
-            @Override
-            public void returnResult(List<BashItem> quotes) {
-                assertEquals(3, quotes.size());
-                mCountDownLatch.countDown();
-            }
+        listener = quotes -> {
+            assertEquals(3, quotes.size());
+            mCountDownLatch.countDown();
         };
         HtmlWorker.getQuotes(listener, mMockWebServer.getUrl("/").toString());
         mCountDownLatch.await();

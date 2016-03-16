@@ -1,23 +1,18 @@
 package com.elrain.bashim.fragment;
 
 import android.app.Fragment;
-import android.app.LoaderManager;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.Loader;
 import android.content.ServiceConnection;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,10 +21,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 
+import com.elrain.bashim.BashApp;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.helper.DialogsHelper;
 import com.elrain.bashim.adapter.CommonAdapter;
-import com.elrain.bashim.dal.BashContentProvider;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.fragment.helper.SearchHelper;
 import com.elrain.bashim.message.RefreshMessage;
@@ -37,11 +32,14 @@ import com.elrain.bashim.service.BashService;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.NetworkUtil;
+import com.squareup.sqlbrite.BriteDatabase;
+
+import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
+import rx.Subscription;
 
-public class MainFragment extends Fragment implements ServiceConnection,
-        LoaderManager.LoaderCallbacks<Cursor> {
+public class MainFragment extends Fragment implements ServiceConnection {
 
     private boolean isBound = false;
     private BashService mBashService;
@@ -49,15 +47,21 @@ public class MainFragment extends Fragment implements ServiceConnection,
     private BroadcastReceiver mBroadcastReceiver;
     private SearchView mSearchView;
     private boolean isFirstSynced;
-    private boolean isLoadingInProcess;
     private int firstVisibleItem;
     private int visibleItemCount;
     private int totalItemCount;
+    private Subscription mSubscription;
+
+    @Inject
+    BriteDatabase mDb;
+    @Inject
+    BashPreferences mBashPreferences;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        ((BashApp) getActivity().getApplication()).getComponent().inject(this);
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -81,7 +85,7 @@ public class MainFragment extends Fragment implements ServiceConnection,
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getActivity().startService(new Intent(getActivity(), BashService.class));
-        mQuotesCursorAdapter = new CommonAdapter(getActivity());
+        mQuotesCursorAdapter = new CommonAdapter(getActivity(), mBashPreferences, mDb);
         RecyclerView lvItems = (RecyclerView) view.findViewById(R.id.lvBashItems);
         lvItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         lvItems.setAdapter(mQuotesCursorAdapter);
@@ -93,14 +97,17 @@ public class MainFragment extends Fragment implements ServiceConnection,
                 totalItemCount = recyclerView.getLayoutManager().getItemCount();
                 firstVisibleItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
 
-                if (!isLoadingInProcess && (totalItemCount - visibleItemCount) <= (firstVisibleItem + 3)) {
-                    getLoaderManager().restartLoader(Constants.ID_LOADER, null, MainFragment.this);
-                    isLoadingInProcess = true;
+                if ((totalItemCount - visibleItemCount) <= (firstVisibleItem + 3)) {
+                    QuotesTableHelper.getBashItems(mDb, mBashPreferences.getSearchFilter(),
+                            (mQuotesCursorAdapter.getItemCount() + 10)).subscribe(mQuotesCursorAdapter::addItems);
                 }
             }
         });
         if (!isFirstSynced) initRssDownloading();
-        getLoaderManager().initLoader(Constants.ID_LOADER, null, MainFragment.this);
+
+        QuotesTableHelper.getBashItems(mDb, mBashPreferences.getSearchFilter(),
+                (mQuotesCursorAdapter.getItemCount() + 10))
+                .subscribe(mQuotesCursorAdapter::addItems);
     }
 
     private void initRssDownloading() {
@@ -163,7 +170,9 @@ public class MainFragment extends Fragment implements ServiceConnection,
         getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_FINISHED));
         getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_ABORTED));
         BashPreferences.getInstance(getActivity()).setFilterListener(
-                () -> getLoaderManager().restartLoader(Constants.ID_LOADER, null, MainFragment.this));
+                () -> QuotesTableHelper.getBashItems(mDb, mBashPreferences.getSearchFilter(),
+                        (mQuotesCursorAdapter.getItemCount() + 10))
+                        .subscribe(mQuotesCursorAdapter::addItems));
     }
 
     @Override
@@ -183,12 +192,11 @@ public class MainFragment extends Fragment implements ServiceConnection,
             getActivity().unbindService(this);
             isBound = false;
         }
-        if (null != getActivity())
-            getActivity().runOnUiThread(() -> {
-                getLoaderManager().restartLoader(Constants.ID_LOADER, null, MainFragment.this);
-                EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED,
-                        MainFragment.this));
-            });
+        EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED,
+                MainFragment.this));
+        mSubscription = QuotesTableHelper.getBashItems(mDb, mBashPreferences.getSearchFilter(),
+                (mQuotesCursorAdapter.getItemCount() + 10))
+                .subscribe(mQuotesCursorAdapter::addItems);
         isFirstSynced = true;
     }
 
@@ -209,29 +217,14 @@ public class MainFragment extends Fragment implements ServiceConnection,
         isBound = false;
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String filter = BashPreferences.getInstance(getActivity().getApplicationContext()).getSearchFilter();
-        if (TextUtils.isEmpty(filter))
-            return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
-                    QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.AUTHOR + " IS NULL ", null,
-                    QuotesTableHelper.PUB_DATE + " DESC, ROWID LIMIT " + (mQuotesCursorAdapter.getItemCount() + 10));
-        else return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
-                QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.AUTHOR + " IS NULL AND "
-                + QuotesTableHelper.DESCRIPTION + " LIKE '%" + filter + "%'", null,
-                QuotesTableHelper.PUB_DATE + " DESC, ROWID LIMIT " + (mQuotesCursorAdapter.getItemCount() + 10));
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mQuotesCursorAdapter.swapCursor(data);
+    private void resetSearchView() {
         if (null != mSearchView)
             mSearchView.clearFocus();
-        isLoadingInProcess = false;
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mQuotesCursorAdapter.swapCursor(null);
+    public void onDestroy() {
+        super.onDestroy();
+        mSubscription.unsubscribe();
     }
 }
