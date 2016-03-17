@@ -53,7 +53,7 @@
     <string name="menu_context_copy">Copy</string>
     <string name="menu_context_share">Share</string>
 
-    <string name="menu_context_title">Select the action</string>
+    <string name="menu_context_title">Action</string>
 
     <string name="toast_text_copied">Copied</string>
 

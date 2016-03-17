@@ -17,9 +17,6 @@ import com.elrain.bashim.R;
 import com.elrain.bashim.activity.ImagePagerActivity;
 import com.elrain.bashim.activity.ImageScaleActivity;
 
-/**
- * Created by denys.husher on 08.12.2015.
- */
 public class ContextMenuListener implements View.OnCreateContextMenuListener, View.OnClickListener {
 
     private static final String TYPE_COMICS = "comics";
@@ -52,7 +49,7 @@ public class ContextMenuListener implements View.OnCreateContextMenuListener, Vi
             ClipData clip;
             if (null == mText) clip = ClipData.newPlainText(CLIP_LABEL, mLink);
             else clip = ClipData.newPlainText(CLIP_LABEL, String.format(
-                        Constants.SHARE_FORMATTER_CLIPBOARD, mText, mLink));
+                    Constants.SHARE_FORMATTER_CLIPBOARD, mText, mLink));
             manager.setPrimaryClip(clip);
             Toast.makeText(mContext, mContext.getString(R.string.toast_text_copied),
                     Toast.LENGTH_SHORT).show();
@@ -93,7 +90,7 @@ public class ContextMenuListener implements View.OnCreateContextMenuListener, Vi
     }
 
     public void setTextAndAuthor(String text, String author) {
-        if(null == author) mText = text;
+        if (null == author) mText = text;
         else mLink = text;
         mAuthor = author;
     }
@@ -106,14 +103,10 @@ public class ContextMenuListener implements View.OnCreateContextMenuListener, Vi
 
     @Override
     public void onClick(View v) {
-        if (isGalleryNeeded) {
-            Intent intent = new Intent(mContext, ImagePagerActivity.class);
-            intent.putExtra(Constants.KEY_INTENT_IMAGE_ID, mId);
-            mContext.startActivity(intent);
-        } else {
-            Intent intent = new Intent(mContext, ImageScaleActivity.class);
-            intent.putExtra(Constants.KEY_INTENT_IMAGE_URL, mText);
-            mContext.startActivity(intent);
-        }
+        Intent intent;
+        if (isGalleryNeeded) intent = new Intent(mContext, ImagePagerActivity.class);
+        else intent = new Intent(mContext, ImageScaleActivity.class);
+        intent.putExtra(Constants.KEY_INTENT_IMAGE_ID, mId);
+        mContext.startActivity(intent);
     }
 }

@@ -2,31 +2,49 @@ package com.elrain.bashim.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.elrain.bashim.BashApp;
 import com.elrain.bashim.R;
+import com.elrain.bashim.dal.QuotesTableHelper;
+import com.elrain.bashim.object.ImageSimpleItem;
 import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.TouchImageView;
 import com.squareup.picasso.Picasso;
+import com.squareup.sqlbrite.BriteDatabase;
+
+import javax.inject.Inject;
 
 public class ImageScaleActivity extends AppCompatActivity {
+
+    @Inject
+    BriteDatabase mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        ((BashApp) getApplication()).getComponent().inject(this);
         if (null != getSupportActionBar()) {
             getSupportActionBar().setTitle(getString(R.string.action_favorite));
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        if (TextUtils.isEmpty(getIntent().getStringExtra(Constants.KEY_INTENT_IMAGE_URL)))
-            finish();
-        setContentView(R.layout.scale_image_view);
-        TouchImageView iv = (TouchImageView) findViewById(R.id.ivComics);
-        Picasso.with(this).load(getIntent().getStringExtra(Constants.KEY_INTENT_IMAGE_URL)).into(iv);
+        long id = getIntent().getLongExtra(Constants.KEY_INTENT_IMAGE_ID, -1);
+        if (id == -1) errorAction();
+
+        ImageSimpleItem isi = QuotesTableHelper.getImage(mDb, id);
+        if (isi != null) {
+            setContentView(R.layout.scale_image_view);
+            TouchImageView iv = (TouchImageView) findViewById(R.id.ivComics);
+            Picasso.with(this).load(isi.getLink()).into(iv);
+        } else errorAction();
+    }
+
+    private void errorAction() {
+        Toast.makeText(this, Constants.WRONG_IMAGE_ID, Toast.LENGTH_SHORT).show();
+        this.finish();
     }
 
     @Override

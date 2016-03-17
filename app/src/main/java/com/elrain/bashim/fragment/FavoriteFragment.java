@@ -1,18 +1,13 @@
 package com.elrain.bashim.fragment;
 
 import android.app.Fragment;
-import android.app.LoaderManager;
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.Loader;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,26 +19,33 @@ import android.widget.SearchView;
 import com.elrain.bashim.BashApp;
 import com.elrain.bashim.R;
 import com.elrain.bashim.activity.ImageScaleActivity;
-import com.elrain.bashim.adapter.CommonAdapterOld;
-import com.elrain.bashim.dal.BashContentProvider;
+import com.elrain.bashim.adapter.CommonAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.fragment.helper.SearchHelper;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
+import com.squareup.sqlbrite.BriteDatabase;
 
 import javax.inject.Inject;
 
-public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        AdapterView.OnItemClickListener {
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
-    private CommonAdapterOld mQuotesCursorAdapter;
-    @Inject BashPreferences mBashPreferences;
+public class FavoriteFragment extends Fragment implements AdapterView.OnItemClickListener {
+
+    private CommonAdapter mQuotesCursorAdapter;
+    private Subscription mSubscription;
+    @Inject
+    BashPreferences mBashPreferences;
+    @Inject
+    BriteDatabase mDb;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
-        ((BashApp)getActivity().getApplication()).getComponent().inject(this);
+        ((BashApp) getActivity().getApplication()).getComponent().inject(this);
     }
 
     @Nullable
@@ -55,24 +57,32 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mQuotesCursorAdapter = new CommonAdapterOld(getActivity(), true);
+        mQuotesCursorAdapter = new CommonAdapter(getActivity(), mBashPreferences, mDb, true);
         RecyclerView lvItems = (RecyclerView) view.findViewById(R.id.lvBashItems);
         lvItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         lvItems.setAdapter(mQuotesCursorAdapter);
-        getLoaderManager().initLoader(Constants.ID_LOADER, null, FavoriteFragment.this);
+
+        mSubscription = QuotesTableHelper.getBashItems(Constants.QueryFilter.FAVORITE, mDb,
+                mBashPreferences.getSearchFilter(), 0)
+                .subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mQuotesCursorAdapter::addItems);
     }
 
     @Override
     public void onStart() {
         super.onStart();
         mBashPreferences.setFilterListener(
-                () -> getLoaderManager().restartLoader(Constants.ID_LOADER, null, FavoriteFragment.this));
+                () -> QuotesTableHelper.getBashItems(Constants.QueryFilter.FAVORITE, mDb,
+                        mBashPreferences.getSearchFilter(), 0)
+                        .subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(mQuotesCursorAdapter::addItems));
     }
 
     @Override
     public void onStop() {
         super.onStop();
         mBashPreferences.removeFilterListener();
+        mSubscription.unsubscribe();
     }
 
     @Override
@@ -84,37 +94,14 @@ public class FavoriteFragment extends Fragment implements LoaderManager.LoaderCa
         if (null != searchView) {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
             searchView.setIconifiedByDefault(false);
-            searchView.setOnQueryTextListener(new SearchHelper(getActivity()));
+            searchView.setOnQueryTextListener(new SearchHelper(mBashPreferences));
         }
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String filter = BashPreferences.getInstance(getActivity().getApplicationContext()).getSearchFilter();
-        if (TextUtils.isEmpty(filter))
-            return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
-                    QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.IS_FAVORITE + " =? ",
-                    new String[]{String.valueOf(1)}, null);
-        else return new CursorLoader(getActivity(), BashContentProvider.QUOTES_CONTENT_URI,
-                QuotesTableHelper.MAIN_SELECTION, QuotesTableHelper.IS_FAVORITE + " =? "
-                + " AND " + QuotesTableHelper.DESCRIPTION + " LIKE '%" + filter + "%'",
-                new String[]{String.valueOf(1)}, null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mQuotesCursorAdapter.swapCursor(data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mQuotesCursorAdapter.swapCursor(null);
-    }
-
-    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        String url = QuotesTableHelper.getUrlForComicsById(getActivity(), id);
+        String url = QuotesTableHelper.getUrlForComicsById(mDb, id);
         if (null != url) {
             Intent intent = new Intent(getActivity(), ImageScaleActivity.class);
             intent.putExtra(Constants.KEY_INTENT_IMAGE_URL, url);

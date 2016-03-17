@@ -1,21 +1,16 @@
 package com.elrain.bashim.fragment.helper;
 
-import android.content.Context;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.widget.SearchView;
 
-import com.elrain.bashim.BashApp;
 import com.elrain.bashim.util.BashPreferences;
-
-import javax.inject.Inject;
 
 public class SearchHelper implements SearchView.OnQueryTextListener {
 
-    @Inject BashPreferences mBashPreferences;
+    private BashPreferences mBashPreferences;
 
-    public SearchHelper(@NonNull Context context) {
-        ((BashApp)context.getApplicationContext()).getComponent().inject(this);
+    public SearchHelper(BashPreferences bashPreferences) {
+        mBashPreferences = bashPreferences;
     }
 
     @Override

@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.elrain.bashim.BashApp;
 import com.elrain.bashim.R;
@@ -20,7 +21,6 @@ import com.elrain.bashim.util.TouchImageView;
 import com.squareup.picasso.Picasso;
 import com.squareup.sqlbrite.BriteDatabase;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -33,9 +33,13 @@ public class ImagePagerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((BashApp)getApplication()).getComponent().inject(this);
+        ((BashApp) getApplication()).getComponent().inject(this);
         setContentView(R.layout.activity_scale_image_view);
-        long id = getIntent().getLongExtra(Constants.KEY_INTENT_IMAGE_ID, 1);
+        long id = getIntent().getLongExtra(Constants.KEY_INTENT_IMAGE_ID, -1);
+        if (id == -1) {
+            Toast.makeText(this, Constants.WRONG_IMAGE_ID, Toast.LENGTH_SHORT).show();
+            this.finish();
+        }
         List<ImageSimpleItem> images = QuotesTableHelper.getImages(mDb);
 
         if (null != getSupportActionBar()) {
@@ -44,7 +48,7 @@ public class ImagePagerActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        int position = id == 1 ? 1 : getPosition(id, images);
+        int position = getPosition(id, images);
 
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), images);
         ViewPager viewPager = (ViewPager) findViewById(R.id.container);

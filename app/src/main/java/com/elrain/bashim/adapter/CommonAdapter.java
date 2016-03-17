@@ -91,9 +91,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.ViewHolder
             holder.ivComics.setVisibility(View.VISIBLE);
             final String url = getItem(position).getDescription();
             holder.setText(url, getItem(position).getAuthor());
-            if (mFavorite) holder.makeClick(0, false);
-            else
-                holder.makeClick(getItemId(position), true);
+            holder.makeClick(getItemId(position), !mFavorite);
             Picasso.with(mContext).load(url).config(Bitmap.Config.ALPHA_8).into(holder.ivComics);
             holder.tvTitle.setText(getItem(position).getAuthor());
         } else {
@@ -170,7 +168,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.ViewHolder
             int startPos = text.toLowerCase(Locale.US).indexOf(filter.toLowerCase(Locale.US));
             int endPos = startPos + filter.length();
             Spannable spannable = new SpannableString(text);
-            ColorStateList blueColor = new ColorStateList(new int[][]{new int[]{}}, new int[]{Color.BLUE});
+            ColorStateList blueColor = new ColorStateList(new int[][]{new int[]{}}, new int[]{Color.BLUE, Color.YELLOW});
             TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.ITALIC, -1, blueColor, null);
             spannable.setSpan(highlightSpan, startPos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             return spannable;

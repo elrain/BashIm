@@ -1,15 +1,14 @@
 package com.elrain.bashim.dal;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 
 import com.elrain.bashim.object.BashItem;
 import com.elrain.bashim.object.ImageSimpleItem;
+import com.elrain.bashim.util.Constants;
+import com.elrain.bashim.util.QueryBuilder;
 import com.squareup.sqlbrite.BriteDatabase;
 import com.squareup.sqlbrite.SqlBrite;
 
@@ -31,8 +30,6 @@ public class QuotesTableHelper {
     public static final String DESCRIPTION = "description";
     public static final String IS_FAVORITE = "isFavorite";
     public static final String AUTHOR = "author";
-    public static final String[] MAIN_SELECTION = {ID, DESCRIPTION, TITLE, PUB_DATE, LINK, IS_FAVORITE,
-            AUTHOR};
     static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE + "( "
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + LINK + " TEXT NOT NULL, "
             + TITLE + " VARCHAR(50) NOT NULL, " + PUB_DATE + " DATE NOT NULL, "
@@ -68,20 +65,10 @@ public class QuotesTableHelper {
         }
     }
 
-    public static Observable<List<BashItem>> getBashItems(BriteDatabase db, String filter, int count) {
+    public static Observable<List<BashItem>> getBashItems(Constants.QueryFilter queryFilter,
+                                                          BriteDatabase db, String filter, int count) {
         Observable<SqlBrite.Query> queryObservable;
-        if (TextUtils.isEmpty(filter)) {
-            queryObservable = db.createQuery(TABLE,
-                    String.format(Locale.US, "SELECT %s, %s, %s, %s, %s, %s, %s FROM %s WHERE %s IS NULL " +
-                                    "ORDER BY %s DESC, ROWID LIMIT %d", ID, DESCRIPTION, TITLE, PUB_DATE,
-                            LINK, IS_FAVORITE, AUTHOR, TABLE, AUTHOR, PUB_DATE, count));
-        } else {
-            queryObservable = db.createQuery(TABLE,
-                    String.format(Locale.US, "SELECT %s, %s, %s, %s, %s, %s, %s FROM %s WHERE %s IS NULL " +
-                                    "AND %s LIKE '%%%s%%' ORDER BY %s DESC, ROWID LIMIT %d",
-                            ID, DESCRIPTION, TITLE, PUB_DATE, LINK, IS_FAVORITE, AUTHOR, TABLE,
-                            AUTHOR, DESCRIPTION, filter, PUB_DATE, count));
-        }
+        queryObservable = db.createQuery(TABLE, QueryBuilder.getQueryString(queryFilter, filter, count));
         return queryObservable.map(query -> {
             List<BashItem> items = new ArrayList<>();
             Cursor cursor = query.run();
@@ -100,7 +87,7 @@ public class QuotesTableHelper {
         }).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    public static void saveQuot(BriteDatabase db, BashItem bashItem) {
+    public static boolean saveQuot(BriteDatabase db, BashItem bashItem) {
         ContentValues cv = new ContentValues();
         cv.put(LINK, bashItem.getLink());
         cv.put(TITLE, bashItem.getTitle());
@@ -108,15 +95,15 @@ public class QuotesTableHelper {
         cv.put(DESCRIPTION, bashItem.getDescription());
         cv.put(IS_FAVORITE, bashItem.isFavorite());
         cv.put(AUTHOR, bashItem.getAuthor());
-        db.insert(TABLE, cv, SQLiteDatabase.CONFLICT_IGNORE);
+        return db.insert(TABLE, cv, SQLiteDatabase.CONFLICT_IGNORE) != -1;
     }
 
     public static List<ImageSimpleItem> getImages(BriteDatabase db) {
         Cursor cursor = null;
         ArrayList<ImageSimpleItem> images = new ArrayList<>();
         try {
-            cursor = db.query(String.format("SELECT %s, %s, %s, %s FROM %s WHERE %s IS NOT NULL ",
-                    ID, DESCRIPTION, TITLE, PUB_DATE, TABLE, AUTHOR));
+            cursor = db.query(String.format("SELECT %s, %s, %s, %s FROM %s WHERE %s IS NOT NULL " +
+                    "ORDER BY %s DESC", ID, DESCRIPTION, TITLE, PUB_DATE, TABLE, AUTHOR, PUB_DATE));
             while (null != cursor && cursor.moveToNext()) {
                 ImageSimpleItem isi = new ImageSimpleItem();
                 isi.setId(cursor.getLong(cursor.getColumnIndex(ID)));
@@ -130,19 +117,38 @@ public class QuotesTableHelper {
         return images;
     }
 
+    public static ImageSimpleItem getImage(BriteDatabase db, long id) {
+        Cursor cursor = null;
+        try {
+            cursor = db.query(String.format(Locale.US, "SELECT %s, %s, %s, %s FROM %s WHERE %s IS NOT NULL " +
+                    "AND %s = %d", ID, DESCRIPTION, TITLE, PUB_DATE, TABLE, AUTHOR, ID, id));
+            if (cursor.moveToNext()) {
+                ImageSimpleItem isi = new ImageSimpleItem();
+                isi.setId(cursor.getLong(cursor.getColumnIndex(ID)));
+                isi.setLink(cursor.getString(cursor.getColumnIndex(DESCRIPTION)));
+                isi.setTitle(cursor.getString(cursor.getColumnIndex(TITLE)));
+                return isi;
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return null;
+    }
+
     public static void makeFavorite(BriteDatabase db, long id, boolean isFavorite) {
         ContentValues cv = new ContentValues();
         cv.put(IS_FAVORITE, isFavorite);
         db.update(TABLE, cv, ID + "=?", String.valueOf(id));
     }
 
-    public static String getUrlForComicsById(Context context, long id) {
+    @Nullable
+    public static String getUrlForComicsById(BriteDatabase db, long id) {
         Cursor cursor = null;
         try {
-            cursor = context.getContentResolver().query(Uri.withAppendedPath(
-                    BashContentProvider.QUOTES_CONTENT_URI, "/" + id), new String[]{DESCRIPTION},
-                    AUTHOR + " IS NOT NULL AND " + ID + "=?",
-                    new String[]{String.valueOf(id)}, null);
+            cursor = db.query(String.format(Locale.US, "SELECT %s FROM %s WHERE %s IS NOT NULL AND %s =?",
+                    DESCRIPTION, TABLE, AUTHOR, ID), String.valueOf(id));
             if (null != cursor && cursor.moveToNext())
                 return cursor.getString(cursor.getColumnIndex(DESCRIPTION));
         } finally {

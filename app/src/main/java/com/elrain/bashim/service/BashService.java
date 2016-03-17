@@ -122,15 +122,20 @@ public class BashService extends Service {
                     items.flatMap(Observable::from)
                             .filter(bashItem -> bashItem.getPubDate().after(lastPubTime))
                             .subscribeOn(Schedulers.newThread())
-                            .subscribe(item -> QuotesTableHelper.saveQuot(mDb, item));
+                            .subscribe(this::saveAndIncrease);
                 else items.flatMap(Observable::from)
                         .subscribeOn(Schedulers.newThread())
-                        .subscribe(item -> QuotesTableHelper.saveQuot(mDb, item));
+                        .subscribe(this::saveAndIncrease);
             }
             if (!mBashPreferences.isFirstStart() && mBashPreferences.getQuotesCounter() != 0)
                 NotificationHelper.showNotification(getApplicationContext());
             sendBroadcast(Constants.ACTION_DOWNLOAD_FINISHED);
             stopSelf();
+        }
+
+        private void saveAndIncrease(BashItem item) {
+            if (QuotesTableHelper.saveQuot(mDb, item))
+                mBashPreferences.increaseQuotCounter();
         }
     }
 }

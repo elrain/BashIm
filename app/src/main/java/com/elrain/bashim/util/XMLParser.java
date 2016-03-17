@@ -21,19 +21,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import rx.Observable;
+
 public final class XmlParser {
 
-    private static final String TAG_ITEM = "item";
-    private static final String TAG_GUID = "guid";
-    private static final String TAG_TITLE = "title";
-    private static final String TAG_DESCRIPTION = "description";
-    private static final String TAG_PUB_DATE = "pubDate";
-    private static final String TAG_LINK = "link";
-    private static final String TAG_AUTHOR = "author";
     private static final String ENCODING = "windows-1251";
-    private static final String HTTP = "http";
-    private static final String DESCRIPTION_CONTAINS = "<img src=\"";
-    private static List<BashItem> mItems;
 
     /**
      * Launch XML parse process of <code>InputStream</code> object
@@ -44,12 +36,12 @@ public final class XmlParser {
      * @throws SAXException                 Any SAX exception, possibly wrapping another exception.
      * @throws IOException
      */
-    public static List<BashItem> parseXml(InputStream in) throws ParserConfigurationException, SAXException, IOException {
-        mItems = new ArrayList<>();
+    public static Observable<List<BashItem>> parseXml(InputStream in) throws ParserConfigurationException, SAXException, IOException {
+        List<BashItem> items = new ArrayList<>();
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
-        parser.parse(getInputSource(in), new Parser());
-        return mItems;
+        parser.parse(getInputSource(in), new Parser(items));
+        return Observable.just(items);
     }
 
     @NonNull
@@ -60,7 +52,16 @@ public final class XmlParser {
         return is;
     }
 
-    private static class Parser extends DefaultHandler {
+    private static final class Parser extends DefaultHandler {
+        private static final String TAG_ITEM = "item";
+        private static final String TAG_GUID = "guid";
+        private static final String TAG_TITLE = "title";
+        private static final String TAG_DESCRIPTION = "description";
+        private static final String TAG_PUB_DATE = "pubDate";
+        private static final String TAG_LINK = "link";
+        private static final String TAG_AUTHOR = "author";
+        private static final String HTTP = "http";
+        private static final String DESCRIPTION_CONTAINS = "<img src=\"";
         private BashItem bashItem;
         private boolean isItemOpen = false;
         private boolean isDescriptionOpen = false;
@@ -70,9 +71,11 @@ public final class XmlParser {
         private boolean isLinkOpen = false;
         private boolean isAuthorOpen = false;
         private StringBuilder mStringBuilder;
+        private final List<BashItem> mItems;
 
-        public Parser() {
+        public Parser(List<BashItem> items) {
             mStringBuilder = new StringBuilder();
+            mItems = items;
         }
 
         @Override

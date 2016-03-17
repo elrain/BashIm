@@ -98,14 +98,14 @@ public class MainFragment extends Fragment implements ServiceConnection {
                 firstVisibleItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
 
                 if ((totalItemCount - visibleItemCount) <= (firstVisibleItem + 3)) {
-                    QuotesTableHelper.getBashItems(mDb, mBashPreferences.getSearchFilter(),
+                    QuotesTableHelper.getBashItems(Constants.QueryFilter.QUOTE, mDb, mBashPreferences.getSearchFilter(),
                             (mQuotesCursorAdapter.getItemCount() + 10)).subscribe(mQuotesCursorAdapter::addItems);
                 }
             }
         });
         if (!isFirstSynced) initRssDownloading();
 
-        QuotesTableHelper.getBashItems(mDb, mBashPreferences.getSearchFilter(),
+        QuotesTableHelper.getBashItems(Constants.QueryFilter.QUOTE, mDb, mBashPreferences.getSearchFilter(),
                 (mQuotesCursorAdapter.getItemCount() + 10))
                 .subscribe(mQuotesCursorAdapter::addItems);
     }
@@ -138,7 +138,7 @@ public class MainFragment extends Fragment implements ServiceConnection {
         if (null != mSearchView) {
             mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
             mSearchView.setIconifiedByDefault(false);
-            mSearchView.setOnQueryTextListener(new SearchHelper(getActivity()));
+            mSearchView.setOnQueryTextListener(new SearchHelper(mBashPreferences));
         }
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -169,10 +169,9 @@ public class MainFragment extends Fragment implements ServiceConnection {
         getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_STARTED));
         getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_FINISHED));
         getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_ABORTED));
-        BashPreferences.getInstance(getActivity()).setFilterListener(
-                () -> QuotesTableHelper.getBashItems(mDb, mBashPreferences.getSearchFilter(),
-                        (mQuotesCursorAdapter.getItemCount() + 10))
-                        .subscribe(mQuotesCursorAdapter::addItems));
+        mBashPreferences.setFilterListener(() -> QuotesTableHelper.getBashItems(Constants.QueryFilter.QUOTE,
+                mDb, mBashPreferences.getSearchFilter(), (mQuotesCursorAdapter.getItemCount() + 10))
+                .subscribe(mQuotesCursorAdapter::addItems));
     }
 
     @Override
@@ -194,8 +193,8 @@ public class MainFragment extends Fragment implements ServiceConnection {
         }
         EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED,
                 MainFragment.this));
-        mSubscription = QuotesTableHelper.getBashItems(mDb, mBashPreferences.getSearchFilter(),
-                (mQuotesCursorAdapter.getItemCount() + 10))
+        mSubscription = QuotesTableHelper.getBashItems(Constants.QueryFilter.QUOTE, mDb,
+                mBashPreferences.getSearchFilter(), (mQuotesCursorAdapter.getItemCount() + 10))
                 .subscribe(mQuotesCursorAdapter::addItems);
         isFirstSynced = true;
     }
@@ -225,6 +224,8 @@ public class MainFragment extends Fragment implements ServiceConnection {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mSubscription.unsubscribe();
+        if (mSubscription != null) {
+            mSubscription.unsubscribe();
+        }
     }
 }
