@@ -58,6 +58,7 @@
     <string name="menu_context_title">Действие</string>
 
     <string name="toast_text_copied">Скопировано</string>
+    <string name="error_no_items_found">Цитат не найдено</string>
 
     <string-array name="listArray">
         <item>Никогда</item>

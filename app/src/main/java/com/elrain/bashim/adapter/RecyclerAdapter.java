@@ -59,9 +59,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             mContext.startActivity(intent);
         });
 
-        boolean isFavorite = QuotesTableHelper.isFavorite(mDb, getItem(position).getLink());
-
-        if (isFavorite) holder.ivFavorite.setImageResource(android.R.drawable.star_big_on);
+        long id = QuotesTableHelper.getQuoteIdByLink(mDb, getItem(position).getLink());
+        if (id != -1) {
+            getItem(position).setId(id);
+            getItem(position).setIsFavorite(QuotesTableHelper.isFavorite(mDb, id));
+        }
+        if (getItem(position).isFavorite()) holder.ivFavorite.setImageResource(android.R.drawable.star_big_on);
         else holder.ivFavorite.setImageResource(android.R.drawable.star_big_off);
 
         holder.ivFavorite.setOnClickListener(v -> {

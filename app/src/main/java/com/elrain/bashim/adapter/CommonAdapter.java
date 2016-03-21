@@ -65,6 +65,11 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.ViewHolder
         this.notifyDataSetChanged();
     }
 
+    public void clearList(){
+        mItems.clear();
+        this.notifyDataSetChanged();
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(mContext).inflate(R.layout.list_item_view, parent, false);

@@ -52,8 +52,10 @@ public class ImagePagerActivity extends AppCompatActivity {
 
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), images);
         ViewPager viewPager = (ViewPager) findViewById(R.id.container);
-        viewPager.setAdapter(sectionsPagerAdapter);
-        viewPager.setCurrentItem(position);
+        if (null != viewPager) {
+            viewPager.setAdapter(sectionsPagerAdapter);
+            viewPager.setCurrentItem(position);
+        }
     }
 
     private int getPosition(long id, List<ImageSimpleItem> images) {

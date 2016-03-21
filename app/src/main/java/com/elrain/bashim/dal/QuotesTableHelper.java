@@ -30,6 +30,7 @@ public class QuotesTableHelper {
     public static final String DESCRIPTION = "description";
     public static final String IS_FAVORITE = "isFavorite";
     public static final String AUTHOR = "author";
+    public static final String ALIAS = "q";
     static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE + "( "
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + LINK + " TEXT NOT NULL, "
             + TITLE + " VARCHAR(50) NOT NULL, " + PUB_DATE + " DATE NOT NULL, "
@@ -38,31 +39,6 @@ public class QuotesTableHelper {
 
     public static void createTable(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE);
-    }
-
-    public static void update3To4(SQLiteDatabase db) {
-        Cursor cursor = null;
-        try {
-            long id = 1;
-            cursor = db.rawQuery("SELECT " + DESCRIPTION + ", " + TITLE + ", " + PUB_DATE + ", "
-                    + LINK + ", " + IS_FAVORITE + ", " + AUTHOR + " FROM " + QuotesTableHelper.TABLE, null);
-            db.execSQL("DROP TABLE IF EXISTS " + QuotesTableHelper.TABLE);
-            db.execSQL(CREATE_TABLE);
-            while (cursor.moveToNext()) {
-                ContentValues cv = new ContentValues();
-                cv.put(ID, id);
-                cv.put(PUB_DATE, cursor.getLong(cursor.getColumnIndex(PUB_DATE)));
-                cv.put(IS_FAVORITE, cursor.getInt(cursor.getColumnIndex(IS_FAVORITE)) == 1);
-                cv.put(LINK, cursor.getString(cursor.getColumnIndex(LINK)));
-                cv.put(AUTHOR, cursor.getString(cursor.getColumnIndex(AUTHOR)));
-                cv.put(DESCRIPTION, cursor.getString(cursor.getColumnIndex(DESCRIPTION)));
-                cv.put(TITLE, cursor.getString(cursor.getColumnIndex(TITLE)));
-                db.insert(TABLE, null, cv);
-                ++id;
-            }
-        } finally {
-            if (null != cursor) cursor.close();
-        }
     }
 
     public static Observable<List<BashItem>> getBashItems(Constants.QueryFilter queryFilter,
@@ -87,7 +63,7 @@ public class QuotesTableHelper {
         }).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    public static boolean saveQuot(BriteDatabase db, BashItem bashItem) {
+    public static long saveQuote(BriteDatabase db, BashItem bashItem) {
         ContentValues cv = new ContentValues();
         cv.put(LINK, bashItem.getLink());
         cv.put(TITLE, bashItem.getTitle());
@@ -95,7 +71,7 @@ public class QuotesTableHelper {
         cv.put(DESCRIPTION, bashItem.getDescription());
         cv.put(IS_FAVORITE, bashItem.isFavorite());
         cv.put(AUTHOR, bashItem.getAuthor());
-        return db.insert(TABLE, cv, SQLiteDatabase.CONFLICT_IGNORE) != -1;
+        return db.insert(TABLE, cv, SQLiteDatabase.CONFLICT_IGNORE);
     }
 
     public static List<ImageSimpleItem> getImages(BriteDatabase db) {
@@ -140,7 +116,14 @@ public class QuotesTableHelper {
     public static void makeFavorite(BriteDatabase db, long id, boolean isFavorite) {
         ContentValues cv = new ContentValues();
         cv.put(IS_FAVORITE, isFavorite);
-        db.update(TABLE, cv, ID + "=?", String.valueOf(id));
+        BriteDatabase.Transaction transaction = db.newTransaction();
+        try {
+            db.update(TABLE, cv, ID + "=?", String.valueOf(id));
+            FavoriteInfoHelper.insertOrDeleteFavorite(db, id, isFavorite);
+            transaction.markSuccessful();
+        } finally {
+            transaction.end();
+        }
     }
 
     @Nullable
@@ -158,39 +141,53 @@ public class QuotesTableHelper {
     }
 
     public static void makeOrInsertAsFavorite(BriteDatabase db, BashItem item) {
-        ContentValues cv = new ContentValues();
-        cv.put(IS_FAVORITE, !isFavorite(db, item.getLink()));
-        long updatedRow = db.update(TABLE, cv, LINK + " =? ", item.getLink());
-        if (updatedRow == 0) {
-            item.setIsFavorite(true);
-            saveQuot(db, item);
+        if (item.isFavorite())
+            makeFavorite(db, item.getId(), !item.isFavorite());
+        else {
+            long id = getQuoteIdByLink(db, item.getLink());
+            if (id == -1) {
+                long newQuoteId = saveQuote(db, item);
+                makeFavorite(db, newQuoteId, true);
+            } else makeFavorite(db, id, true);
         }
     }
 
-    public static boolean isFavorite(BriteDatabase db, String link) {
+    public static long getQuoteIdByLink(BriteDatabase db, String link) {
         Cursor cursor = null;
         try {
-            cursor = db.query(String.format("SELECT %s FROM %s WHERE %s =? ", IS_FAVORITE, TABLE,
+            cursor = db.query(String.format("SELECT %s FROM %s WHERE %s =? ", ID, TABLE,
                     LINK), link);
             if (null != cursor && cursor.moveToNext())
-                return cursor.getInt(cursor.getColumnIndex(IS_FAVORITE)) == 1;
+                return cursor.getLong(cursor.getColumnIndex(ID));
         } finally {
             if (null != cursor) cursor.close();
         }
-        return false;
+        return -1;
     }
 
     @Nullable
     public static Date getLastQuotePubTime(BriteDatabase db) {
         Cursor cursor = null;
         try {
-            cursor = db.query(String.format("SELECT %s from %s WHERE %s = (SELECT max(%s) FROM %s)",
-                    PUB_DATE, TABLE, ID, ID, TABLE));
+            cursor = db.query(String.format("SELECT %s from %s ORDER BY %s DESC, ROWID LIMIT 1",
+                    PUB_DATE, TABLE, PUB_DATE));
             if (cursor.moveToNext())
                 return new Date(cursor.getLong(cursor.getColumnIndex(PUB_DATE)));
         } finally {
             if (null != cursor) cursor.close();
         }
         return null;
+    }
+
+    public static boolean isFavorite(BriteDatabase db, long id) {
+        Cursor cursor = null;
+        try {
+            cursor = db.query(String.format("SELECT %s FROM %s WHERE %s = ? ", IS_FAVORITE, TABLE, ID), String.valueOf(id));
+            if (cursor.moveToNext())
+                return cursor.getInt(cursor.getColumnIndex(IS_FAVORITE)) == 1;
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return false;
     }
 }

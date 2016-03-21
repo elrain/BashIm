@@ -3,7 +3,6 @@ package com.elrain.bashim.fragment;
 import android.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,12 +12,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import com.elrain.bashim.BashApp;
 import com.elrain.bashim.R;
-import com.elrain.bashim.activity.ImageScaleActivity;
 import com.elrain.bashim.adapter.CommonAdapter;
 import com.elrain.bashim.dal.QuotesTableHelper;
 import com.elrain.bashim.fragment.helper.SearchHelper;
@@ -28,14 +26,12 @@ import com.squareup.sqlbrite.BriteDatabase;
 
 import javax.inject.Inject;
 
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class FavoriteFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class FavoriteFragment extends Fragment {
 
     private CommonAdapter mQuotesCursorAdapter;
-    private Subscription mSubscription;
     @Inject
     BashPreferences mBashPreferences;
     @Inject
@@ -45,7 +41,7 @@ public class FavoriteFragment extends Fragment implements AdapterView.OnItemClic
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
-        ((BashApp) getActivity().getApplication()).getComponent().inject(this);
+        ((BashApp) getActivity().getApplication()).getComponent().plus().inject(this);
     }
 
     @Nullable
@@ -62,10 +58,16 @@ public class FavoriteFragment extends Fragment implements AdapterView.OnItemClic
         lvItems.setLayoutManager(new LinearLayoutManager(getActivity()));
         lvItems.setAdapter(mQuotesCursorAdapter);
 
-        mSubscription = QuotesTableHelper.getBashItems(Constants.QueryFilter.FAVORITE, mDb,
+        QuotesTableHelper.getBashItems(Constants.QueryFilter.FAVORITE, mDb,
                 mBashPreferences.getSearchFilter(), 0)
                 .subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(mQuotesCursorAdapter::addItems);
+                .subscribe(items -> {
+                    if (items.size() == 0 && !isDetached() && null != getActivity()) {
+                        Toast.makeText(getActivity(), getString(R.string.error_no_items_found),
+                                Toast.LENGTH_SHORT).show();
+                        mQuotesCursorAdapter.clearList();
+                    } else mQuotesCursorAdapter.addItems(items);
+                });
     }
 
     @Override
@@ -82,7 +84,6 @@ public class FavoriteFragment extends Fragment implements AdapterView.OnItemClic
     public void onStop() {
         super.onStop();
         mBashPreferences.removeFilterListener();
-        mSubscription.unsubscribe();
     }
 
     @Override
@@ -97,15 +98,5 @@ public class FavoriteFragment extends Fragment implements AdapterView.OnItemClic
             searchView.setOnQueryTextListener(new SearchHelper(mBashPreferences));
         }
         super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        String url = QuotesTableHelper.getUrlForComicsById(mDb, id);
-        if (null != url) {
-            Intent intent = new Intent(getActivity(), ImageScaleActivity.class);
-            intent.putExtra(Constants.KEY_INTENT_IMAGE_URL, url);
-            getActivity().startActivity(intent);
-        }
     }
 }

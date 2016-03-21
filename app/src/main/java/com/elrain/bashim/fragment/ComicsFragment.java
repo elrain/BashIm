@@ -45,7 +45,7 @@ public class ComicsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((BashApp) getActivity().getApplication()).getComponent().inject(this);
+        ((BashApp) getActivity().getApplication()).getComponent().plus().inject(this);
     }
 
     @Nullable

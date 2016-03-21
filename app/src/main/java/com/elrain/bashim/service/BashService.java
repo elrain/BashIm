@@ -15,7 +15,7 @@ import com.elrain.bashim.util.AlarmUtil;
 import com.elrain.bashim.util.BashPreferences;
 import com.elrain.bashim.util.Constants;
 import com.elrain.bashim.util.XmlParser;
-import com.elrain.bashim.webutil.XmlWorker;
+import com.elrain.bashim.webutil.ConnectionUtil;
 import com.squareup.sqlbrite.BriteDatabase;
 
 import org.xml.sax.SAXException;
@@ -110,7 +110,7 @@ public class BashService extends Service {
             for (URL url : urls) {
                 Observable<List<BashItem>> items;
                 try {
-                    items = XmlParser.parseXml(XmlWorker.getStream(url));
+                    items = XmlParser.parseXml(ConnectionUtil.getStream(url));
                 } catch (ParserConfigurationException | SAXException | IOException e) {
                     e.printStackTrace();
                     sendBroadcast(Constants.ACTION_DOWNLOAD_ABORTED);
@@ -118,24 +118,19 @@ public class BashService extends Service {
                     break;
                 }
                 Date lastPubTime = QuotesTableHelper.getLastQuotePubTime(mDb);
+                Observable<BashItem> flattedItem = items.subscribeOn(Schedulers.newThread()).flatMap(Observable::from);
                 if (null != lastPubTime)
-                    items.flatMap(Observable::from)
-                            .filter(bashItem -> bashItem.getPubDate().after(lastPubTime))
-                            .subscribeOn(Schedulers.newThread())
-                            .subscribe(this::saveAndIncrease);
-                else items.flatMap(Observable::from)
-                        .subscribeOn(Schedulers.newThread())
-                        .subscribe(this::saveAndIncrease);
+                    flattedItem.filter(bashItem -> bashItem.getPubDate().after(lastPubTime))
+                            .subscribe(item -> {
+                                if (QuotesTableHelper.saveQuote(mDb, item) != -1)
+                                    mBashPreferences.increaseQuotCounter();
+                            });
+                else flattedItem.subscribe(item -> QuotesTableHelper.saveQuote(mDb, item));
             }
             if (!mBashPreferences.isFirstStart() && mBashPreferences.getQuotesCounter() != 0)
                 NotificationHelper.showNotification(getApplicationContext());
             sendBroadcast(Constants.ACTION_DOWNLOAD_FINISHED);
             stopSelf();
-        }
-
-        private void saveAndIncrease(BashItem item) {
-            if (QuotesTableHelper.saveQuot(mDb, item))
-                mBashPreferences.increaseQuotCounter();
         }
     }
 }

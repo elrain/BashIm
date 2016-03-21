@@ -47,17 +47,19 @@ public class MainActivity extends AppCompatActivity
     private boolean isTablet = false;
     private DrawerLayout drawer;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    
-    @Inject BashPreferences mPreferences;
-    @Inject AlarmUtil mAlarmUtil;
+
+    @Inject
+    BashPreferences mPreferences;
+    @Inject
+    AlarmUtil mAlarmUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((BashApp)getApplication()).getComponent().inject(this);
+        ((BashApp) getApplication()).getComponent().inject(this);
         mPreferences.setSearchFilter(null);
-//        Fabric.with(this, new Crashlytics());
-//        Fabric.with(this, new Answers(), new Crashlytics());
+        Fabric.with(this, new Crashlytics());
+        Fabric.with(this, new Answers(), new Crashlytics());
         if (!ScreenUtil.isTablet(this))
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
@@ -66,8 +68,10 @@ public class MainActivity extends AppCompatActivity
         else mLastTag = getString(R.string.action_main);
         EventBus.getDefault().register(this);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srLayout);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
-        mSwipeRefreshLayout.setEnabled(false);
+        if (null != mSwipeRefreshLayout) {
+            mSwipeRefreshLayout.setOnRefreshListener(this);
+            mSwipeRefreshLayout.setEnabled(false);
+        }
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         if (null != findViewById(R.id.vDivider))
             isTablet = true;
@@ -128,8 +132,10 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.getMenu().getItem(getSelectedItem()).setChecked(true);
-        navigationView.setNavigationItemSelectedListener(this);
+        if (null != navigationView) {
+            navigationView.getMenu().getItem(getSelectedItem()).setChecked(true);
+            navigationView.setNavigationItemSelectedListener(this);
+        }
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
@@ -138,7 +144,7 @@ public class MainActivity extends AppCompatActivity
                     R.string.navigation_drawer_open, R.string.navigation_drawer_close);
             drawer.setDrawerListener(toggle);
             toggle.syncState();
-        } else drawer.setDrawerListener(null);
+        } else if (null != drawer) drawer.setDrawerListener(null);
     }
 
     @Override

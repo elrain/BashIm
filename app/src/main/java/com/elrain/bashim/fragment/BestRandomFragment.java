@@ -45,7 +45,7 @@ public class BestRandomFragment extends Fragment implements HtmlWorker.OnHtmlPar
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((BashApp)getActivity().getApplication()).getComponent().inject(this);
+        ((BashApp)getActivity().getApplication()).getComponent().plus().inject(this);
         setHasOptionsMenu(true);
     }
 
@@ -118,9 +118,9 @@ public class BestRandomFragment extends Fragment implements HtmlWorker.OnHtmlPar
     @Override
     public void returnResult(List<BashItem> quotes) {
         mBestAdapter.addItems(quotes);
+        mRvItems.scrollToPosition(0);
         EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED,
                 BestRandomFragment.this));
-        mRvItems.scrollToPosition(0);
     }
 
     @Override

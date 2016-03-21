@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import com.elrain.bashim.BashApp;
 import com.elrain.bashim.R;
@@ -61,7 +62,7 @@ public class MainFragment extends Fragment implements ServiceConnection {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        ((BashApp) getActivity().getApplication()).getComponent().inject(this);
+        ((BashApp) getActivity().getApplication()).getComponent().plus().inject(this);
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -169,9 +170,15 @@ public class MainFragment extends Fragment implements ServiceConnection {
         getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_STARTED));
         getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_FINISHED));
         getActivity().registerReceiver(mBroadcastReceiver, new IntentFilter(Constants.ACTION_DOWNLOAD_ABORTED));
-        mBashPreferences.setFilterListener(() -> QuotesTableHelper.getBashItems(Constants.QueryFilter.QUOTE,
-                mDb, mBashPreferences.getSearchFilter(), (mQuotesCursorAdapter.getItemCount() + 10))
-                .subscribe(mQuotesCursorAdapter::addItems));
+        mBashPreferences.setFilterListener(
+                () -> QuotesTableHelper.getBashItems(Constants.QueryFilter.QUOTE,
+                        mDb, mBashPreferences.getSearchFilter(), (mQuotesCursorAdapter.getItemCount() + 10))
+                        .map(items -> {
+                            if (items.size() == 0 && !isDetached())
+                                Toast.makeText(getActivity(), getString(R.string.error_no_items_found), Toast.LENGTH_SHORT).show();
+                            return items;
+                        })
+                        .subscribe(mQuotesCursorAdapter::addItems));
     }
 
     @Override
@@ -183,7 +190,10 @@ public class MainFragment extends Fragment implements ServiceConnection {
         }
         EventBus.getDefault().post(new RefreshMessage(RefreshMessage.State.FINISHED, this));
         getActivity().unregisterReceiver(mBroadcastReceiver);
-        BashPreferences.getInstance(getActivity()).removeFilterListener();
+        mBashPreferences.removeFilterListener();
+        if (mSubscription != null) {
+            mSubscription.unsubscribe();
+        }
     }
 
     private void onDownloadFinished() {
@@ -219,13 +229,5 @@ public class MainFragment extends Fragment implements ServiceConnection {
     private void resetSearchView() {
         if (null != mSearchView)
             mSearchView.clearFocus();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mSubscription != null) {
-            mSubscription.unsubscribe();
-        }
     }
 }

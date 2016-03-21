@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-public final class XmlWorker {
+public final class ConnectionUtil {
 
     private static final int TIMEOUT_MILLIS = 30 * 1000;
 

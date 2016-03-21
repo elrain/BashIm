@@ -21,19 +21,13 @@ import dagger.Component;
 public interface SingletonComponent {
     void inject(MainActivity activity);
 
+    FragmentSubcomponent plus();
+
     void inject(ImagePagerActivity activity);
 
     void inject(ImageScaleActivity activity);
 
     void inject(BashService service);
-
-    void inject(MainFragment fragment);
-
-    void inject(BestRandomFragment fragment);
-
-    void inject(FavoriteFragment fragment);
-
-    void inject(ComicsFragment fragment);
 
     void inject(SearchHelper helper);
 }
