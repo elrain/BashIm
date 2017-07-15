@@ -86,12 +86,11 @@ enum class BashItemType(id: Int) {
 
     companion object {
         fun getTypeById(id: Int): BashItemType {
-            var type = BashItemType.QUOTE
-            if (id == 2) {
-                type = COMICS
+            var retval : BashItemType = QUOTE
+            when(id){
+                2 -> retval = COMICS
             }
-
-            return type
+            return retval
         }
     }
 }

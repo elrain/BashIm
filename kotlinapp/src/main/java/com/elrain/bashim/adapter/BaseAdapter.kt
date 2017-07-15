@@ -1,13 +1,18 @@
 package com.elrain.bashim.adapter
 
+import android.content.Context
 import android.database.Cursor
 import android.support.v7.widget.RecyclerView
 import com.elrain.bashim.dal.helpers.QuotesTableHelper
 import com.elrain.bashim.dao.BashItem
 import java.util.*
 
-abstract class BaseAdapter<VH : RecyclerView.ViewHolder>(private var mCursor: Cursor?) :
+abstract class BaseAdapter<VH : RecyclerView.ViewHolder>(private val context: Context, private var mCursor: Cursor?) :
         RecyclerView.Adapter<VH>() {
+
+    protected fun getContext(): Context {
+        return context
+    }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val c = getItem(position)

@@ -15,19 +15,21 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
 import com.elrain.bashim.R
+import com.elrain.bashim.adapter.ItemsAdapter
 import com.elrain.bashim.dal.DBHelper
 import com.elrain.bashim.dal.ItemsLoader
 import com.elrain.bashim.dal.helpers.BashItemType
-import com.elrain.bashim.adapter.ItemsAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<Cursor> {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     private val mRvQuotes: RecyclerView by lazy { rvQuotes }
     private val mDrawer: DrawerLayout by lazy { drawer_layout }
     private var mAdapter: ItemsAdapter? = null
+    private var mLastSelected: Int = BashItemType.QUOTE.getId()
 
     companion object {
         fun launch(context: Context) {
@@ -41,9 +43,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         initToolBarAndDrawer()
 
-        mAdapter = ItemsAdapter(null)
+        mAdapter = ItemsAdapter(this, null)
 
-        loaderManager.initLoader(BashItemType.QUOTE.getId(), null, this)
+        loaderManager.initLoader(mLastSelected, null, this)
 
         mRvQuotes.layoutManager = LinearLayoutManager(this)
         mRvQuotes.adapter = mAdapter
@@ -75,9 +77,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val id = item.itemId
 
         if (id == R.id.nav_quotes) {
-            loaderManager.restartLoader(BashItemType.QUOTE.getId(), null, this)
+            mLastSelected = BashItemType.QUOTE.getId()
+            loaderManager.restartLoader(mLastSelected, null, this)
         } else if (id == R.id.nav_comics) {
-            loaderManager.restartLoader(BashItemType.COMICS.getId(), null, this)
+            mLastSelected = BashItemType.COMICS.getId()
+            loaderManager.restartLoader(mLastSelected, null, this)
         }
         mDrawer.closeDrawer(GravityCompat.START)
         return true
@@ -89,6 +93,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onLoadFinished(p0: Loader<Cursor>?, cursor: Cursor?) {
         if (cursor != null) {
+            mRvQuotes.layoutManager.scrollToPosition(0)
             mAdapter?.swapCursor(cursor)
         }
     }
