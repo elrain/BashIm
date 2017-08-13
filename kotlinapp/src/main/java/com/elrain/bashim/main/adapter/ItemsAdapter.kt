@@ -1,4 +1,4 @@
-package com.elrain.bashim.adapter
+package com.elrain.bashim.main.adapter
 
 import android.content.Context
 import android.database.Cursor
@@ -19,6 +19,10 @@ import com.squareup.picasso.Picasso
 class ItemsAdapter(context: Context, cursor: Cursor?)
     : BaseAdapter<ItemsAdapter.ViewHolder>(context, cursor) {
 
+    val mOnItemTitleClick: OnItemTitleClick by lazy {
+        context as OnItemTitleClick
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent?.context)
                 .inflate(R.layout.quotes_adapter_view, parent, false)
@@ -29,7 +33,6 @@ class ItemsAdapter(context: Context, cursor: Cursor?)
         if (TextUtils.isEmpty(bashItem.author)) {
             holder.ivComics.visibility = View.GONE
             holder.tvBashItemText.visibility = View.VISIBLE
-            holder.tvBashItemPubDate.text = DateUtils.getItemPubDate(bashItem.pubDate)
             holder.tvBashItemText.text = Html.fromHtml(bashItem.description)
             holder.tvBashItemTitle.text = bashItem.title
         } else {
@@ -40,14 +43,25 @@ class ItemsAdapter(context: Context, cursor: Cursor?)
                     .config(Bitmap.Config.ALPHA_8)
                     .into(holder.ivComics)
         }
+        holder.tvBashItemPubDate.text = DateUtils.getItemPubDate(bashItem.pubDate)
     }
 
-    class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
+    inner class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
 
         val tvBashItemText = v.findViewById(R.id.tvBashItemText) as TextView
         val tvBashItemPubDate = v.findViewById(R.id.tvBashItemPubDate) as TextView
         val tvBashItemTitle = v.findViewById(R.id.tvBashItemTitle) as TextView
         val ivComics = v.findViewById(R.id.ivComics) as ImageView
+
+        init {
+            tvBashItemTitle.setOnClickListener {
+                mOnItemTitleClick.openInTab(getItemByPosition(adapterPosition).link)
+            }
+        }
+    }
+
+    interface OnItemTitleClick {
+        fun openInTab(url: String)
     }
 
 }
