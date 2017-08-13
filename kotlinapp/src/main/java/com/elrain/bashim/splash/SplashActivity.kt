@@ -32,13 +32,22 @@ class SplashActivity : AppCompatActivity(), ServiceConnection {
                     Handler().postDelayed({
                         launchMain()
                     }, 2000)
-                } else if (action == DataLoadService.ACTION_QUOTES_LOADED) {
-                    runOnUiThread {
-                        tvDownloadStatus.text = resources.getString(R.string.splash_quotes_downloaded)
+                } else {
+                    val urlsType: Array<DataLoadService.Urls> =
+                            arrayOf(DataLoadService.Urls.QUOTES, DataLoadService.Urls.COMICS)
+
+                    urlsType.map { it.getAction() }.filter { it == action }.first {
+                        var text = ""
+                        if (it == DataLoadService.Urls.QUOTES.getAction()) {
+                            text = getString(R.string.splash_quotes_downloaded)
+                        } else if (it == DataLoadService.Urls.COMICS.getAction()) {
+                            text = getString(R.string.splash_commics_downloaded)
+                        }
+                        runOnUiThread { tvDownloadStatus.text = text }
+                        return
                     }
                 }
             }
-
         }
     }
 
@@ -63,12 +72,13 @@ class SplashActivity : AppCompatActivity(), ServiceConnection {
         super.onStart()
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 object : IntentFilter(DataLoadService.ACTION_LOADED) {})
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                object : IntentFilter(DataLoadService.ACTION_QUOTES_LOADED) {})
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                object : IntentFilter(DataLoadService.ACTION_COMICS_LOADED) {})
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                object : IntentFilter(DataLoadService.ACTION_BEST_LOADED) {})
+
+        val urlsType: Array<DataLoadService.Urls> =
+                arrayOf(DataLoadService.Urls.QUOTES, DataLoadService.Urls.COMICS)
+        urlsType.map { it.getAction() }.forEach {
+            LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                    object : IntentFilter(it) {})
+        }
 
         bindService(object : Intent(this, DataLoadService::class.java) {},
                 this, Context.BIND_AUTO_CREATE)

@@ -10,6 +10,7 @@ import android.util.Log
 import com.elrain.bashim.dal.DBHelper
 import com.elrain.bashim.dal.helpers.QuotesTableHelper
 import com.elrain.bashim.utils.parser.XmlParser
+import java.net.SocketTimeoutException
 import java.net.URL
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -18,9 +19,6 @@ class DataLoadService : Service() {
 
     companion object {
         val ACTION_LOADED = "loaded"
-        val ACTION_QUOTES_LOADED = "quotes_loaded"
-        val ACTION_COMICS_LOADED = "comics_loaded"
-        val ACTION_BEST_LOADED = "best_loaded"
     }
 
     private val TAG = DataLoadService::class.java.simpleName
@@ -29,16 +27,21 @@ class DataLoadService : Service() {
     private val mExecutor: Executor = Executors.newSingleThreadExecutor()
     private val mDownloader = Runnable {
         Log.i(TAG, "loading")
-        val urls: Array<String> = arrayOf(Urls.QUOTES.getUrl(), Urls.COMICS.getUrl())
-        for (urlString in urls) {
-            val url: URL = URL(urlString)
+        val urlsTypes: Array<Urls> = arrayOf(Urls.QUOTES, Urls.COMICS)
+        for (urlType in urlsTypes) {
+            val url: URL = URL(urlType.getUrl())
             val urlConnection = url.openConnection()
-            urlConnection.connectTimeout = (DateUtils.SECOND_IN_MILLIS * 30).toInt()
-            val bashItemsList = XmlParser.parseStream(urlConnection.inputStream).sortedBy { it.pubDate }
-            QuotesTableHelper.saveNewQuotes(DBHelper.getInstance(this).writableDatabase,
-                    bashItemsList)
-            LocalBroadcastManager.getInstance(this)
-                    .sendBroadcast(object : Intent(ACTION_QUOTES_LOADED) {})
+            try {
+                urlConnection.connectTimeout = (30 * DateUtils.SECOND_IN_MILLIS).toInt()
+                val bashItemsList = XmlParser.parseStream(urlConnection.inputStream).sortedBy { it.pubDate }
+                QuotesTableHelper.saveNewQuotes(DBHelper.getInstance(this).writableDatabase,
+                        bashItemsList)
+                LocalBroadcastManager.getInstance(this)
+                        .sendBroadcast(object : Intent(urlType.getAction()) {})
+                Thread.sleep(1500)
+            } catch (e: SocketTimeoutException) {
+                Log.e(TAG, "TIMEOUT", e)
+            }
         }
 
         LocalBroadcastManager.getInstance(this)
@@ -60,13 +63,19 @@ class DataLoadService : Service() {
             get() = this@DataLoadService
     }
 
-    enum class Urls(url: String) {
-        QUOTES("http://bash.im/rss"), COMICS("http://bash.im/rss/comics.xml"), BEST("http://bash.im/best");
+    enum class Urls(url: Array<String>) {
+        QUOTES(arrayOf("http://bash.im/rss", "quotes_loaded")),
+        COMICS(arrayOf("http://bash.im/rss/comics.xml", "comics_loaded")),
+        BEST(arrayOf("http://bash.im/best", "best_loaded"));
 
-        private val mUrl = url
+        private val mData = url
 
         fun getUrl(): String {
-            return mUrl
+            return mData[0]
+        }
+
+        fun getAction(): String {
+            return mData[1]
         }
     }
 }

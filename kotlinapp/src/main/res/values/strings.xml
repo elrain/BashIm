@@ -18,6 +18,7 @@
     <string name="splash_updating">Обновление</string>
     <string name="splash_updated">Обновлено</string>
     <string name="splash_quotes_downloaded">Цитаты обновлены</string>
+    <string name="splash_commics_downloaded">Комиксы обновлены</string>
 
     <string name="activity_preferences">Preferences</string>
 
