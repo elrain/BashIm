@@ -1,4 +1,4 @@
-package com.elrain.bashim.adapter
+package com.elrain.bashim.main.adapter
 
 import android.content.Context
 import android.database.Cursor
@@ -16,6 +16,10 @@ abstract class BaseAdapter<VH : RecyclerView.ViewHolder>(private val context: Co
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val c = getItem(position)
+        onBindViewHolder(holder, createItem(c))
+    }
+
+    private fun createItem(c: Cursor?): BashItem {
         val item: BashItem = BashItem()
         if (c != null) {
             val pubDate: Long? = c.getLong(c.getColumnIndex(QuotesTableHelper.PUB_DATE))
@@ -29,9 +33,8 @@ abstract class BaseAdapter<VH : RecyclerView.ViewHolder>(private val context: Co
             item.description = c.getString(c.getColumnIndex(QuotesTableHelper.DESCRIPTION))
             item.link = c.getString(c.getColumnIndex(QuotesTableHelper.LINK))
             item.author = c.getString(c.getColumnIndex(QuotesTableHelper.AUTHOR))
-
-            onBindViewHolder(holder, item)
         }
+        return item
     }
 
     protected abstract fun onBindViewHolder(holder: VH, bashItem: BashItem)
@@ -46,6 +49,10 @@ abstract class BaseAdapter<VH : RecyclerView.ViewHolder>(private val context: Co
         }
 
         return mCursor
+    }
+
+    protected fun getItemByPosition(position: Int): BashItem {
+        return createItem(getItem(position))
     }
 
     fun swapCursor(newCursor: Cursor?) {

@@ -1,4 +1,4 @@
-package com.elrain.bashim.activities
+package com.elrain.bashim.splash
 
 import android.content.*
 import android.os.Bundle
@@ -8,6 +8,7 @@ import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import com.elrain.bashim.R
+import com.elrain.bashim.main.MainActivity
 import com.elrain.bashim.service.DataLoadService
 import com.elrain.bashim.utils.NetworkUtils
 import kotlinx.android.synthetic.main.activity_splash.*
