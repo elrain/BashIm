@@ -7,8 +7,13 @@ import com.elrain.bashim.dal.helpers.QuotesTableHelper
 import com.elrain.bashim.dao.BashItem
 import java.util.*
 
-abstract class BaseAdapter<VH : RecyclerView.ViewHolder>(private val context: Context, private var mCursor: Cursor?) :
+abstract class BaseAdapter<VH : RecyclerView.ViewHolder>(private val context: Context,
+                                                         private var mCursor: Cursor?) :
         RecyclerView.Adapter<VH>() {
+
+    val mOnItemAction: OnItemAction by lazy {
+        context as OnItemAction
+    }
 
     protected fun getContext(): Context {
         return context
@@ -60,5 +65,10 @@ abstract class BaseAdapter<VH : RecyclerView.ViewHolder>(private val context: Co
             mCursor = newCursor
             notifyDataSetChanged()
         }
+    }
+
+    interface OnItemAction {
+        fun openInTab(url: String)
+        fun shareItem(item: BashItem)
     }
 }

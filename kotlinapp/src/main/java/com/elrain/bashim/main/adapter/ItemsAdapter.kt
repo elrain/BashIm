@@ -13,15 +13,20 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.elrain.bashim.R
 import com.elrain.bashim.dao.BashItem
+import com.elrain.bashim.main.adapter.BaseAdapter.OnItemAction
 import com.elrain.bashim.utils.DateUtils
 import com.squareup.picasso.Picasso
 
+/**
+ * Adapter which binds items to RecyclerView
+ *
+ * @param context Application context. Must implements OnItemAction
+ * @param cursor Data for binding
+ *
+ * @see OnItemAction
+ */
 class ItemsAdapter(context: Context, cursor: Cursor?)
     : BaseAdapter<ItemsAdapter.ViewHolder>(context, cursor) {
-
-    val mOnItemTitleClick: OnItemTitleClick by lazy {
-        context as OnItemTitleClick
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent?.context)
@@ -54,14 +59,13 @@ class ItemsAdapter(context: Context, cursor: Cursor?)
         val ivComics = v.findViewById(R.id.ivComics) as ImageView
 
         init {
+            tvBashItemText.setOnLongClickListener {
+                mOnItemAction.shareItem(getItemByPosition(adapterPosition))
+                true
+            }
             tvBashItemTitle.setOnClickListener {
-                mOnItemTitleClick.openInTab(getItemByPosition(adapterPosition).link)
+                mOnItemAction.openInTab(getItemByPosition(adapterPosition).link)
             }
         }
     }
-
-    interface OnItemTitleClick {
-        fun openInTab(url: String)
-    }
-
 }
