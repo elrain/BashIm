@@ -15,9 +15,7 @@ abstract class BaseAdapter<VH : RecyclerView.ViewHolder>(private val context: Co
         context as OnItemAction
     }
 
-    protected fun getContext(): Context {
-        return context
-    }
+    protected fun getContext(): Context = context
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val c = getItem(position)
@@ -25,7 +23,7 @@ abstract class BaseAdapter<VH : RecyclerView.ViewHolder>(private val context: Co
     }
 
     private fun createItem(c: Cursor?): BashItem {
-        val item: BashItem = BashItem()
+        val item = BashItem()
         if (c != null) {
             val pubDate: Long? = c.getLong(c.getColumnIndex(QuotesTableHelper.PUB_DATE))
             item.pubDate = if (pubDate == null) {
@@ -44,9 +42,7 @@ abstract class BaseAdapter<VH : RecyclerView.ViewHolder>(private val context: Co
 
     protected abstract fun onBindViewHolder(holder: VH, bashItem: BashItem)
 
-    override fun getItemCount(): Int {
-        return if (mCursor != null) mCursor!!.count else 0
-    }
+    override fun getItemCount(): Int = if (mCursor != null) mCursor!!.count else 0
 
     private fun getItem(position: Int): Cursor? {
         if (mCursor != null && !mCursor!!.isClosed) {
@@ -56,9 +52,7 @@ abstract class BaseAdapter<VH : RecyclerView.ViewHolder>(private val context: Co
         return mCursor
     }
 
-    protected fun getItemByPosition(position: Int): BashItem {
-        return createItem(getItem(position))
-    }
+    protected fun getItemByPosition(position: Int): BashItem = createItem(getItem(position))
 
     fun swapCursor(newCursor: Cursor?) {
         if (newCursor != mCursor) {

@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion "25.0.3"
 
     defaultConfig {
         applicationId "com.elrain.bashim"
@@ -29,16 +29,17 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile "com.android.support:appcompat-v7:$android_support_lib_version"
     compile 'com.android.support.constraint:constraint-layout:+'
     testCompile 'junit:junit:4.12'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.android.support:cardview-v7:25.3.1'
-    compile 'com.android.support:recyclerview-v7:25.3.1'
+    compile "com.android.support:design:$android_support_lib_version"
+    compile "com.android.support:cardview-v7:$android_support_lib_version"
+    compile "com.android.support:recyclerview-v7:$android_support_lib_version"
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.android.support:customtabs:25.3.1'
+    compile "com.android.support:customtabs:$android_support_lib_version"
+    compile group: 'org.jsoup', name: 'jsoup', version: '1.10.3'
 }
 repositories {
     mavenCentral()

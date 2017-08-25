@@ -9,6 +9,9 @@ import android.text.format.DateUtils
 import android.util.Log
 import com.elrain.bashim.dal.DBHelper
 import com.elrain.bashim.dal.helpers.QuotesTableHelper
+import com.elrain.bashim.service.loaddataitems.BaseDataLoadItem
+import com.elrain.bashim.service.loaddataitems.CommicsDataLoadItem
+import com.elrain.bashim.service.loaddataitems.QuoteDataLoadItem
 import com.elrain.bashim.utils.parser.XmlParser
 import java.net.SocketTimeoutException
 import java.net.URL
@@ -19,6 +22,7 @@ class DataLoadService : Service() {
 
     companion object {
         val ACTION_LOADED = "loaded"
+        val EXTRA_USER_TEXT = "userText"
     }
 
     private val TAG = DataLoadService::class.java.simpleName
@@ -26,26 +30,29 @@ class DataLoadService : Service() {
 
     private val mExecutor: Executor = Executors.newSingleThreadExecutor()
     private val mDownloader = Runnable {
-        Log.i(TAG, "loading")
-        val urlsTypes: Array<Urls> = arrayOf(Urls.QUOTES, Urls.COMICS)
-        for (urlType in urlsTypes) {
-            val url: URL = URL(urlType.getUrl())
+        val dataLoadItems: Array<BaseDataLoadItem> = arrayOf(QuoteDataLoadItem(), CommicsDataLoadItem())
+        val lbm = LocalBroadcastManager.getInstance(this)
+
+        for (dataLoadItem in dataLoadItems) {
+            val url = URL(dataLoadItem.getUrl())
             val urlConnection = url.openConnection()
             try {
                 urlConnection.connectTimeout = (30 * DateUtils.SECOND_IN_MILLIS).toInt()
                 val bashItemsList = XmlParser.parseStream(urlConnection.inputStream).sortedBy { it.pubDate }
                 QuotesTableHelper.saveNewQuotes(DBHelper.getInstance(this).writableDatabase,
                         bashItemsList)
-                LocalBroadcastManager.getInstance(this)
-                        .sendBroadcast(object : Intent(urlType.getAction()) {})
-                Thread.sleep(1500)
+
+                val intent = Intent(ACTION_LOADED)
+                intent.putExtra(EXTRA_USER_TEXT, dataLoadItem.getUserStringId())
+                lbm.sendBroadcast(intent)
+
+                Thread.sleep(1200)
             } catch (e: SocketTimeoutException) {
                 Log.e(TAG, "TIMEOUT", e)
             }
         }
 
-        LocalBroadcastManager.getInstance(this)
-                .sendBroadcast(object : Intent(ACTION_LOADED) {})
+        lbm.sendBroadcast(object : Intent(ACTION_LOADED) {})
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -53,29 +60,11 @@ class DataLoadService : Service() {
         return START_STICKY
     }
 
-    override fun onBind(intent: Intent?): IBinder {
-        return mBinder
-    }
+    override fun onBind(intent: Intent?): IBinder = mBinder
 
     inner class LocalBinder : Binder() {
 
         val service: DataLoadService
             get() = this@DataLoadService
-    }
-
-    enum class Urls(url: Array<String>) {
-        QUOTES(arrayOf("http://bash.im/rss", "quotes_loaded")),
-        COMICS(arrayOf("http://bash.im/rss/comics.xml", "comics_loaded")),
-        BEST(arrayOf("http://bash.im/best", "best_loaded"));
-
-        private val mData = url
-
-        fun getUrl(): String {
-            return mData[0]
-        }
-
-        fun getAction(): String {
-            return mData[1]
-        }
     }
 }

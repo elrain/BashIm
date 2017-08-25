@@ -24,30 +24,23 @@ class SplashActivity : AppCompatActivity(), ServiceConnection {
     private val mReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent != null) {
-                val action = intent.action
-                if (action == DataLoadService.ACTION_LOADED) {
-                    runOnUiThread {
-                        tvDownloadStatus.text = resources.getString(R.string.splash_updated)
-                    }
+                val userStringId =
+                        intent.getIntExtra(DataLoadService.EXTRA_USER_TEXT, R.string.splash_updated)
+
+                changeTextForUser(userStringId)
+
+                if (userStringId == R.string.splash_updated) {
                     Handler().postDelayed({
                         launchMain()
-                    }, 2000)
-                } else {
-                    val urlsType: Array<DataLoadService.Urls> =
-                            arrayOf(DataLoadService.Urls.QUOTES, DataLoadService.Urls.COMICS)
-
-                    urlsType.map { it.getAction() }.filter { it == action }.first {
-                        var text = ""
-                        if (it == DataLoadService.Urls.QUOTES.getAction()) {
-                            text = getString(R.string.splash_quotes_downloaded)
-                        } else if (it == DataLoadService.Urls.COMICS.getAction()) {
-                            text = getString(R.string.splash_commics_downloaded)
-                        }
-                        runOnUiThread { tvDownloadStatus.text = text }
-                        return
-                    }
+                    }, 1200)
                 }
             }
+        }
+    }
+
+    private fun changeTextForUser(textId: Int) {
+        runOnUiThread {
+            tvDownloadStatus.text = resources.getString(textId)
         }
     }
 
@@ -60,9 +53,9 @@ class SplashActivity : AppCompatActivity(), ServiceConnection {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        NetworkUtils.isNetworkAvailable(this, available = {
+        NetworkUtils.isNetworkAvailable(this, availableDoNext = {
             startService(object : Intent(this, DataLoadService::class.java) {})
-        }, onFail = {
+        }, noInternetDoNext = {
             Log.e(TAG, "No Internet connection::Redirecting on main")
             launchMain()
         })
@@ -73,16 +66,8 @@ class SplashActivity : AppCompatActivity(), ServiceConnection {
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 object : IntentFilter(DataLoadService.ACTION_LOADED) {})
 
-        val urlsType: Array<DataLoadService.Urls> =
-                arrayOf(DataLoadService.Urls.QUOTES, DataLoadService.Urls.COMICS)
-        urlsType.map { it.getAction() }.forEach {
-            LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                    object : IntentFilter(it) {})
-        }
-
         bindService(object : Intent(this, DataLoadService::class.java) {},
                 this, Context.BIND_AUTO_CREATE)
-
     }
 
     override fun onStop() {

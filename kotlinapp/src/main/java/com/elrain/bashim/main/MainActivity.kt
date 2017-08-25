@@ -92,9 +92,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    override fun onCreateLoader(id: Int, bundle: Bundle?): Loader<Cursor> {
-        return ItemsLoader(this, DBHelper.getInstance(this))
-    }
+    override fun onCreateLoader(id: Int, bundle: Bundle?): Loader<Cursor> =
+            ItemsLoader(this, DBHelper.getInstance(this))
 
     override fun onLoadFinished(p0: Loader<Cursor>?, cursor: Cursor?) {
         if (cursor != null) {

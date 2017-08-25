@@ -59,7 +59,7 @@ class ItemsAdapter(context: Context, cursor: Cursor?)
         val ivComics = v.findViewById(R.id.ivComics) as ImageView
 
         init {
-            tvBashItemText.setOnLongClickListener {
+            v.setOnLongClickListener {
                 mOnItemAction.shareItem(getItemByPosition(adapterPosition))
                 true
             }
