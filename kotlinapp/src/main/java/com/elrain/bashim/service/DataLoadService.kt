@@ -1,8 +1,7 @@
 package com.elrain.bashim.service
 
-import android.app.Service
+import android.app.IntentService
 import android.content.Intent
-import android.os.Binder
 import android.os.IBinder
 import android.support.v4.content.LocalBroadcastManager
 import android.text.format.DateUtils
@@ -18,7 +17,7 @@ import java.net.URL
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
-class DataLoadService : Service() {
+class DataLoadService : IntentService("DownloadQuotes") {
 
     companion object {
         val ACTION_LOADED = "loaded"
@@ -26,7 +25,6 @@ class DataLoadService : Service() {
     }
 
     private val TAG = DataLoadService::class.java.simpleName
-    private val mBinder: LocalBinder by lazy { LocalBinder() }
 
     private val mExecutor: Executor = Executors.newSingleThreadExecutor()
     private val mDownloader = Runnable {
@@ -55,16 +53,9 @@ class DataLoadService : Service() {
         lbm.sendBroadcast(object : Intent(ACTION_LOADED) {})
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onHandleIntent(intent: Intent?) {
         mExecutor.execute(mDownloader)
-        return START_STICKY
     }
 
-    override fun onBind(intent: Intent?): IBinder = mBinder
-
-    inner class LocalBinder : Binder() {
-
-        val service: DataLoadService
-            get() = this@DataLoadService
-    }
+    override fun onBind(intent: Intent?): IBinder? = null
 }

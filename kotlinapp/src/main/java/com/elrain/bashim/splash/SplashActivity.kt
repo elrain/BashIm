@@ -14,11 +14,9 @@ import com.elrain.bashim.utils.NetworkUtils
 import kotlinx.android.synthetic.main.activity_splash.*
 import kotlinx.android.synthetic.main.activity_splash.view.*
 
-class SplashActivity : AppCompatActivity(), ServiceConnection {
+class SplashActivity : AppCompatActivity() {
 
     private val TAG = SplashActivity::class.java.simpleName
-    private var mIsBound = false
-    private var mService: DataLoadService? = null
     private val tvDownloadStatus by lazy { activity_splash.tvDownloadStatus }
 
     private val mReceiver = object : BroadcastReceiver() {
@@ -65,26 +63,11 @@ class SplashActivity : AppCompatActivity(), ServiceConnection {
         super.onStart()
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 object : IntentFilter(DataLoadService.ACTION_LOADED) {})
-
-        bindService(object : Intent(this, DataLoadService::class.java) {},
-                this, Context.BIND_AUTO_CREATE)
     }
 
     override fun onStop() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver)
-        unbindService(this)
         super.onStop()
     }
 
-    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-        val binder: DataLoadService.LocalBinder = service as DataLoadService.LocalBinder
-        mService = binder.service
-        mIsBound = true
-    }
-
-    override fun onServiceDisconnected(name: ComponentName?) {
-        if (mIsBound) {
-            mService = null
-        }
-    }
 }
