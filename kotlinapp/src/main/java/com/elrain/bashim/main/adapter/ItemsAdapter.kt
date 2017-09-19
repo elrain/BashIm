@@ -5,7 +5,6 @@ import android.database.Cursor
 import android.graphics.Bitmap
 import android.support.v7.widget.RecyclerView
 import android.text.Html
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,11 +34,10 @@ class ItemsAdapter(context: Context, cursor: Cursor?)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, bashItem: BashItem) {
-        if (TextUtils.isEmpty(bashItem.author)) {
+        if (bashItem.isQuote()) {
             holder.ivComics.visibility = View.GONE
             holder.tvBashItemText.visibility = View.VISIBLE
             holder.tvBashItemText.text = Html.fromHtml(bashItem.description)
-            holder.tvBashItemTitle.text = bashItem.title
         } else {
             holder.ivComics.visibility = View.VISIBLE
             holder.tvBashItemText.visibility = View.GONE
@@ -48,6 +46,7 @@ class ItemsAdapter(context: Context, cursor: Cursor?)
                     .config(Bitmap.Config.ALPHA_8)
                     .into(holder.ivComics)
         }
+        holder.tvBashItemTitle.text = bashItem.title
         holder.tvBashItemPubDate.text = DateUtils.getItemPubDate(bashItem.pubDate)
     }
 

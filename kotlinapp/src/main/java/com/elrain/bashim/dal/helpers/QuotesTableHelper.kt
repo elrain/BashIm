@@ -46,8 +46,16 @@ class QuotesTableHelper {
             }
         }
 
-        fun saveQuote(db: SQLiteDatabase?, bashItem: BashItem): Long? {
-            val cv: ContentValues = ContentValues()
+        fun saveTempQuotes(db: SQLiteDatabase?, bashItems: List<BashItem>) {
+            TempTableHelper.createTempTable(db)
+            bashItems.forEach {
+                val insertedId = saveQuote(db, it) as Long
+                TempTableHelper.insertRef(db, insertedId)
+            }
+        }
+
+        private fun saveQuote(db: SQLiteDatabase?, bashItem: BashItem): Long? {
+            val cv = ContentValues()
             cv.put(LINK, bashItem.link)
             cv.put(TITLE, bashItem.title)
             cv.put(PUB_DATE, bashItem.pubDate.time)
@@ -75,22 +83,3 @@ class QuotesTableHelper {
     }
 }
 
-enum class BashItemType(id: Int) {
-    QUOTE(1), COMICS(2);
-
-    private val mId: Int = id
-
-    fun getId(): Int {
-        return mId
-    }
-
-    companion object {
-        fun getTypeById(id: Int): BashItemType {
-            var retval : BashItemType = QUOTE
-            when(id){
-                2 -> retval = COMICS
-            }
-            return retval
-        }
-    }
-}

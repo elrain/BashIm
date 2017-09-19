@@ -10,6 +10,7 @@ import android.util.Log
 import com.elrain.bashim.R
 import com.elrain.bashim.main.MainActivity
 import com.elrain.bashim.service.DataLoadService
+import com.elrain.bashim.service.runablesfactory.DownloadRunnableFactory
 import com.elrain.bashim.utils.NetworkUtils
 import kotlinx.android.synthetic.main.activity_splash.*
 import kotlinx.android.synthetic.main.activity_splash.view.*
@@ -52,9 +53,12 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
 
         NetworkUtils.isNetworkAvailable(this, availableDoNext = {
-            startService(object : Intent(this, DataLoadService::class.java) {})
+            val serviceIntent = Intent(this, DataLoadService::class.java)
+            serviceIntent.putExtra(DataLoadService.EXTRA_WHAT_TO_LOAD,
+                    DownloadRunnableFactory.DownloadRunnableTypes.MAIN)
+            startService(serviceIntent)
         }, noInternetDoNext = {
-            Log.e(TAG, "No Internet connection::Redirecting on main")
+            Log.i(TAG, "No Internet connection::Redirecting on main")
             launchMain()
         })
     }

@@ -81,15 +81,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Handle navigation view item clicks here.
         val id = item.itemId
 
-        if (id == R.id.nav_quotes) {
-            mLastSelected = BashItemType.QUOTE.getId()
-            loaderManager.restartLoader(mLastSelected, null, this)
-        } else if (id == R.id.nav_comics) {
-            mLastSelected = BashItemType.COMICS.getId()
-            loaderManager.restartLoader(mLastSelected, null, this)
+        when (id) {
+            R.id.nav_quotes -> restartLoaderWithNewId(BashItemType.QUOTE.getId())
+            R.id.nav_comics -> restartLoaderWithNewId(BashItemType.COMICS.getId())
+            R.id.nav_random -> {}
         }
         mDrawer.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    private fun restartLoaderWithNewId(newId: Int) {
+        loaderManager.restartLoader(newId, null, this)
+        mLastSelected = newId
     }
 
     override fun onCreateLoader(id: Int, bundle: Bundle?): Loader<Cursor> =
