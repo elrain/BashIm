@@ -64,7 +64,7 @@ class QuotesTableHelper {
             return db?.insert(TABLE_NAME, null, cv)
         }
 
-        fun getItemsByType(type: BashItemType, db: SQLiteDatabase?): Cursor {
+        fun getQuotesOrCommics(type: BashItemType, db: SQLiteDatabase?): Cursor {
             val c: Cursor?
 
             var whereCause = " $AUTHOR IS NULL "
@@ -79,6 +79,26 @@ class QuotesTableHelper {
             }
 
             return c!!
+        }
+
+        fun getOtherItems(db: SQLiteDatabase?): Cursor {
+            val c: Cursor?
+
+            try {
+                c = db?.rawQuery("SELECT $ALIAS.$ID, $ALIAS.$AUTHOR, $ALIAS.$DESCRIPTION, " +
+                        "$ALIAS.$LINK, $ALIAS.$PUB_DATE, $ALIAS.$TITLE " +
+                        "FROM ${TempTableHelper.TABLE_NAME} as ${TempTableHelper.ALIAS} " +
+                        "LEFT JOIN $TABLE_NAME as $ALIAS " +
+                        "ON ${TempTableHelper.ALIAS}.${TempTableHelper.ID_QUOTE} = $ALIAS.$ID", null)
+            } finally {
+            }
+
+            return c!!
+        }
+
+        fun deleteOtherItems(db: SQLiteDatabase?){
+            db?.delete(TABLE_NAME, " $ID IN " +
+                    "(SELECT ${TempTableHelper.ID_QUOTE} FROM ${TempTableHelper.TABLE_NAME})", null)
         }
     }
 }

@@ -3,7 +3,7 @@ package com.elrain.bashim.service
 import android.app.IntentService
 import android.content.Intent
 import android.os.IBinder
-import com.elrain.bashim.service.runablesfactory.DownloadRunnableFactory
+import com.elrain.bashim.service.runnablesfactory.DownloadRunnableFactory
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 

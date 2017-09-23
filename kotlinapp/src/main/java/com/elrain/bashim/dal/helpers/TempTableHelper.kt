@@ -6,9 +6,10 @@ import android.database.sqlite.SQLiteDatabase
 class TempTableHelper {
 
     companion object {
-        private val TABLE_NAME = "tempTable"
+        val TABLE_NAME = "tempTable"
         private val ID = "_id"
-        private val ID_QUOTE = "idQuote"
+        val ID_QUOTE = "idQuote"
+        val ALIAS = "t"
 
         private val CREATE_TABLE = "CREATE TABLE IF NOT EXISTS $TABLE_NAME( " +
                 "$ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -25,7 +26,8 @@ class TempTableHelper {
         }
 
         fun deleteTableAndRefs(db: SQLiteDatabase?) {
-            //TODO implement deleting table and refs
+            QuotesTableHelper.deleteOtherItems(db)
+            db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
         }
     }
 }
