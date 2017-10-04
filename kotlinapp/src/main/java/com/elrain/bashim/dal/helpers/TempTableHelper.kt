@@ -25,9 +25,8 @@ class TempTableHelper {
             db?.insert(TABLE_NAME, null, cv)
         }
 
-        fun deleteTableAndRefs(db: SQLiteDatabase?) {
-            QuotesTableHelper.deleteOtherItems(db)
-            db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
+        fun deleteOldRows(db: SQLiteDatabase?){
+            db?.execSQL("DELETE FROM $TABLE_NAME")
         }
     }
 }

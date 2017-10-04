@@ -103,7 +103,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun restartLoaderWithNewType(type: BashItemType) {
-        TempTableHelper.deleteTableAndRefs(DBHelper.getInstance(this).writableDatabase)
         mLastSelected = type.getId()
         loaderManager.restartLoader(mLastSelected, null, this)
     }

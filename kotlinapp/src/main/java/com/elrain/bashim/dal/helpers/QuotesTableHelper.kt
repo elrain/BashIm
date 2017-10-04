@@ -46,8 +46,9 @@ class QuotesTableHelper {
             }
         }
 
-        fun saveTempQuotes(db: SQLiteDatabase?, bashItems: List<BashItem>) {
-            TempTableHelper.createTempTable(db)
+        fun deleteOldAndSaveNewTempQuotes(db: SQLiteDatabase?, bashItems: List<BashItem>) {
+            deleteOtherItems(db)
+            TempTableHelper.deleteOldRows(db)
             bashItems.forEach {
                 val insertedId = saveQuote(db, it) as Long
                 TempTableHelper.insertRef(db, insertedId)
@@ -96,7 +97,7 @@ class QuotesTableHelper {
             return c!!
         }
 
-        fun deleteOtherItems(db: SQLiteDatabase?){
+        private fun deleteOtherItems(db: SQLiteDatabase?){
             db?.delete(TABLE_NAME, " $ID IN " +
                     "(SELECT ${TempTableHelper.ID_QUOTE} FROM ${TempTableHelper.TABLE_NAME})", null)
         }

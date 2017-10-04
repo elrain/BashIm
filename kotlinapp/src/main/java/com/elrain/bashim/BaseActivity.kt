@@ -30,7 +30,6 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onStop() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver)
-        TempTableHelper.deleteTableAndRefs(DBHelper.getInstance(this).writableDatabase)
         super.onStop()
     }
 }

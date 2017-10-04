@@ -13,7 +13,7 @@ class OtherDownloadRunnable(context: Context) : BaseRunnable(context) {
     override fun run() {
         val document = Jsoup.connect("http://bash.im/random").get()
         val bashItems = HtmlParser(document).parse()
-        QuotesTableHelper.saveTempQuotes(DBHelper.getInstance(getContext()).writableDatabase,
+        QuotesTableHelper.deleteOldAndSaveNewTempQuotes(DBHelper.getInstance(getContext()).writableDatabase,
                 bashItems)
 
         val intent = Intent(DataLoadService.ACTION_LOADED)
