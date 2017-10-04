@@ -6,25 +6,22 @@ import java.io.InputStream
 import java.io.InputStreamReader
 import javax.xml.parsers.SAXParserFactory
 
-class XmlParser {
+class XmlParser(private val stream: InputStream) : Parser {
 
-    companion object {
-        private val ENCODING = "windows-1251"
+    private val ENCODING = "windows-1251"
 
-        fun parseStream(stream: InputStream): List<BashItem> {
-            val itemsList: MutableList<BashItem> = mutableListOf()
-            val saxParserFactory = SAXParserFactory.newInstance()
-            val saxParser = saxParserFactory.newSAXParser()
-            saxParser.parse(prepareInputStream(stream), ParserHandler(itemsList))
-            return itemsList
-        }
+    override fun parse(): List<BashItem> {
+        val itemsList: MutableList<BashItem> = mutableListOf()
+        val saxParserFactory = SAXParserFactory.newInstance()
+        val saxParser = saxParserFactory.newSAXParser()
+        saxParser.parse(prepareInputStream(stream), ParserHandler(itemsList))
+        return itemsList
+    }
 
-        private fun prepareInputStream(stream: InputStream): InputSource {
-            val r = InputStreamReader(stream, ENCODING)
-            val inputSource = InputSource(r)
-            inputSource.encoding = ENCODING
-            return inputSource
-        }
-
+    private fun prepareInputStream(stream: InputStream): InputSource {
+        val r = InputStreamReader(stream, ENCODING)
+        val inputSource = InputSource(r)
+        inputSource.encoding = ENCODING
+        return inputSource
     }
 }

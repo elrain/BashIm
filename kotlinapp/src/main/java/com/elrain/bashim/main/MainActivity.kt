@@ -12,23 +12,26 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.Html
 import android.view.MenuItem
+import com.elrain.bashim.BaseActivity
 import com.elrain.bashim.R
 import com.elrain.bashim.dal.DBHelper
 import com.elrain.bashim.dal.ItemsLoader
 import com.elrain.bashim.dal.helpers.BashItemType
+import com.elrain.bashim.dal.helpers.TempTableHelper
 import com.elrain.bashim.dao.BashItem
 import com.elrain.bashim.main.adapter.BaseAdapter
 import com.elrain.bashim.main.adapter.ItemsAdapter
+import com.elrain.bashim.service.DataLoadService
+import com.elrain.bashim.service.runnablesfactory.DownloadRunnableFactory
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
+class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener,
         LoaderManager.LoaderCallbacks<Cursor>, BaseAdapter.OnItemAction {
 
     private val mRvQuotes: RecyclerView by lazy { rvQuotes }
@@ -40,6 +43,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         fun launch(context: Context) {
             context.startActivity(object : Intent(context, MainActivity::class.java) {})
         }
+    }
+
+    override fun doOnReceive(intent: Intent) {
+        restartLoaderWithNewType(BashItemType.OTHER)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,15 +88,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Handle navigation view item clicks here.
         val id = item.itemId
 
-        if (id == R.id.nav_quotes) {
-            mLastSelected = BashItemType.QUOTE.getId()
-            loaderManager.restartLoader(mLastSelected, null, this)
-        } else if (id == R.id.nav_comics) {
-            mLastSelected = BashItemType.COMICS.getId()
-            loaderManager.restartLoader(mLastSelected, null, this)
+        when (id) {
+            R.id.nav_quotes -> restartLoaderWithNewType(BashItemType.QUOTE)
+            R.id.nav_comics -> restartLoaderWithNewType(BashItemType.COMICS)
+            R.id.nav_random -> {
+                val intent = Intent(this, DataLoadService::class.java)
+                intent.putExtra(DataLoadService.EXTRA_WHAT_TO_LOAD,
+                        DownloadRunnableFactory.DownloadRunnableTypes.OTHER)
+                startService(intent)
+            }
         }
         mDrawer.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    private fun restartLoaderWithNewType(type: BashItemType) {
+        mLastSelected = type.getId()
+        loaderManager.restartLoader(mLastSelected, null, this)
     }
 
     override fun onCreateLoader(id: Int, bundle: Bundle?): Loader<Cursor> =

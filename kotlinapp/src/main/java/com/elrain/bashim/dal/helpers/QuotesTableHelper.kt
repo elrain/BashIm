@@ -46,8 +46,17 @@ class QuotesTableHelper {
             }
         }
 
-        fun saveQuote(db: SQLiteDatabase?, bashItem: BashItem): Long? {
-            val cv: ContentValues = ContentValues()
+        fun deleteOldAndSaveNewTempQuotes(db: SQLiteDatabase?, bashItems: List<BashItem>) {
+            deleteOtherItems(db)
+            TempTableHelper.deleteOldRows(db)
+            bashItems.forEach {
+                val insertedId = saveQuote(db, it) as Long
+                TempTableHelper.insertRef(db, insertedId)
+            }
+        }
+
+        private fun saveQuote(db: SQLiteDatabase?, bashItem: BashItem): Long? {
+            val cv = ContentValues()
             cv.put(LINK, bashItem.link)
             cv.put(TITLE, bashItem.title)
             cv.put(PUB_DATE, bashItem.pubDate.time)
@@ -56,7 +65,7 @@ class QuotesTableHelper {
             return db?.insert(TABLE_NAME, null, cv)
         }
 
-        fun getItemsByType(type: BashItemType, db: SQLiteDatabase?): Cursor {
+        fun getQuotesOrCommics(type: BashItemType, db: SQLiteDatabase?): Cursor {
             val c: Cursor?
 
             var whereCause = " $AUTHOR IS NULL "
@@ -72,25 +81,26 @@ class QuotesTableHelper {
 
             return c!!
         }
-    }
-}
 
-enum class BashItemType(id: Int) {
-    QUOTE(1), COMICS(2);
+        fun getOtherItems(db: SQLiteDatabase?): Cursor {
+            val c: Cursor?
 
-    private val mId: Int = id
-
-    fun getId(): Int {
-        return mId
-    }
-
-    companion object {
-        fun getTypeById(id: Int): BashItemType {
-            var retval : BashItemType = QUOTE
-            when(id){
-                2 -> retval = COMICS
+            try {
+                c = db?.rawQuery("SELECT $ALIAS.$ID, $ALIAS.$AUTHOR, $ALIAS.$DESCRIPTION, " +
+                        "$ALIAS.$LINK, $ALIAS.$PUB_DATE, $ALIAS.$TITLE " +
+                        "FROM ${TempTableHelper.TABLE_NAME} as ${TempTableHelper.ALIAS} " +
+                        "LEFT JOIN $TABLE_NAME as $ALIAS " +
+                        "ON ${TempTableHelper.ALIAS}.${TempTableHelper.ID_QUOTE} = $ALIAS.$ID", null)
+            } finally {
             }
-            return retval
+
+            return c!!
+        }
+
+        private fun deleteOtherItems(db: SQLiteDatabase?){
+            db?.delete(TABLE_NAME, " $ID IN " +
+                    "(SELECT ${TempTableHelper.ID_QUOTE} FROM ${TempTableHelper.TABLE_NAME})", null)
         }
     }
 }
+
