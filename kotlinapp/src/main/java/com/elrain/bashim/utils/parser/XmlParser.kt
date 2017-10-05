@@ -14,7 +14,7 @@ class XmlParser(private val stream: InputStream) : Parser {
         val itemsList: MutableList<BashItem> = mutableListOf()
         val saxParserFactory = SAXParserFactory.newInstance()
         val saxParser = saxParserFactory.newSAXParser()
-        saxParser.parse(prepareInputStream(stream), ParserHandler(itemsList))
+        saxParser.parse(prepareInputStream(stream), SaxParserHandler(itemsList))
         return itemsList
     }
 

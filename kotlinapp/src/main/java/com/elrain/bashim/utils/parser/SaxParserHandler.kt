@@ -6,7 +6,7 @@ import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
 
 
-class ParserHandler(val itemsList: MutableList<BashItem>) : DefaultHandler() {
+class SaxParserHandler(val itemsList: MutableList<BashItem>) : DefaultHandler() {
     private val TAG_ITEM = "item"
     private val TAG_GUID = "guid"
     private val TAG_TITLE = "title"

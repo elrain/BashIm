@@ -18,9 +18,12 @@ class HtmlParser(private val mDocument: Document) : Parser {
                     val item = BashItem()
                     item.pubDate = mDateFormat.parse(it.select("span.date").text())
                     val tagA = it.select("a")
-                    item.link = tagA.attr("abs:href")
-                    item.title = "Цитата ${tagA.text()}"
-                    item.description = it.select("div.text").text()
+                    val linkText = tagA.attr("abs:href")
+                    item.link = linkText.substring(0, linkText.lastIndexOf('/'))
+                    val titleText = tagA.text()
+                    item.title = "Цитата" +
+                            titleText.substring(titleText.indexOf(']')+1, titleText.length)
+                    item.description = it.select("div.text").html()
                     bashItems.add(item)
                 }
         return bashItems
