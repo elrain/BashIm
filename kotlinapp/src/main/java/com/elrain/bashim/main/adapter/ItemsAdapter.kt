@@ -52,10 +52,10 @@ class ItemsAdapter(context: Context, cursor: Cursor?)
 
     inner class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
 
-        val tvBashItemText = v.findViewById(R.id.tvBashItemText) as TextView
-        val tvBashItemPubDate = v.findViewById(R.id.tvBashItemPubDate) as TextView
-        val tvBashItemTitle = v.findViewById(R.id.tvBashItemTitle) as TextView
-        val ivComics = v.findViewById(R.id.ivComics) as ImageView
+        val tvBashItemText: TextView = v.findViewById(R.id.tvBashItemText)
+        val tvBashItemPubDate: TextView = v.findViewById(R.id.tvBashItemPubDate)
+        val tvBashItemTitle: TextView = v.findViewById(R.id.tvBashItemTitle)
+        val ivComics: ImageView = v.findViewById(R.id.ivComics)
 
         init {
             v.setOnLongClickListener {

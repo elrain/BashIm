@@ -13,7 +13,7 @@ class ItemsLoader(context: Context, dbHelper: DBHelper) : CursorLoader(context) 
     override fun loadInBackground(): Cursor {
         val type = BashItemType.getTypeById(id)
         return if (type == BashItemType.OTHER) {
-            QuotesTableHelper.getOtherItems(mDbHelper.readableDatabase) as Cursor
+            QuotesTableHelper.getOtherItems(mDbHelper.readableDatabase)
         } else {
             QuotesTableHelper.getQuotesOrCommics(type, mDbHelper.readableDatabase)
         }

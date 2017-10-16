@@ -3,13 +3,13 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion 26
+    buildToolsVersion '26.0.2'
 
     defaultConfig {
         applicationId "com.elrain.bashim"
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
 
@@ -34,13 +34,18 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
-    compile "com.android.support:design:$android_support_lib_version"
-    compile "com.android.support:cardview-v7:$android_support_lib_version"
-    compile "com.android.support:recyclerview-v7:$android_support_lib_version"
+    compile group: "com.android.support", name: "design", version: "$android_support_lib_version"
+    compile group: "com.android.support", name: "cardview-v7", version: "$android_support_lib_version"
+    compile group: "com.android.support", name: "recyclerview-v7", version: "$android_support_lib_version"
+    compile group: "com.android.support", name: "customtabs", version: "$android_support_lib_version"
+
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile "com.android.support:customtabs:$android_support_lib_version"
     compile group: 'org.jsoup', name: 'jsoup', version: '1.10.3'
+
+    implementation "android.arch.persistence.room:runtime:$room_version"
+    annotationProcessor "android.arch.persistence.room:compiler:$room_version"
 }
 repositories {
     mavenCentral()
+    google()
 }
