@@ -16,6 +16,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.Html
 import android.view.MenuItem
+import android.view.View
 import com.elrain.bashim.BaseActivity
 import com.elrain.bashim.R
 import com.elrain.bashim.dal.DBHelper
@@ -34,8 +35,6 @@ import kotlinx.android.synthetic.main.content_main.*
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener,
         LoaderManager.LoaderCallbacks<Cursor>, BaseAdapter.OnItemAction {
 
-    private val mRvQuotes: RecyclerView by lazy { rvQuotes }
-    private val mDrawer: DrawerLayout by lazy { drawer_layout }
     private var mAdapter: ItemsAdapter? = null
     private var mLastSelected: Int = BashItemType.QUOTE.getId()
 
@@ -46,6 +45,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     override fun doOnReceive(intent: Intent) {
+        splashUpdating.visibility = View.GONE
+        rvQuotes.visibility = View.VISIBLE
         restartLoaderWithNewType(BashItemType.OTHER)
     }
 
@@ -59,17 +60,17 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         loaderManager.initLoader(mLastSelected, null, this)
 
-        mRvQuotes.layoutManager = LinearLayoutManager(this)
-        mRvQuotes.adapter = mAdapter
+        rvQuotes.layoutManager = LinearLayoutManager(this)
+        rvQuotes.adapter = mAdapter
     }
 
     private fun initToolBarAndDrawer() {
         val toolbar = toolbar
         setSupportActionBar(toolbar)
 
-        val toggle = ActionBarDrawerToggle(this, mDrawer, toolbar,
+        val toggle = ActionBarDrawerToggle(this, drawer_layout, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-        mDrawer.addDrawerListener(toggle)
+        drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
         val navigationView = nav_view
@@ -77,8 +78,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     override fun onBackPressed() {
-        if (mDrawer.isDrawerOpen(GravityCompat.START)) {
-            mDrawer.closeDrawer(GravityCompat.START)
+        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            drawer_layout.closeDrawer(GravityCompat.START)
         } else {
             super.onBackPressed()
         }
@@ -92,13 +93,15 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.nav_quotes -> restartLoaderWithNewType(BashItemType.QUOTE)
             R.id.nav_comics -> restartLoaderWithNewType(BashItemType.COMICS)
             R.id.nav_random -> {
+                splashUpdating.visibility = View.VISIBLE
+                rvQuotes.visibility = View.GONE
                 val intent = Intent(this, DataLoadService::class.java)
                 intent.putExtra(DataLoadService.EXTRA_WHAT_TO_LOAD,
                         DownloadRunnableFactory.DownloadRunnableTypes.OTHER)
                 startService(intent)
             }
         }
-        mDrawer.closeDrawer(GravityCompat.START)
+        drawer_layout.closeDrawer(GravityCompat.START)
         return true
     }
 
@@ -112,7 +115,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     override fun onLoadFinished(p0: Loader<Cursor>?, cursor: Cursor?) {
         if (cursor != null) {
-            mRvQuotes.layoutManager.scrollToPosition(0)
+            rvQuotes.layoutManager.scrollToPosition(0)
             mAdapter?.swapCursor(cursor)
         }
     }
