@@ -1,6 +1,6 @@
 package com.elrain.bashim.utils.parser
 
-import com.elrain.bashim.dao.BashItem
+import com.elrain.bashim.entities.BashItem
 import org.xml.sax.InputSource
 import java.io.InputStream
 import java.io.InputStreamReader

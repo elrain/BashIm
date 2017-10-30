@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.text.format.DateUtils
 import android.util.Log
-import com.elrain.bashim.dal.DBHelper
-import com.elrain.bashim.dal.helpers.QuotesTableHelper
 import com.elrain.bashim.service.DataLoadService
 import com.elrain.bashim.service.loaddataitems.BaseDataLoadItem
 import com.elrain.bashim.service.loaddataitems.CommicsDataLoadItem
@@ -19,6 +17,7 @@ class MainDownloadRunnable(context: Context) : BaseRunnable(context) {
     private val TAG = MainDownloadRunnable::class.java.simpleName
     private val mDataLoadItems by lazy { arrayOf(QuoteDataLoadItem(), CommicsDataLoadItem()) }
     private lateinit var mParser: XmlParser
+    private val quotesDao by lazy{ db.quotesDao() }
 
     override fun run() {
         for (dataLoadItem in mDataLoadItems) {
@@ -40,8 +39,7 @@ class MainDownloadRunnable(context: Context) : BaseRunnable(context) {
         mParser = XmlParser(urlConnection.inputStream)
 
         val bashItemsList = mParser.parse().sortedBy { it.pubDate }
-        QuotesTableHelper.saveNewQuotes(DBHelper.getInstance(getContext()).writableDatabase,
-                bashItemsList)
+        quotesDao.saveNewQuotes(bashItemsList)
 
         val intent = Intent(DataLoadService.ACTION_LOADED)
         intent.putExtra(DataLoadService.EXTRA_USER_TEXT, dataLoadItem.getUserStringId())

@@ -1,6 +1,6 @@
 package com.elrain.bashim.utils.parser
 
-import com.elrain.bashim.dao.BashItem
+import com.elrain.bashim.entities.BashItem
 import org.jsoup.nodes.Document
 import java.text.SimpleDateFormat
 import java.util.*
