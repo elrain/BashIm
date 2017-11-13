@@ -28,7 +28,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private lateinit var mAdapter: ItemAdapter
     private var mLastSelected: BashItemType = BashItemType.QUOTE
-    private val db by lazy { (this.applicationContext as App).getAppDb() }
+    private val app by lazy { this.applicationContext as App }
+    private val db by lazy { app.getAppDb() }
 
     companion object {
         fun launch(context: Context) {
@@ -39,7 +40,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     override fun doOnReceive(intent: Intent) {
         splashUpdating.visibility = View.GONE
         rvQuotes.visibility = View.VISIBLE
-        restartLoaderWithNewType(BashItemType.OTHER)
+        updateAdapterByType(BashItemType.OTHER)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +50,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         initToolBarAndDrawer()
 
         mAdapter = ItemAdapter(this, this)
-        mAdapter.setItems(getQuotesByType())
+        setItemsToAdapter()
 
         rvQuotes.layoutManager = LinearLayoutManager(this)
         rvQuotes.adapter = mAdapter
@@ -81,8 +82,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val id = item.itemId
 
         when (id) {
-            R.id.nav_quotes -> restartLoaderWithNewType(BashItemType.QUOTE)
-            R.id.nav_comics -> restartLoaderWithNewType(BashItemType.COMICS)
+            R.id.nav_quotes -> updateAdapterByType(BashItemType.QUOTE)
+            R.id.nav_comics -> updateAdapterByType(BashItemType.COMICS)
             R.id.nav_random -> {
                 splashUpdating.visibility = View.VISIBLE
                 rvQuotes.visibility = View.GONE
@@ -96,12 +97,16 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         return true
     }
 
-    private fun restartLoaderWithNewType(type: BashItemType) {
+    private fun updateAdapterByType(type: BashItemType) {
         mLastSelected = type
-        mAdapter.setItems(getQuotesByType())
+        setItemsToAdapter()
     }
 
-    private fun getQuotesByType() = QuotesDaoHelper(db).getItemsByType(mLastSelected)
+    private fun setItemsToAdapter() {
+        app.doInBackground().getList(
+                request = { QuotesDaoHelper(db).getItemsByType(mLastSelected) },
+                onResult = { rvQuotes.post({ mAdapter.setItems(it) }) })
+    }
 
     override fun openInTab(url: String) {
         val intentOnCustomTabBuilder: CustomTabsIntent.Builder = CustomTabsIntent.Builder()

@@ -1,9 +1,7 @@
 package com.elrain.bashim.dao
 
 import android.arch.persistence.room.*
-import com.elrain.bashim.BashItemType
-import com.elrain.bashim.entities.BashItem
-import com.elrain.bashim.entities.TABLE_NAME
+import com.elrain.bashim.entities.*
 
 @Dao
 interface QuotesDao {
@@ -14,25 +12,28 @@ interface QuotesDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun saveQuote(bashItem: BashItem): Long
 
-    @Query("SELECT _id, link, title, description, pubDate " +
-            "FROM $TABLE_NAME " +
-            "WHERE author IS NULL " +
-            "ORDER BY pubDate DESC")
+    @Query("SELECT $QUOTES_TABLE_ID, $QUOTES_LINK, $QUOTES_TITLE, $QUOTES_DESCRIPTION, " +
+            "$QUOTES_PUB_DATE " +
+            "FROM $QUOTES_TABLE_NAME " +
+            "WHERE $QUOTES_AUTHOR IS NULL " +
+            "ORDER BY $QUOTES_PUB_DATE DESC")
     fun getQuotes(): List<BashItem>
 
-    @Query("SELECT _id, link, title, description, pubDate, author " +
-            "FROM $TABLE_NAME " +
-            "WHERE author IS NOT NULL " +
-            "ORDER BY pubDate DESC")
+    @Query("SELECT $QUOTES_TABLE_ID, $QUOTES_LINK, $QUOTES_TITLE, $QUOTES_DESCRIPTION, " +
+            "$QUOTES_PUB_DATE, $QUOTES_AUTHOR " +
+            "FROM $QUOTES_TABLE_NAME " +
+            "WHERE $QUOTES_AUTHOR IS NOT NULL " +
+            "ORDER BY $QUOTES_PUB_DATE DESC")
     fun getCommics(): List<BashItem>
 
-    @Query("SELECT q._id, q.author, q.description, q.link, q.pubDate, q.title " +
-            "FROM tempTable as t " +
-            "LEFT JOIN $TABLE_NAME as q ON t.idQuote = q._id")
+    @Query("SELECT q.$QUOTES_TABLE_ID, q.$QUOTES_AUTHOR, q.$QUOTES_DESCRIPTION, q.$QUOTES_LINK, " +
+            "q.$QUOTES_PUB_DATE, q.$QUOTES_TITLE " +
+            "FROM $TEMP_TABLE_NAME as t " +
+            "LEFT JOIN $QUOTES_TABLE_NAME as q ON t.$TEMP_QUOTE_ID = q.$QUOTES_TABLE_ID")
     fun getTempItems(): List<BashItem>
 
-    @Query("DELETE FROM ${TABLE_NAME} " +
-            "WHERE _id IN (SELECT t.idQuote FROM tempTable as t)")
+    @Query("DELETE FROM $QUOTES_TABLE_NAME " +
+            "WHERE $QUOTES_TABLE_ID IN (SELECT t.$TEMP_QUOTE_ID FROM $TEMP_TABLE_NAME as t)")
     fun deleteOtherItems()
 
 }

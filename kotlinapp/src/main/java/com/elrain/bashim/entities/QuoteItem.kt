@@ -4,12 +4,10 @@ import android.arch.persistence.room.*
 import android.text.TextUtils
 import java.util.*
 
-const val TABLE_NAME = "quotes"
-
-@Entity(tableName = TABLE_NAME,
-        indices = arrayOf(Index(name = "link", value = "link", unique = true)))
+@Entity(tableName = QUOTES_TABLE_NAME,
+        indices = arrayOf(Index(name = QUOTES_LINK, value = QUOTES_LINK, unique = true)))
 data class BashItem(
-        @ColumnInfo(name = "_id")
+        @ColumnInfo(name = QUOTES_TABLE_ID)
         @PrimaryKey(autoGenerate = true)
         var id: Long = 0L,
         var title: String = "",
