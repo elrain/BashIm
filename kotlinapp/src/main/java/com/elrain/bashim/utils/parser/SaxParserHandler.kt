@@ -1,6 +1,6 @@
 package com.elrain.bashim.utils.parser
 
-import com.elrain.bashim.dao.BashItem
+import com.elrain.bashim.entities.BashItem
 import com.elrain.bashim.utils.DateUtils
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler

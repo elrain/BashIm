@@ -6,8 +6,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
-import com.elrain.bashim.dal.DBHelper
-import com.elrain.bashim.dal.helpers.TempTableHelper
 import com.elrain.bashim.service.DataLoadService
 
 abstract class BaseActivity : AppCompatActivity() {
