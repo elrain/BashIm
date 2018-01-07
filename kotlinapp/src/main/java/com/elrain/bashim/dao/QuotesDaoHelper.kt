@@ -7,23 +7,25 @@ import com.elrain.bashim.entities.TempEntity
 
 class QuotesDaoHelper(val appDb: AppDatabase) {
 
-        fun deleteOldAndSaveNewTempQuotes(bashItem: List<BashItem>) {
-            val quotesDao = appDb.quotesDao()
-            val tempDao = appDb.tempDao()
+    fun deleteOldAndSaveNewTempQuotes(bashItem: List<BashItem>) {
+        val quotesDao = appDb.quotesDao()
+        val tempDao = appDb.tempDao()
 
-            quotesDao.deleteOtherItems()
-            tempDao.deleteOldRows()
-            bashItem.forEach {
-                val insertedId = quotesDao.saveQuote(it)
+        quotesDao.deleteOtherItems()
+        tempDao.deleteOldRows()
+        bashItem.forEach {
+            val insertedId = quotesDao.saveQuote(it)
+            if (insertedId != -1L) {
                 tempDao.insertRef(TempEntity(insertedId))
             }
         }
+    }
 
-        fun getItemsByType(type: BashItemType): List<BashItem> {
-            return when (type) {
-                BashItemType.COMICS -> appDb.quotesDao().getCommics()
-                BashItemType.OTHER -> appDb.quotesDao().getTempItems()
-                else -> appDb.quotesDao().getQuotes()
-            }
+    fun getItemsByType(type: BashItemType): List<BashItem> {
+        return when (type) {
+            BashItemType.COMICS -> appDb.quotesDao().getCommics()
+            BashItemType.OTHER -> appDb.quotesDao().getTempItems()
+            else -> appDb.quotesDao().getQuotes()
         }
+    }
 }

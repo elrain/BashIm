@@ -20,6 +20,8 @@ import com.elrain.bashim.dao.QuotesDaoHelper
 import com.elrain.bashim.entities.BashItem
 import com.elrain.bashim.service.DataLoadService
 import com.elrain.bashim.service.runnablesfactory.DownloadRunnableFactory
+import com.elrain.bashim.utils.NetworkUtils
+import com.elrain.bashim.utils.singletons.BashImPreferences
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -27,9 +29,9 @@ import kotlinx.android.synthetic.main.content_main.*
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener, OnItemAction {
 
     private lateinit var mAdapter: ItemAdapter
-    private var mLastSelected: BashItemType = BashItemType.QUOTE
     private val app by lazy { this.applicationContext as App }
     private val db by lazy { app.getAppDb() }
+    private val bashPrefs by lazy { BashImPreferences.getInstance(this) }
 
     companion object {
         fun launch(context: Context) {
@@ -38,14 +40,22 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     override fun doOnReceive(intent: Intent) {
-        splashUpdating.visibility = View.GONE
-        rvQuotes.visibility = View.VISIBLE
-        updateAdapterByType(BashItemType.OTHER)
+        swipe_to_refresh.isRefreshing = false
+        setItemsToAdapter()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        if(savedInstanceState == null){
+            bashPrefs.saveLastSelectedType(BashItemType.QUOTE)
+        }
+
+        val pageFromIntent = intent.getIntExtra("page", -1)
+        if(pageFromIntent != -1){
+            bashPrefs.saveLastSelectedType(BashItemType.values()[pageFromIntent])
+        }
 
         initToolBarAndDrawer()
 
@@ -54,6 +64,14 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         rvQuotes.layoutManager = LinearLayoutManager(this)
         rvQuotes.adapter = mAdapter
+
+        swipe_to_refresh.setOnRefreshListener {
+            downloadItems(when (bashPrefs.getLastSelectedType()) {
+                BashItemType.QUOTE,
+                BashItemType.COMICS -> DownloadRunnableFactory.DownloadRunnableTypes.MAIN
+                else -> DownloadRunnableFactory.DownloadRunnableTypes.RANDOM
+            })
+        }
     }
 
     private fun initToolBarAndDrawer() {
@@ -66,6 +84,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         toggle.syncState()
 
         val navigationView = nav_view
+        nav_view.menu.getItem(bashPrefs.getLastSelectedType().ordinal).isChecked = true
         navigationView.setNavigationItemSelectedListener(this)
     }
 
@@ -78,33 +97,25 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        // Handle navigation view item clicks here.
         val id = item.itemId
 
         when (id) {
-            R.id.nav_quotes -> updateAdapterByType(BashItemType.QUOTE)
-            R.id.nav_comics -> updateAdapterByType(BashItemType.COMICS)
+            R.id.nav_quotes -> bashPrefs.saveLastSelectedType(BashItemType.QUOTE)
+            R.id.nav_comics -> bashPrefs.saveLastSelectedType(BashItemType.COMICS)
             R.id.nav_random -> {
-                splashUpdating.visibility = View.VISIBLE
-                rvQuotes.visibility = View.GONE
-                val intent = Intent(this, DataLoadService::class.java)
-                intent.putExtra(DataLoadService.EXTRA_WHAT_TO_LOAD,
-                        DownloadRunnableFactory.DownloadRunnableTypes.OTHER)
-                startService(intent)
+                bashPrefs.saveLastSelectedType(BashItemType.OTHER)
+                downloadItems(DownloadRunnableFactory.DownloadRunnableTypes.RANDOM)
             }
         }
+
+        setItemsToAdapter()
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
     }
 
-    private fun updateAdapterByType(type: BashItemType) {
-        mLastSelected = type
-        setItemsToAdapter()
-    }
-
     private fun setItemsToAdapter() {
         app.doInBackground().getList(
-                request = { QuotesDaoHelper(db).getItemsByType(mLastSelected) },
+                request = { QuotesDaoHelper(db).getItemsByType(bashPrefs.getLastSelectedType()) },
                 onResult = { rvQuotes.post({ mAdapter.setItems(it) }) })
     }
 
@@ -117,9 +128,16 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     override fun shareItem(item: BashItem) {
         val shareIntent = Intent(Intent.ACTION_SEND)
         shareIntent.type = "text/plain"
-        val text = Html.fromHtml("${item.description} <br/><br/>")
-        shareIntent.putExtra(Intent.EXTRA_TEXT, "$text ${item.link}")
+        val text = Html.fromHtml(item.description)
+        shareIntent.putExtra(Intent.EXTRA_TEXT, text.toString())
         startActivity(shareIntent)
     }
 
+    private fun downloadItems(runnableType: DownloadRunnableFactory.DownloadRunnableTypes) {
+        NetworkUtils.isNetworkAvailable(this, availableDoNext = {
+            val serviceIntent = Intent(this, DataLoadService::class.java)
+            serviceIntent.putExtra(DataLoadService.EXTRA_WHAT_TO_LOAD, runnableType)
+            startService(serviceIntent)
+        })
+    }
 }

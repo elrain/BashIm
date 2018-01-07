@@ -7,7 +7,7 @@ class DownloadRunnableFactory(val context: Context) {
     fun getRunnable(type: DownloadRunnableTypes): BaseRunnable {
         if (type == DownloadRunnableTypes.MAIN) {
             return MainDownloadRunnable(context)
-        } else if (type == DownloadRunnableTypes.OTHER) {
+        } else if (type == DownloadRunnableTypes.RANDOM) {
             return OtherDownloadRunnable(context)
         }
 
@@ -15,6 +15,6 @@ class DownloadRunnableFactory(val context: Context) {
     }
 
     enum class DownloadRunnableTypes {
-        MAIN, OTHER
+        MAIN, RANDOM
     }
 }

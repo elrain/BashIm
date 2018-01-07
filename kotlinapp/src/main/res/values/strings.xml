@@ -62,6 +62,9 @@
     <string name="toast_text_copied">Copied</string>
     <string name="error_no_items_found">No quotes has been found</string>
 
+    <string name="shortcut_label">Комиксы</string>
+    <string name="shortcut_disabled_message">Комиксы отключены</string>
+
     <string-array name="listArray">
         <item>Never</item>
         <item>30 minutes</item>
