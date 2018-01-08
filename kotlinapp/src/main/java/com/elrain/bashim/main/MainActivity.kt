@@ -41,6 +41,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     override fun doOnReceive(intent: Intent) {
         swipe_to_refresh.isRefreshing = false
+        if(bashPrefs.getLastSelectedType() == BashItemType.OTHER){
+            rvQuotes.visibility = View.VISIBLE
+        }
         setItemsToAdapter()
     }
 
@@ -48,13 +51,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if(savedInstanceState == null){
-            bashPrefs.saveLastSelectedType(BashItemType.QUOTE)
-        }
-
         val pageFromIntent = intent.getIntExtra("page", -1)
-        if(pageFromIntent != -1){
+        if (pageFromIntent != -1) {
             bashPrefs.saveLastSelectedType(BashItemType.values()[pageFromIntent])
+        } else {
+            bashPrefs.saveLastSelectedType(BashItemType.QUOTE)
         }
 
         initToolBarAndDrawer()
@@ -103,6 +104,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.nav_quotes -> bashPrefs.saveLastSelectedType(BashItemType.QUOTE)
             R.id.nav_comics -> bashPrefs.saveLastSelectedType(BashItemType.COMICS)
             R.id.nav_random -> {
+                swipe_to_refresh.isRefreshing = true
+                rvQuotes.visibility = View.INVISIBLE
                 bashPrefs.saveLastSelectedType(BashItemType.OTHER)
                 downloadItems(DownloadRunnableFactory.DownloadRunnableTypes.RANDOM)
             }
