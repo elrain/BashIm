@@ -4,7 +4,7 @@ import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
 
-@Entity(tableName = "tempTable")
+@Entity(tableName = EntitiesConstants.TEMP_TABLE_NAME)
 data class TempEntity(var idQuote: Long) {
     @ColumnInfo(name = "_id")
     @PrimaryKey(autoGenerate = true)

@@ -41,7 +41,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     override fun doOnReceive(intent: Intent) {
         swipe_to_refresh.isRefreshing = false
-        if(bashPrefs.getLastSelectedType() == BashItemType.OTHER){
+        if (bashPrefs.getLastSelectedType() == BashItemType.OTHER) {
             rvQuotes.visibility = View.VISIBLE
         }
         setItemsToAdapter()
